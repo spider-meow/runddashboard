@@ -76,6 +76,5 @@ rules:
 
 # Rundashboard — design
 
-Le bloc ci-dessus est la source de vérité. **Poster** (noir et volt, majuscules) est le thème par défaut, choisi par l'utilisateur. **Sunrise** (clair, tuile jaune) et **Midnight** (sombre, dégradé orange-rose) restent disponibles dans « Personnaliser ».
+Le bloc ci-dessus est la source de vérité des maquettes. **Poster** (noir et volt, majuscules) est le seul thème de l'app, avec son accent d'origine ; **Sunrise** et **Midnight** n'existent plus que dans les maquettes.
 
-Chaque thème règle aussi la police, le rayon et le poids des titres : changer de thème change le caractère de l'interface, pas seulement les couleurs. L'accent reste modifiable.

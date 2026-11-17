@@ -10,7 +10,7 @@ Dashboard de running perso, pour s'amuser. Next.js (TypeScript) + Supabase + Ver
 | Courses | Fiches de course : tracé GPX, profil, repères de passage, objectif |
 | Données | État de la connexion Strava, import de fichiers GPX/FIT |
 
-Chaque écran a un bouton « Personnaliser » : thème (Poster par défaut, Sunrise, Midnight), couleur d'accent, widgets à afficher, masquer, réordonner (glisser-déposer ou flèches) et redimensionner. Les choix sont enregistrés dans la base.
+L'app n'a qu'un thème, Poster, avec son accent d'origine : pas de réglages à gérer. (La table `user_prefs` de la migration 0002 n'est plus lue ; elle reste en base, inoffensive.)
 
 Plan : [docs/PLAN.md](docs/PLAN.md). Design : [DESIGN.md](DESIGN.md). Maquettes d'origine : [maquettes/](maquettes/index.html).
 
@@ -40,7 +40,7 @@ Importe le repo, saisis les mêmes variables dans Project Settings > Environment
 
 ## Fond de carte
 
-Sous le tracé, des tuiles [OpenStreetMap](https://www.openstreetmap.org/copyright) (assombries en CSS pour Poster et Midnight). Le serveur ne fait que calculer quelles tuiles afficher : **c'est ton navigateur qui les télécharge chez tile.openstreetmap.org**, qui voit donc la zone affichée, ton adresse IP et le site d'où tu viens. Le tracé exact n'est jamais envoyé, mais une zone zoomée peut suffire à deviner où tu habites si ta course part de chez toi.
+Sous le tracé, des tuiles [OpenStreetMap](https://www.openstreetmap.org/copyright) (assombries en CSS pour le thème sombre). Le serveur ne fait que calculer quelles tuiles afficher : **c'est ton navigateur qui les télécharge chez tile.openstreetmap.org**, qui voit donc la zone affichée, ton adresse IP et le site d'où tu viens. Le tracé exact n'est jamais envoyé, mais une zone zoomée peut suffire à deviner où tu habites si ta course part de chez toi.
 
 - `MAP_TILES=off` : carte schématique sans aucun tiers (le tracé s'affiche, sans fond).
 - `MAP_TILE_URL=https://…/{z}/{x}/{y}.png` : autre fournisseur. La [politique d'OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/) tolère un usage léger comme celui-ci, pas un site très fréquenté. Les tuiles CARTO ont été essayées : elles exigent une clé API et affichent un filigrane sans elle.

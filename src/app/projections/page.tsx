@@ -1,10 +1,10 @@
 import { Calculator } from "@/components/Calculator";
-import { Dashboard, type Item } from "@/components/Dashboard";
+import { Cards, PageHeader, type Item } from "@/components/Cards";
 import { MigrationNotice } from "@/components/bits";
 import { parisDay } from "@/lib/dates";
 import { requireOwner } from "@/lib/owner";
 import { fmtPace, fmtTime } from "@/lib/pace";
-import { getPrefs, getRaces, getRuns } from "@/lib/queries";
+import { getRaces, getRuns } from "@/lib/queries";
 import { riegel, type Reference } from "@/lib/riegel";
 import { personalRecords } from "@/lib/stats";
 
@@ -15,7 +15,7 @@ const REFS: [string, number][] = [["5K", 5], ["10K", 10], ["Semi", 21.0975]];
 
 export default async function Projections() {
   await requireOwner();
-  const [runs, prefs, { races, migrationMissing }] = await Promise.all([getRuns(), getPrefs(), getRaces()]);
+  const [runs, { races, migrationMissing }] = await Promise.all([getRuns(), getRaces()]);
   const efforts = personalRecords(runs).efforts;
   const refs: Reference[] = REFS.filter(([n]) => efforts[n]).map(([name, distance_km]) => ({ name, distance_km, time_s: efforts[name].time_s })).reverse(); // la plus longue d'abord
   const race = races.find((r) => r.race_date >= parisDay(new Date()));
@@ -23,7 +23,7 @@ export default async function Projections() {
 
   const items: Item[] = [
     {
-      id: "calc", label: "Calculateur", size: "xl",
+      id: "calc", size: "xl",
       node: (
         <>
           <h2>Calculateur <span className="hint">modifie un champ, tout se recalcule</span></h2>
@@ -35,7 +35,7 @@ export default async function Projections() {
       ),
     },
     {
-      id: "table", label: "Distances courantes", size: "l",
+      id: "table", size: "l",
       node: (
         <>
           <h2>Distances courantes <span className="hint">à plat{r0 ? `, depuis ton ${r0.name === "Semi" ? "semi" : r0.name.replace("K", " km")}` : ""}</span></h2>
@@ -54,7 +54,7 @@ export default async function Projections() {
       ),
     },
     {
-      id: "limits", label: "Ce que le modèle ignore", size: "s",
+      id: "limits", size: "s",
       node: (
         <>
           <h2>Ce que le modèle ignore</h2>
@@ -67,7 +67,7 @@ export default async function Projections() {
       ),
     },
     {
-      id: "formula", label: "Formules", size: "xl",
+      id: "formula", size: "xl",
       node: (
         <>
           <h2>Formules</h2>
@@ -80,6 +80,11 @@ export default async function Projections() {
     },
   ];
 
-  const header = (<div><p className="eyebrow">Riegel + relief</p><h1 className="title">Projections de <em>temps</em></h1></div>);
-  return (<>{migrationMissing && <MigrationNotice />}<Dashboard page="projections" header={header} items={items} saved={prefs.widgets.projections} theme={prefs.theme} accent={prefs.accent} /></>);
+  return (
+    <>
+      <PageHeader eyebrow="Riegel + relief">Projections de <em>temps</em></PageHeader>
+      {migrationMissing && <MigrationNotice />}
+      <Cards items={items} />
+    </>
+  );
 }

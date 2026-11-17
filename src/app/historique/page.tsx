@@ -1,17 +1,17 @@
-import { Dashboard, type Item } from "@/components/Dashboard";
+import { Cards, PageHeader, type Item } from "@/components/Cards";
 import { MigrationNotice, PrList } from "@/components/bits";
 import { PaceLine, VolumeBars } from "@/components/charts";
 import { fmtDate } from "@/lib/dates";
 import { requireOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime, paceSecPerKm } from "@/lib/pace";
-import { getPrefs, getRuns, racesTableMissing } from "@/lib/queries";
+import { getRuns, racesTableMissing } from "@/lib/queries";
 import { personalRecords, weeklyVolume } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 
 export default async function Historique() {
   await requireOwner();
-  const [runs, prefs, migrationMissing] = await Promise.all([getRuns(), getPrefs(), racesTableMissing()]);
+  const [runs, migrationMissing] = await Promise.all([getRuns(), racesTableMissing()]);
   const now = new Date(), weeks = weeklyVolume(runs, now, 24);
   const last4 = weeks.slice(-4), prev4 = weeks.slice(-8, -4);
   const sum = (w: typeof weeks, k: "km" | "dplus") => w.reduce((a, x) => a + x[k], 0);
@@ -21,25 +21,25 @@ export default async function Historique() {
 
   const items: Item[] = [
     {
-      id: "s1", label: "4 semaines : volume", size: "s", tone: "hot",
+      id: "s1", size: "s", tone: "hot",
       node: (
         <div className="stat"><div className="l">4 dernières semaines</div><div className="v">{Math.round(km4)}<small>km</small></div>
           <div className="d">{kmP > 0 ? <span className="chip">{km4 >= kmP ? "+" : "−"}{Math.abs(Math.round((km4 / kmP - 1) * 100))} %</span> : null} vs les 4 semaines d'avant</div></div>
       ),
     },
     {
-      id: "s2", label: "4 semaines : allure", size: "s",
+      id: "s2", size: "s",
       node: (
         <div className="stat"><div className="l">Allure moyenne</div><div className="v">{p4 ? fmtPace(p4) : "–"}<small>/km</small></div>
           <div className="d">{p4 && pP ? <span className={"chip " + (pP - p4 > 0 ? "good" : "warn")}>{pP - p4 > 0 ? "−" : "+"}{Math.abs(Math.round(pP - p4))} s</span> : null} vs les 4 semaines d'avant</div></div>
       ),
     },
-    { id: "s3", label: "4 semaines : D+", size: "s", node: (<div className="stat"><div className="l">Dénivelé cumulé</div><div className="v">{Math.round(sum(last4, "dplus"))}<small>m</small></div><div className="d">sur les 4 dernières semaines</div></div>) },
-    { id: "volume", label: "Volume hebdomadaire", size: "l", node: (<><h2>Volume hebdomadaire <span className="hint">24 semaines · km · la dernière barre est la semaine en cours</span></h2><VolumeBars weeks={weeks} height={220} /></>) },
-    { id: "prs", label: "Records personnels", size: "s", node: (<><h2>Records personnels</h2><PrList records={records} /></>) },
-    { id: "pace", label: "Courbe d'allure", size: "l", node: (<><h2>Allure moyenne par semaine <span className="hint">plus haut = plus vite</span></h2><PaceLine weeks={weeks} height={220} /></>) },
+    { id: "s3", size: "s", node: (<div className="stat"><div className="l">Dénivelé cumulé</div><div className="v">{Math.round(sum(last4, "dplus"))}<small>m</small></div><div className="d">sur les 4 dernières semaines</div></div>) },
+    { id: "volume", size: "l", node: (<><h2>Volume hebdomadaire <span className="hint">24 semaines · km · la dernière barre est la semaine en cours</span></h2><VolumeBars weeks={weeks} height={220} /></>) },
+    { id: "prs", size: "s", node: (<><h2>Records personnels</h2><PrList records={records} /></>) },
+    { id: "pace", size: "l", node: (<><h2>Allure moyenne par semaine <span className="hint">plus haut = plus vite</span></h2><PaceLine weeks={weeks} height={220} /></>) },
     {
-      id: "recent", label: "Dernières sorties", size: "xl",
+      id: "recent", size: "xl",
       node: (
         <>
           <h2>Dernières sorties</h2>
@@ -62,6 +62,11 @@ export default async function Historique() {
     },
   ];
 
-  const header = (<div><p className="eyebrow">24 dernières semaines · {runs.length} sortie{runs.length > 1 ? "s" : ""}</p><h1 className="title">Historique et <em>records</em></h1></div>);
-  return (<>{migrationMissing && <MigrationNotice />}<Dashboard page="historique" header={header} items={items} saved={prefs.widgets.historique} theme={prefs.theme} accent={prefs.accent} /></>);
+  return (
+    <>
+      <PageHeader eyebrow={`24 dernières semaines · ${runs.length} sortie${runs.length > 1 ? "s" : ""}`}>Historique et <em>records</em></PageHeader>
+      {migrationMissing && <MigrationNotice />}
+      <Cards items={items} />
+    </>
+  );
 }

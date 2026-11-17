@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { Dashboard, type Item } from "@/components/Dashboard";
+import { Cards, PageHeader, type Item } from "@/components/Cards";
 import { MigrationNotice, PrList, ShoeList, SyncButton } from "@/components/bits";
 import { ElevationProfile, PaceBars, VolumeBars } from "@/components/charts";
 import { RouteMap } from "@/components/RouteMap";
 import { daysUntil, fmtDate, parisDay } from "@/lib/dates";
 import { isOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime, paceSecPerKm } from "@/lib/pace";
-import { getGear, getLastRun, getPrefs, getRaces, getRuns } from "@/lib/queries";
+import { getGear, getLastRun, getRaces, getRuns } from "@/lib/queries";
 import { genericGradeFactor, pickReference, profileGradeFactor, riegel } from "@/lib/riegel";
 import { personalRecords, shoeStats, weeklyVolume } from "@/lib/stats";
 
@@ -34,7 +34,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
     );
   }
 
-  const [runs, last, prefs, { races, migrationMissing }, gear] = await Promise.all([getRuns(), getLastRun(), getPrefs(), getRaces(), getGear()]);
+  const [runs, last, { races, migrationMissing }, gear] = await Promise.all([getRuns(), getLastRun(), getRaces(), getGear()]);
 
   if (!last) {
     return (
@@ -67,7 +67,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
   const items: Item[] = [];
   if (race) {
     items.push({
-      id: "race", label: "Prochaine course", size: "xl",
+      id: "race", size: "xl",
       node: (
         <>
           <h2>Prochaine course <span className="hint">{fmtDate(race.race_date, { day: "numeric", month: "long" })}</span></h2>
@@ -82,13 +82,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
               {race.target_pace_s != null && <p className="muted">Temps visé <b className="num" style={{ color: "var(--ink)" }}>{fmtTime(race.target_pace_s * (race.distance_m / 1000))}</b></p>}
               <p style={{ marginTop: "var(--s4)" }}><Link className="btn primary" href={`/courses/${race.id}`}>Ouvrir la fiche</Link></p>
             </div>
-            {race.course_polyline ? <RouteMap polyline={race.course_polyline} label="Tracé de la course" theme={prefs.theme} /> : <p className="empty">Importe le tracé GPX de la course depuis sa fiche pour le voir ici.</p>}
+            {race.course_polyline ? <RouteMap polyline={race.course_polyline} label="Tracé de la course" /> : <p className="empty">Importe le tracé GPX de la course depuis sa fiche pour le voir ici.</p>}
           </div>
         </>
       ),
     });
     items.push({
-      id: "countdown", label: "Compte à rebours", size: "s", tone: "hot",
+      id: "countdown", size: "s", tone: "hot",
       node: (
         <div className="count">
           <div><h2>Compte à rebours</h2><div className="big">{days > 0 ? `J-${days}` : days === 0 ? "Jour J" : "Passée"}</div></div>
@@ -106,11 +106,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
 
   const profile = race?.course_profile && race.course_profile.length > 1 ? race.course_profile : last.elev_profile;
   items.push({
-    id: "elev", label: "Profil de dénivelé", size: "l",
+    id: "elev", size: "l",
     node: (<><h2>Profil de dénivelé <span className="hint">{race?.course_profile?.length ? "la course" : "dernière course"}</span></h2><ElevationProfile profile={profile ?? []} marks={race?.course_profile?.length ? race.checkpoints.map((c) => c.km) : []} /></>),
   });
   items.push({
-    id: "last", label: "Dernière course", size: "m",
+    id: "last", size: "m",
     node: (
       <>
         <h2>Dernière course</h2>
@@ -126,25 +126,19 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
     ),
   });
   items.push({
-    id: "pace", label: "Allure par kilomètre", size: "m",
+    id: "pace", size: "m",
     node: (<><h2>Allure par kilomètre <span className="hint">plus haut = plus vite</span></h2><PaceBars splits={last.splits ?? []} totalM={last.distance_m} /></>),
   });
-  items.push({ id: "volume", label: "Volume hebdomadaire", size: "l", node: (<><h2>Volume hebdomadaire <span className="hint">12 semaines, km</span></h2><VolumeBars weeks={weeks} /></>) });
-  items.push({ id: "shoes", label: "Chaussures", size: "s", node: (<><h2>Chaussures</h2><ShoeList shoes={shoeStats(runs, gear)} /></>) });
-  items.push({ id: "prs", label: "Records", size: "s", node: (<><h2>Records</h2><PrList records={records} /></>) });
-
-  const header = (
-    <div>
-      <p className="eyebrow">{fmtDate(now.toISOString(), { weekday: "long", day: "numeric", month: "long" })}</p>
-      <h1 className="title">{race ? <>En route pour <em>{race.name}</em></> : last.name}</h1>
-    </div>
-  );
+  items.push({ id: "volume", size: "l", node: (<><h2>Volume hebdomadaire <span className="hint">12 semaines, km</span></h2><VolumeBars weeks={weeks} /></>) });
+  items.push({ id: "shoes", size: "s", node: (<><h2>Chaussures</h2><ShoeList shoes={shoeStats(runs, gear)} /></>) });
+  items.push({ id: "prs", size: "s", node: (<><h2>Records</h2><PrList records={records} /></>) });
 
   return (
     <>
+      <PageHeader eyebrow={fmtDate(now.toISOString(), { weekday: "long", day: "numeric", month: "long" })}>{race ? <>En route pour <em>{race.name}</em></> : last.name}</PageHeader>
       {alert}
       {migrationMissing && <MigrationNotice />}
-      <Dashboard page="home" header={header} items={items} saved={prefs.widgets.home} theme={prefs.theme} accent={prefs.accent} />
+      <Cards items={items} />
     </>
   );
 }

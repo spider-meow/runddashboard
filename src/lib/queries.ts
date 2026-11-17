@@ -1,8 +1,6 @@
-import { cache } from "react";
 import type { Split } from "./analyze";
 import type { Checkpoint } from "./checkpoints";
 import { db } from "./db";
-import { THEMES, type Theme, type Widget } from "./prefs";
 import { RUN_SPORTS } from "./sync";
 
 export type Run = {
@@ -35,9 +33,6 @@ export type Race = {
   checkpoints: Checkpoint[];
   notes: string | null;
 };
-
-export type Prefs = { theme: Theme; accent: string | null; widgets: Record<string, Widget[]> };
-export const DEFAULT_PREFS: Prefs = { theme: "poster", accent: null, widgets: {} };
 
 // Liste légère : sans tracé, splits ni profil (plusieurs Ko par sortie, inutiles pour les totaux, records et tableaux).
 export type RunSummary = Omit<Run, "polyline" | "splits" | "elev_profile">;
@@ -83,17 +78,6 @@ export async function getGear(): Promise<{ id: string; name: string }[]> {
   if (error) return []; // table absente (migration 0003 pas appliquée) : pas de chaussures, sans bruit
   return data ?? [];
 }
-
-// cache() : le layout et la page demandent les préférences dans la même requête, une seule lecture en base.
-export const getPrefs = cache(async (): Promise<Prefs> => {
-  const { data, error } = await db().from("user_prefs").select("*").eq("id", 1).maybeSingle();
-  if (error || !data) return DEFAULT_PREFS;
-  return {
-    theme: (THEMES as readonly string[]).includes(data.theme) ? data.theme : "poster",
-    accent: data.accent ?? null,
-    widgets: data.widgets && typeof data.widgets === "object" ? data.widgets : {},
-  };
-});
 
 // Juste « la table des courses existe-t-elle » : évite de relire tous les tracés pour un simple bandeau.
 export async function racesTableMissing(): Promise<boolean> {

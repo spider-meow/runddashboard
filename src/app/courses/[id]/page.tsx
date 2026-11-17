@@ -1,20 +1,20 @@
 import { notFound } from "next/navigation";
 import { importRaceTrack, updateRace } from "@/app/actions";
-import { Dashboard, type Item } from "@/components/Dashboard";
+import { Cards, PageHeader, type Item } from "@/components/Cards";
 import { ElevationProfile } from "@/components/charts";
 import { RouteMap } from "@/components/RouteMap";
 import { formatCheckpoints, planCheckpoints } from "@/lib/checkpoints";
 import { daysUntil, fmtDate } from "@/lib/dates";
 import { requireOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime } from "@/lib/pace";
-import { getPrefs, getRace } from "@/lib/queries";
+import { getRace } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function Fiche({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ erreur?: string; ok?: string }> }) {
   await requireOwner();
   const { id } = await params, { erreur, ok } = await searchParams;
-  const [race, prefs] = await Promise.all([getRace(id), getPrefs()]);
+  const race = await getRace(id);
   if (!race) notFound();
 
   const km = race.distance_m / 1000;
@@ -26,7 +26,7 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
 
   const items: Item[] = [
     {
-      id: "hero", label: "Chiffres clés", size: "xl",
+      id: "hero", size: "xl",
       node: (
         <div className="trio" style={{ marginBottom: 0 }}>
           <div><div className="l">Distance</div><div className="v">{fmtKm(race.distance_m)}<small>km</small></div></div>
@@ -38,19 +38,19 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
       ),
     },
     {
-      id: "map", label: "Tracé", size: "l",
-      node: (<><h2>Tracé</h2>{race.course_polyline ? <RouteMap polyline={race.course_polyline} label={`Tracé de ${race.name}`} theme={prefs.theme} /> : <p className="empty">Pas encore de tracé. Importe le fichier GPX du parcours (formulaire plus bas).</p>}</>),
+      id: "map", size: "l",
+      node: (<><h2>Tracé</h2>{race.course_polyline ? <RouteMap polyline={race.course_polyline} label={`Tracé de ${race.name}`} /> : <p className="empty">Pas encore de tracé. Importe le fichier GPX du parcours (formulaire plus bas).</p>}</>),
     },
     {
-      id: "notes", label: "Notes", size: "s",
+      id: "notes", size: "s",
       node: (<><h2>Notes</h2><p className="muted" style={{ whiteSpace: "pre-wrap" }}>{race.notes || "Aucune note."}</p></>),
     },
     {
-      id: "elev", label: "Profil de dénivelé", size: "xl",
+      id: "elev", size: "xl",
       node: (<><h2>Profil de dénivelé <span className="hint">pointillés : repères de passage</span></h2><ElevationProfile profile={profile} marks={race.checkpoints.map((c) => c.km)} height={200} /></>),
     },
     {
-      id: "passages", label: "Repères de passage", size: "xl",
+      id: "passages", size: "xl",
       node: (
         <>
           <h2>Repères de passage {targetS && <span className="hint">temps cumulés pour tenir {fmtTime(targetS)}{profile.length < 2 ? " · répartis à plat, sans le relief" : ""}</span>}</h2>
@@ -70,7 +70,7 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
       ),
     },
     {
-      id: "edit", label: "Modifier la course", size: "m",
+      id: "edit", size: "m",
       node: (
         <>
           <h2>Modifier la course</h2>
@@ -84,7 +84,7 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
       ),
     },
     {
-      id: "track", label: "Importer le tracé GPX", size: "s",
+      id: "track", size: "s",
       node: (
         <>
           <h2>Tracé du parcours</h2>
@@ -97,12 +97,12 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
     },
   ];
 
-  const header = (<div><p className="eyebrow">Fiche de course · {fmtDate(race.race_date + "T12:00:00Z", { weekday: "long", day: "numeric", month: "long" })}</p><h1 className="title">{race.name}</h1></div>);
   return (
     <>
+      <PageHeader eyebrow={`Fiche de course · ${fmtDate(race.race_date + "T12:00:00Z", { weekday: "long", day: "numeric", month: "long" })}`}>{race.name}</PageHeader>
       {erreur && <p className="alert" role="alert">{erreur === "allure" ? "L'allure doit être au format m:ss, par exemple 4:50." : erreur}</p>}
       {ok && <p className="ok" role="status">Enregistré.</p>}
-      <Dashboard page="courses" header={header} items={items} saved={prefs.widgets.courses} theme={prefs.theme} accent={prefs.accent} />
+      <Cards items={items} />
     </>
   );
 }

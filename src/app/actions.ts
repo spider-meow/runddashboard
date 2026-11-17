@@ -10,7 +10,6 @@ import { parseGpx, pointsToStream } from "@/lib/gpx";
 import { activityFromPoints, hashBytes } from "@/lib/import";
 import { isOwner } from "@/lib/owner";
 import { parsePace } from "@/lib/pace";
-import { applyPrefsUpdate } from "@/lib/prefs";
 import { encodePolyline } from "@/lib/polyline";
 
 // Vercel refuse tout corps de requête de plus de 4,5 Mo (limite fixe) : 4 Mo de fichier laissent la place du formulaire.
@@ -18,17 +17,6 @@ const MAX_FILE = 4 * 1024 * 1024;
 
 async function owner() {
   if (!(await isOwner())) throw new Error("Non autorisé");
-}
-
-// Préférences : thème, accent et disposition des widgets d'une page (une seule ligne, id = 1).
-export async function savePrefs(input: { page?: string; widgets?: unknown; theme?: string; accent?: string | null }) {
-  await owner();
-  const client = db();
-  const { data: cur } = await client.from("user_prefs").select("*").eq("id", 1).maybeSingle();
-  const next = applyPrefsUpdate({ theme: cur?.theme ?? "poster", accent: cur?.accent ?? null, widgets: cur?.widgets ?? {} }, input);
-  const { error } = await client.from("user_prefs").upsert({ id: 1, ...next });
-  if (error) throw new Error(error.message);
-  revalidatePath("/", "layout");
 }
 
 // ---------- courses ----------

@@ -1,19 +1,18 @@
 import type { CSSProperties } from "react";
-import type { Theme } from "@/lib/prefs";
 import { decodePolyline, toSvgPath } from "@/lib/polyline";
 import { mercatorFit, tileUrl } from "@/lib/tiles";
 
 const W = 400, H = 300, PAD = 24;
 const OSM = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
-// Fond de carte : tuiles OpenStreetMap, assombries en CSS pour les thèmes sombres (Poster, Midnight).
+// Fond de carte : tuiles OpenStreetMap, assombries en CSS pour coller au thème sombre.
 // Le navigateur les télécharge directement chez le fournisseur, qui voit donc la zone affichée (et ton IP) : voir README.
 // MAP_TILES=off le désactive (carte schématique, aucun tiers). MAP_TILE_URL remplace le fournisseur ({z}, {x}, {y}).
 const tilesEnabled = () => process.env.MAP_TILES !== "off";
 const template = () => process.env.MAP_TILE_URL || OSM;
 
 // Tracé dessiné progressivement en CSS pur (pathLength=1 + stroke-dashoffset), sans JavaScript côté navigateur.
-export function RouteMap({ polyline, label = "Tracé de la dernière course", theme = "poster" }: { polyline: string; label?: string; theme?: Theme }) {
+export function RouteMap({ polyline, label = "Tracé de la dernière course" }: { polyline: string; label?: string }) {
   const points = decodePolyline(polyline);
   const fit = tilesEnabled() ? mercatorFit(points, W, H, PAD) : null;
   const d = fit?.d ?? toSvgPath(points, W, H, PAD);
@@ -23,7 +22,7 @@ export function RouteMap({ polyline, label = "Tracé de la dernière course", th
     <div className="map" style={{ aspectRatio: `${W} / ${H}` }}>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label} className={fit ? "on-tiles" : undefined}>
         {fit && (
-          <g aria-hidden="true" className={theme === "sunrise" ? "tiles tiles-light" : "tiles tiles-dark"}>
+          <g aria-hidden="true" className="tiles">
             {fit.tiles.map((t) => <image key={`${t.tx}/${t.ty}`} href={tileUrl(tpl, fit.z, t.tx, t.ty)} x={t.x} y={t.y} width={t.size + 0.6} height={t.size + 0.6} preserveAspectRatio="none" />)}
           </g>
         )}

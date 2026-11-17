@@ -9,14 +9,13 @@ describe("RouteMap", () => {
     expect(html).toContain('pathLength="1"');
     expect(html).toContain("--len:1");
   });
-  it("pose un fond de carte OpenStreetMap avec l'attribution, assombri sauf pour Sunrise", () => {
+  it("pose un fond de carte OpenStreetMap avec l'attribution", () => {
     const poly = "_p~iF~ps|U_ulLnnqC_mqNvxq`@";
     const dark = renderToStaticMarkup(<RouteMap polyline={poly} />);
     expect(dark).toContain("<image");
     expect(dark).toContain("https://tile.openstreetmap.org/");
     expect(dark).toContain("© OpenStreetMap contributors");
-    expect(dark).toContain("tiles-dark");
-    expect(renderToStaticMarkup(<RouteMap polyline={poly} theme="sunrise" />)).toContain("tiles-light");
+    expect(dark).toContain("tiles");
   });
   it("MAP_TILES=off garde la carte schématique, sans aucune tuile", () => {
     vi.stubEnv("MAP_TILES", "off");
