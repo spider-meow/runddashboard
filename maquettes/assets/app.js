@@ -20,9 +20,9 @@
     grip: ic('<circle cx="9" cy="6" r="1.2"/><circle cx="15" cy="6" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="9" cy="18" r="1.2"/><circle cx="15" cy="18" r="1.2"/>'),
   };
   const NAV = [["home", "index.html", "Accueil"], ["hist", "historique.html", "Historique"], ["proj", "projections.html", "Projections"], ["race", "course.html", "Courses"], ["link", "connexion.html", "Données"]];
-  const THEMES = { ember: ["#14110f", "#26201c", "#ea5b2e"], paper: ["#f7f1e8", "#f0e9de", "#d8481f"], nocturne: ["#0b0d12", "#1a1e27", "#5b8def"] };
-  const NAMES = { ember: "Ember", paper: "Paper", nocturne: "Nocturne" };
-  const ACCENTS = ["#ea5b2e", "#d8481f", "#5b8def", "#3fae7a", "#c06ad9", "#d9a521"];
+  const THEMES = { sunrise: ["#fdf0e6", "#ffc933", "#cf3705"], midnight: ["#0a0f1e", "#1a2440", "#f0602f"], poster: ["#0c0c0c", "#c8f031", "#f6f6f2"] };
+  const NAMES = { sunrise: "Sunrise", midnight: "Midnight", poster: "Poster" };
+  const ACCENTS = ["#cf3705", "#f0602f", "#2a6fdb", "#1f9d6b", "#a63fd0", "#c8f031"];
   const SIZES = ["s", "m", "l", "xl"];
   const root = document.documentElement;
 
@@ -31,7 +31,7 @@
   function applyTheme(t) { if (t) root.dataset.theme = t; else delete root.dataset.theme; }
   function applyAccent(a) {
     if (!a) { root.style.removeProperty("--accent"); root.style.removeProperty("--on-accent"); return; }
-    root.style.setProperty("--accent", a); root.style.setProperty("--on-accent", lum(a) > .35 ? "#14110f" : "#ffffff");
+    root.style.setProperty("--accent", a); root.style.setProperty("--on-accent", lum(a) > .3 ? "#14110f" : "#ffffff");
   }
   applyTheme(store.get("theme", null)); applyAccent(store.get("accent", null));
 
@@ -60,7 +60,7 @@
 
   const tbox = drawer.querySelector("#d-themes");
   function renderThemes() {
-    const cur = root.dataset.theme || (matchMedia("(prefers-color-scheme: light)").matches ? "paper" : "ember");
+    const cur = root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "midnight" : "sunrise");
     tbox.innerHTML = Object.keys(THEMES).map((k) => `<button class="theme-opt" data-t="${k}" aria-pressed="${k === cur}"><div class="sw">${THEMES[k].map((c) => `<i style="background:${c}"></i>`).join("")}</div>${NAMES[k]}</button>`).join("");
   }
   tbox.onclick = (e) => { const b = e.target.closest("[data-t]"); if (!b) return; store.set("theme", b.dataset.t); applyTheme(b.dataset.t); renderThemes(); };
@@ -68,7 +68,7 @@
   const abox = drawer.querySelector("#d-acc");
   function renderAcc() {
     const cur = store.get("accent", null);
-    abox.innerHTML = ACCENTS.map((c) => `<button style="background:${c}" data-a="${c}" aria-label="Accent ${c}" aria-pressed="${c === cur}"></button>`).join("") + `<input type="color" id="d-pick" value="${cur || "#ea5b2e"}" aria-label="Couleur libre">`;
+    abox.innerHTML = ACCENTS.map((c) => `<button style="background:${c}" data-a="${c}" aria-label="Accent ${c}" aria-pressed="${c === cur}"></button>`).join("") + `<input type="color" id="d-pick" value="${cur || "#cf3705"}" aria-label="Couleur libre">`;
   }
   abox.onclick = (e) => { const b = e.target.closest("[data-a]"); if (!b) return; store.set("accent", b.dataset.a); applyAccent(b.dataset.a); renderAcc(); };
   abox.oninput = (e) => { if (e.target.id === "d-pick") { store.set("accent", e.target.value); applyAccent(e.target.value); } };
