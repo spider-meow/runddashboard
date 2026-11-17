@@ -5,7 +5,8 @@ import { verifySession } from "./session";
 export const SESSION_COOKIE = "rd_session";
 export const nowS = () => Math.floor(Date.now() / 1000);
 
-// Seul l'athlète Strava OWNER_ATHLETE_ID peut voir le dashboard (l'accord API de Strava interdit d'afficher ses données à d'autres).
+// Seul l'athlète Strava OWNER_ATHLETE_ID peut voir le dashboard. L'accord API de Strava restreint l'affichage des données d'un athlète
+// à cet athlète (d'après la presse, à confirmer dans le texte de l'accord) : on reste privé par prudence, et pour le tracé GPS.
 export async function isOwner(): Promise<boolean> {
   const secret = process.env.SESSION_SECRET, owner = process.env.OWNER_ATHLETE_ID;
   if (!secret || !owner) return false;

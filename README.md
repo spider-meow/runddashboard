@@ -12,7 +12,7 @@ Dashboard de running perso, pour s'amuser. Next.js (TypeScript) + Supabase + Ver
 
 ## Dashboard privé
 
-L'accord API de Strava interdit d'afficher les données d'un athlète à quelqu'un d'autre. Seul l'athlète `OWNER_ATHLETE_ID` peut se connecter : le retour OAuth refuse tout autre compte et pose un cookie de session signé. Sans ce cookie, la page n'affiche que le bouton de connexion.
+D'après la presse, l'accord API de Strava (en vigueur depuis novembre 2024) limite l'affichage des données d'un athlète à cet athlète. Je n'ai pas lu le texte de l'accord : à confirmer. Dans tous les cas, un tracé GPS peut révéler où tu habites. Seul l'athlète `OWNER_ATHLETE_ID` peut se connecter : le retour OAuth refuse tout autre compte et pose un cookie de session signé. Sans ce cookie, la page n'affiche que le bouton de connexion.
 
 ## Mise en route (à faire par toi, secrets compris)
 

@@ -14,7 +14,7 @@ Dashboard de running perso. Un seul utilisateur (toi). Gratuit : Vercel Hobby + 
 ## Choix techniques
 
 - **Next.js (App Router) + TypeScript**, déployé sur Vercel. Un seul dépôt.
-- **Supabase** : Postgres seul, sans Auth. Le dashboard est **privé** : l'accord API de Strava interdit d'afficher les données d'un athlète à d'autres personnes. Le login Strava, limité à `OWNER_ATHLETE_ID`, pose un cookie de session signé (HMAC). RLS activée sans aucune policy ; le serveur accède aux tables avec la clé secrète Supabase.
+- **Supabase** : Postgres seul, sans Auth. Le dashboard est **privé** : d'après la presse, l'accord API de Strava limite l'affichage des données d'un athlète à lui-même (texte de l'accord non vérifié), et un tracé GPS peut révéler son domicile. Le login Strava, limité à `OWNER_ATHLETE_ID`, pose un cookie de session signé (HMAC). RLS activée sans aucune policy ; le serveur accède aux tables avec la clé secrète Supabase.
 - **Pas de lib de graphiques** : SVG maison (les maquettes le prouvent, et c'est le plus petit code). À rediscuter si besoin d'interactions complexes.
 - **Pas de carte à tuiles au début** : le tracé est dessiné en SVG seul, sur fond neutre. Fond de carte (MapLibre + tuiles libres) en phase ultérieure.
 - **Pas de tests écrits pour les maquettes**. À partir du prototype : tests sur les fonctions pures (Riegel, allures, dédup, parseur GPX) avant le code, puis un smoke test de bout en bout.
