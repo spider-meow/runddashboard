@@ -21,7 +21,7 @@ D'après la presse, l'accord API de Strava (en vigueur depuis novembre 2024) lim
 ## Mise en route (à faire par toi, secrets compris)
 
 1. **Strava** : crée une application sur <https://www.strava.com/settings/api>. « Authorization Callback Domain » : ton domaine (par exemple `run.harbi.eu`). `localhost` est autorisé par Strava pour le développement.
-2. **Supabase** : crée un projet gratuit, puis colle dans le SQL editor, dans l'ordre, `supabase/migrations/0001_init.sql` puis `0002_features.sql`. Récupère l'URL et la clé secrète (`sb_secret_…`) dans Project Settings > API Keys.
+2. **Supabase** : crée un projet gratuit, puis colle dans le SQL editor, dans l'ordre, `supabase/migrations/0001_init.sql`, `0002_features.sql` puis `0003_gear.sql`. Récupère l'URL et la clé secrète (`sb_secret_…`) dans Project Settings > API Keys.
 3. **Variables** : `cp .env.example .env.local` puis remplis-le. Ton identifiant d'athlète est le nombre dans l'URL de ton profil Strava. `SESSION_SECRET` : 32 caractères aléatoires ou plus. `STRAVA_WEBHOOK_VERIFY_TOKEN` : une chaîne de ton choix.
 4. **Lancer** : `npm install`, `npm run dev`, ouvre <http://localhost:3000>, clique « Se connecter avec Strava ». La première synchronisation récupère tes courses et analyse les 30 plus récentes (splits au km, records, profil) ; « Resynchroniser » dans « Données » reprend le reste.
 
