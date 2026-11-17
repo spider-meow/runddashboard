@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche de course · rundashboard (maquette)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css"><link rel="stylesheet" href="assets/base.css">
+<style>
+  .hero { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s5); }
+  .hero .l { font: 500 11px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 6px; }
+  .hero .v { font: 400 clamp(32px, 4vw, 52px)/1 var(--font-display); letter-spacing: -.02em; }
+  .hero .v small { font: 400 14px var(--font-mono); color: var(--mute); margin-left: 4px; }
+  .hero .v.acc { color: var(--accent); }
+  .pace-cell { color: var(--ink-2); }
+  .up { color: var(--bad); } .dn { color: var(--good); }
+  .note { color: var(--ink-2); font-size: 13px; max-width: 34ch; }
+  .tablewrap { overflow-x: auto; }
+  .tablewrap table { min-width: 640px; }
+  .plan { display: grid; gap: var(--s4); }
+  .plan li { display: grid; grid-template-columns: 52px 1fr; gap: var(--s3); list-style: none; }
+  .plan ul { margin: 0; padding: 0; display: grid; gap: var(--s4); }
+  .plan b { font: 500 13px var(--font-mono); color: var(--accent); padding-top: 2px; }
+  .plan p { color: var(--ink-2); font-size: 14px; } .plan h3 { font: 500 15px var(--font-ui); margin-bottom: 2px; }
+  .check { display: grid; gap: 4px; }
+  .check label { display: flex; gap: var(--s3); align-items: center; min-height: 44px; font-size: 14px; cursor: pointer; }
+  .check input { width: 20px; height: 20px; accent-color: var(--accent); }
+  .check input:checked + span { color: var(--mute); text-decoration: line-through; }
+  @media (max-width: 760px) { .hero { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body data-page="race">
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Navigation"></nav>
+  <main>
+    <header class="top">
+      <div><p class="eyebrow" id="eb">Fiche de course</p><h1 class="title">Les Collines de <em>Garches</em></h1></div>
+      <button class="btn js-cfg" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Personnaliser</button>
+    </header>
+
+    <div class="grid" id="grid">
+      <section class="card" data-w="hero" data-size="xl" data-label="Chiffres clés">
+        <div class="hero">
+          <div><div class="l">Distance</div><div class="v">16,2<small>km</small></div></div>
+          <div><div class="l">Dénivelé +</div><div class="v">275<small>m</small></div></div>
+          <div><div class="l">Allure visée</div><div class="v acc">4:50<small>/km</small></div></div>
+          <div><div class="l">Temps visé</div><div class="v">1:18:18</div></div>
+          <div><div class="l">Départ dans</div><div class="v" id="dn">J-5</div></div>
+        </div>
+      </section>
+
+      <section class="card" data-w="map" data-size="l" data-label="Tracé">
+        <h2>Tracé <span class="hint">repères numérotés en km</span></h2>
+        <div class="map" id="map" style="aspect-ratio: 16/9"></div>
+      </section>
+
+      <section class="card" data-w="plan" data-size="s" data-label="Plan de course">
+        <h2>Plan de course</h2>
+        <div class="plan"><ul>
+          <li><b>0–2,4</b><div><h3>Retenue</h3><p>4:55 à 5:00. Le départ est plat, la côte arrive vite.</p></div></li>
+          <li><b>2,4–10</b><div><h3>Effort constant</h3><p>L'allure monte et descend avec les bosses. On suit l'effort, pas la montre.</p></div></li>
+          <li><b>10–16</b><div><h3>Relance</h3><p>Dernière bosse à 13,6 km, puis tout ce qui reste.</p></div></li>
+        </ul></div>
+      </section>
+
+      <section class="card" data-w="elev" data-size="xl" data-label="Profil de dénivelé">
+        <h2>Profil de dénivelé <span class="hint">pointillés : repères de passage</span></h2>
+        <svg id="c-elev" role="img"></svg>
+      </section>
+
+      <section class="card" data-w="passages" data-size="xl" data-label="Repères de passage">
+        <h2>Repères de passage <span class="hint">temps cumulés pour tenir 1:18:18</span></h2>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Repère</th><th class="num">Km</th><th class="num">Altitude</th><th class="num">Allure du tronçon</th><th class="num">Passage</th><th>Consigne</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+      </section>
+
+      <section class="card" data-w="check" data-size="m" data-label="Avant le départ">
+        <h2>Avant le départ</h2>
+        <div class="check">
+          <label><input type="checkbox"><span>Retrait du dossard</span></label>
+          <label><input type="checkbox"><span>Chaussures de la course choisies</span></label>
+          <label><input type="checkbox"><span>Gel dans la poche</span></label>
+          <label><input type="checkbox"><span>Veille : repas riche en glucides</span></label>
+        </div>
+      </section>
+
+      <section class="card" data-w="goal" data-size="m" data-label="Objectif et projection">
+        <h2>Objectif et projection</h2>
+        <div class="stat"><div class="l">Forme actuelle, ajustée au D+</div><div class="v" id="proj">–</div>
+          <div class="d"><span class="chip warn" id="gap"></span> par rapport à l'objectif 1:18:18. Détail dans <a href="projections.html" style="color:var(--accent);text-decoration:underline">Projections</a>.</div></div>
+      </section>
+    </div>
+    <p style="margin-top:var(--s6);font-size:12px;color:var(--mute)">Maquette : tracé et profil synthétiques, repères indicatifs.</p>
+  </main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Navigation"></nav>
+
+<script src="assets/data.js"></script><script src="assets/charts.js"></script><script src="assets/app.js"></script>
+<script>
+  const R = RD.race, f = RD.fmtTime, p = RD.fmtPace, $ = (id) => document.getElementById(id), cps = RD.checkpoints;
+  const d0 = new Date(R.date + "T09:00:00"), days = Math.ceil((d0 - new Date()) / 864e5);
+  $("eb").textContent = "Fiche de course · " + d0.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+  $("dn").textContent = days > 0 ? "J-" + days : days === 0 ? "Jour J" : "Passée";
+  const flat = RD.riegel(RD.refBest.time, RD.refBest.dist, R.dist), adj = RD.gradeAdj(flat), gap = adj - R.targetTime;
+  $("proj").textContent = f(adj); $("gap").textContent = (gap > 0 ? "+" : "") + Math.round(gap) + " s"; $("gap").className = "chip " + (gap > 120 ? "bad" : gap > 0 ? "warn" : "good");
+
+  const map = Charts.drawMap($("map"), RD.routeXY, { label: "Tracé de la course (schéma)" });
+  map.marks(cps.slice(0, -1), R.dist);
+  Charts.elevation($("c-elev"), RD.elev, { marks: cps.slice(1, -1), h: 200, onHover: (fr) => map.at(fr) });
+
+  $("rows").innerHTML = cps.map((c, i) => {
+    const alt = Math.round(RD.elev[Math.round(c.km * 10)]);
+    let seg = "", d = "";
+    if (i) { const prev = cps[i - 1], dk = c.km - prev.km, a = Math.round(RD.elev[Math.round(c.km * 10)] - RD.elev[Math.round(prev.km * 10)]);
+      seg = p((c.t - prev.t) / dk) + " /km"; d = a; }
+    return `<tr><td>${c.name}</td><td class="num">${String(c.km).replace(".", ",")}</td><td class="num">${alt} m</td>
+      <td class="num pace-cell">${seg || "—"}${i ? ` <span class="${d > 0 ? "up" : "dn"}">(${d > 0 ? "+" : ""}${d} m)</span>` : ""}</td><td class="num"><b>${f(c.t)}</b></td><td class="note">${c.note}</td></tr>`;
+  }).join("");
+</script>
+</body>
+</html>
