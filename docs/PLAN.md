@@ -84,7 +84,7 @@ Dédup : `insert … on conflict (source, external_id) do update`. Une activité
 
 ## État (17 novembre 2026)
 
-Écrites et testées par des tests unitaires, mais **pas encore exécutées contre la base** (la migration `0002_features.sql` n'est pas appliquée) : phases 2 à 8, sauf le fond de carte et les chaussures, non faits. Voir le README. Prouvé en vrai : connexion Strava, synchro dédupliquée, calcul des records contre les valeurs de Strava (1342 s contre 1343 s sur 5 km), handshake du webhook. Restent : appliquer `0002_features.sql`, déployer, créer l'abonnement webhook, calibrer le modèle de relief sur de vraies sorties.
+Phases 2 à 8 faites, sauf le fond de carte et les chaussures. Voir le README. Prouvé en local contre la vraie base (migration 0002 appliquée) : connexion Strava, synchro dédupliquée, analyse des courses (5 km en 1342 s contre 1343 s chez Strava), enregistrement des préférences (thème, widgets masqués, conservés au rechargement), modification d'une course, import de tracé GPX, import d'une activité GPX avec déduplication (le même fichier deux fois n'ajoute rien), handshake du webhook. Restent à prouver : un vrai fichier FIT de montre, le déploiement Vercel, le cron, l'abonnement webhook en ligne, le rafraîchissement du jeton. À faire : importer le vrai GPX de Garches, calibrer le modèle de relief sur de vraies sorties.
 
 ## Phases
 
