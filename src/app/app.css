@@ -1,0 +1,7 @@
+/* Les styles de base (cartes, stats, tracé) viennent de maquettes/assets. Ici : le peu qui manque. */
+body { font-family: var(--font-ui); }
+.stack { display: grid; gap: var(--s4); max-width: 520px; }
+.stack p { color: var(--ink-2); }
+.alert { border: 1px solid var(--bad); color: var(--bad); border-radius: var(--radius-sm); padding: var(--s3) var(--s4); font-size: 14px; }
+.pair { display: grid; gap: var(--s4); }
+.pair .stat .v { font-size: clamp(32px, 4vw, 52px); }
