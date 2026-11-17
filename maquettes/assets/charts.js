@@ -12,6 +12,14 @@
   }
   const tipHide = () => tip && tip.classList.remove("on");
 
+  // la viewBox colle à la largeur réelle : le texte garde sa taille en pixels. On redessine si la largeur change.
+  const width = (svg) => Math.max(260, Math.round(svg.getBoundingClientRect().width) || 800);
+  const auto = (fn) => (svg, ...a) => {
+    svg.classList.add("chart"); // avant la mesure : sinon le svg vide mesure 300px
+    fn(svg, ...a); let w = width(svg);
+    new ResizeObserver(() => { const n = width(svg); if (Math.abs(n - w) > 8) { w = n; fn(svg, ...a); } }).observe(svg);
+  };
+
   function setup(svg, W, H) { svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.classList.add("chart"); svg.innerHTML = ""; return svg; }
   const scale = (d0, d1, r0, r1) => (v) => r0 + ((v - d0) / (d1 - d0)) * (r1 - r0);
 
@@ -53,7 +61,7 @@
 
   // ---------- profil de dénivelé ----------
   function elevation(svg, elev, o = {}) {
-    const W = 800, H = o.h || 180, m = { l: 36, r: 8, t: 10, b: 22 };
+    const W = width(svg), H = o.h || 180, m = { l: 36, r: 8, t: 10, b: 22 };
     setup(svg, W, H); svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Profil de dénivelé");
     const km = elev.length / 10, lo = Math.floor(Math.min(...elev) / 10) * 10 - 5, hi = Math.ceil(Math.max(...elev) / 10) * 10 + 5;
     const x = scale(0, km, m.l, W - m.r), y = scale(lo, hi, H - m.b, m.t);
@@ -81,7 +89,7 @@
 
   // ---------- allure par kilomètre (barres) ----------
   function paceBars(svg, splits, o = {}) {
-    const W = 800, H = o.h || 200, m = { l: 40, r: 8, t: 14, b: 22 };
+    const W = width(svg), H = o.h || 200, m = { l: 40, r: o.target ? 74 : 8, t: 14, b: 22 };
     setup(svg, W, H); svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Allure par kilomètre");
     const paces = splits.map((s) => s.pace), hi = Math.max(...paces) + 8, lo = Math.min(...paces) - 14;
     const y = scale(hi, lo, H - m.b, m.t); // plus rapide = plus haut
@@ -94,12 +102,12 @@
       b.addEventListener("pointerleave", tipHide);
       el("text", { x: x0 + w / 2, y: H - 6, "text-anchor": "middle" }, svg).textContent = s.km;
     });
-    if (o.target) { const ty = y(o.target); el("line", { x1: m.l, x2: W - m.r, y1: ty, y2: ty, class: "ref" }, svg); el("text", { x: W - m.r, y: ty - 5, "text-anchor": "end" }, svg).textContent = "objectif " + RD.fmtPace(o.target); }
+    if (o.target) { const ty = y(o.target); el("line", { x1: m.l, x2: W - m.r, y1: ty, y2: ty, class: "ref" }, svg); el("line", { x1: W - m.r, x2: W - m.r + 6, y1: ty, y2: ty, class: "ref" }, svg); el("text", { x: W - m.r + 10, y: ty + 4 }, svg).textContent = (o.targetLabel || "moy.") + " " + RD.fmtPace(o.target); }
   }
 
   // ---------- volume hebdomadaire (barres) ----------
   function volume(svg, weeks, o = {}) {
-    const W = 800, H = o.h || 200, m = { l: 34, r: 8, t: 14, b: 22 };
+    const W = width(svg), H = o.h || 200, m = { l: 34, r: 8, t: 14, b: 22 };
     setup(svg, W, H); svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Volume hebdomadaire en kilomètres");
     const hi = Math.ceil(Math.max(...weeks.map((w) => w.km)) / 20) * 20, y = scale(0, hi, H - m.b, m.t), bw = (W - m.l - m.r) / weeks.length;
     [0, hi / 2, hi].forEach((v) => { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: "grid-l" }, svg); el("text", { x: 0, y: y(v) + 4 }, svg).textContent = v; });
@@ -115,7 +123,7 @@
 
   // ---------- courbe d'allure (ligne) ----------
   function paceLine(svg, weeks, o = {}) {
-    const W = 800, H = o.h || 200, m = { l: 40, r: 8, t: 14, b: 22 };
+    const W = width(svg), H = o.h || 200, m = { l: 40, r: 8, t: 14, b: 22 };
     setup(svg, W, H); svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Allure moyenne par semaine");
     const p = weeks.map((w) => w.pace), hi = Math.max(...p) + 6, lo = Math.min(...p) - 6;
     const x = scale(0, weeks.length - 1, m.l, W - m.r), y = scale(hi, lo, H - m.b, m.t);
@@ -136,5 +144,5 @@
     hit.addEventListener("pointerleave", () => { cross.setAttribute("opacity", 0); pt.setAttribute("opacity", 0); tipHide(); });
   }
 
-  window.Charts = { drawMap, elevation, paceBars, volume, paceLine };
+  window.Charts = { drawMap, elevation: auto(elevation), paceBars: auto(paceBars), volume: auto(volume), paceLine: auto(paceLine) };
 })();
