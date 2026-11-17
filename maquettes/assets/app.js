@@ -71,7 +71,7 @@
 
   const tbox = drawer.querySelector("#d-themes");
   function renderThemes() {
-    const cur = root.dataset.theme || "ember";
+    const cur = root.dataset.theme || (matchMedia("(prefers-color-scheme: light)").matches ? "paper" : "ember");
     tbox.innerHTML = Object.keys(THEMES).map((k) => `<button class="theme-opt" data-t="${k}" aria-pressed="${k === cur}"><div class="sw">${THEMES[k].map((c) => `<i style="background:${c}"></i>`).join("")}</div>${NAMES[k]}</button>`).join("");
   }
   tbox.onclick = (e) => { const b = e.target.closest("[data-t]"); if (!b) return; store.set("theme", b.dataset.t); applyTheme(b.dataset.t); renderThemes(); };
