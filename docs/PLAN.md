@@ -14,7 +14,7 @@ Dashboard de running perso. Un seul utilisateur (toi). Gratuit : Vercel Hobby + 
 ## Choix techniques
 
 - **Next.js (App Router) + TypeScript**, déployé sur Vercel. Un seul dépôt.
-- **Supabase** : Postgres + Auth. Un seul compte propriétaire (login e-mail/magic link), RLS activée partout.
+- **Supabase** : Postgres seul, sans Auth. Le dashboard est **privé** : l'accord API de Strava interdit d'afficher les données d'un athlète à d'autres personnes. Le login Strava, limité à `OWNER_ATHLETE_ID`, pose un cookie de session signé (HMAC). RLS activée sans aucune policy ; le serveur accède aux tables avec la clé secrète Supabase.
 - **Pas de lib de graphiques** : SVG maison (les maquettes le prouvent, et c'est le plus petit code). À rediscuter si besoin d'interactions complexes.
 - **Pas de carte à tuiles au début** : le tracé est dessiné en SVG seul, sur fond neutre. Fond de carte (MapLibre + tuiles libres) en phase ultérieure.
 - **Pas de tests écrits pour les maquettes**. À partir du prototype : tests sur les fonctions pures (Riegel, allures, dédup, parseur GPX) avant le code, puis un smoke test de bout en bout.
@@ -33,7 +33,7 @@ create table strava_connections (
   athlete_id bigint primary key,
   access_token text not null,
   refresh_token text not null,
-  expires_at timestamptz not null,
+  expires_at bigint not null,              -- epoch en secondes, comme Strava
   scope text,
   updated_at timestamptz default now()
 );
@@ -102,4 +102,4 @@ Plans d'entraînement, social, notifications, application native, IA.
 
 - Direction visuelle par défaut (thème Ember sombre proposé, voir `DESIGN.md`).
 - Lien exact du dépôt « StravaDashboard ».
-- Authentification : un compte propriétaire unique suffit-il, ou veux-tu pouvoir montrer le dashboard en lecture publique ?
+- ~~Authentification~~ : tranché, dashboard privé (voir plus haut). Le prototype a deux tables (`strava_connections` et `activities`) : le refresh token Strava change à chaque rafraîchissement, il faut donc le stocker.
