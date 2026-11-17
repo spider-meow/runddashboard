@@ -1,6 +1,6 @@
 /* Tokens : voir DESIGN.md. Trois directions, chacune = un bloc de variables (couleurs, typo, rayons, ton « hot »).
-   Sunrise = défaut (clair, énergique). Midnight = sombre. Poster = affiche noir et jaune volt. */
-:root, :root[data-theme="sunrise"] {
+   Poster = défaut (affiche noir et volt). Sunrise = clair, énergique. Midnight = sombre. */
+:root[data-theme="sunrise"] {
   color-scheme: light;
   --bg: #fdf0e6; --surface: #ffffff; --surface-2: #fff6ee; --hairline: #f0dccb;
   --ink: #1b1613; --ink-2: #5c4d43; --mute: #7a6a5e;
@@ -26,7 +26,7 @@
   --radius: 24px; --radius-sm: 14px; --pill: 999px;
   --shadow: none;
 }
-:root[data-theme="poster"] {
+:root, :root[data-theme="poster"] {
   color-scheme: dark;
   --bg: #0c0c0c; --surface: #151515; --surface-2: #1f1f1f; --hairline: #2c2c2c;
   --ink: #f6f6f2; --ink-2: #b4b4ac; --mute: #8d8d85;
@@ -44,17 +44,4 @@
   --ease: cubic-bezier(.2, .7, .2, 1);
   --t-micro: 140ms; --t-ui: 240ms; --t-enter: 480ms; --t-draw: 2200ms;
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
-}
-/* Sans choix de l'utilisateur, on suit l'OS : sombre -> Midnight. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    color-scheme: dark;
-    --bg: #0a0f1e; --surface: #121a2f; --surface-2: #1a2440; --hairline: #243055;
-    --ink: #eef2ff; --ink-2: #aab4d4; --mute: #8591b5;
-    --accent: #f0602f; --on-accent: #0a0f1e; --series-2: #3b8bcf;
-    --good: #4fbf86; --warn: #e3a93f; --bad: #ff7a6b;
-    --hot-bg: linear-gradient(135deg, #ff7a2b, #ff3d71); --hot-fg: #0a0f1e;
-    --font-display: "Sora", system-ui, sans-serif;
-    --dw: 600; --radius: 24px; --radius-sm: 14px; --pill: 999px; --shadow: none;
-  }
 }

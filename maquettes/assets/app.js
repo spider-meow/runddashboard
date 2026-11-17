@@ -60,7 +60,7 @@
 
   const tbox = drawer.querySelector("#d-themes");
   function renderThemes() {
-    const cur = root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "midnight" : "sunrise");
+    const cur = root.dataset.theme || "poster";
     tbox.innerHTML = Object.keys(THEMES).map((k) => `<button class="theme-opt" data-t="${k}" aria-pressed="${k === cur}"><div class="sw">${THEMES[k].map((c) => `<i style="background:${c}"></i>`).join("")}</div>${NAMES[k]}</button>`).join("");
   }
   tbox.onclick = (e) => { const b = e.target.closest("[data-t]"); if (!b) return; store.set("theme", b.dataset.t); applyTheme(b.dataset.t); renderThemes(); };
@@ -68,7 +68,7 @@
   const abox = drawer.querySelector("#d-acc");
   function renderAcc() {
     const cur = store.get("accent", null);
-    abox.innerHTML = ACCENTS.map((c) => `<button style="background:${c}" data-a="${c}" aria-label="Accent ${c}" aria-pressed="${c === cur}"></button>`).join("") + `<input type="color" id="d-pick" value="${cur || "#cf3705"}" aria-label="Couleur libre">`;
+    abox.innerHTML = ACCENTS.map((c) => `<button style="background:${c}" data-a="${c}" aria-label="Accent ${c}" aria-pressed="${c === cur}"></button>`).join("") + `<input type="color" id="d-pick" value="${cur || "#c8f031"}" aria-label="Couleur libre">`;
   }
   abox.onclick = (e) => { const b = e.target.closest("[data-a]"); if (!b) return; store.set("accent", b.dataset.a); applyAccent(b.dataset.a); renderAcc(); };
   abox.oninput = (e) => { if (e.target.id === "d-pick") { store.set("accent", e.target.value); applyAccent(e.target.value); } };
