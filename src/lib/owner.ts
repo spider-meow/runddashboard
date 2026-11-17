@@ -20,8 +20,11 @@ export async function requireOwner(): Promise<void> {
   if (!(await isOwner())) redirect("/");
 }
 
-export function validBearer(header: string | null, secret: string | undefined): boolean {
-  if (!secret || !header) return false;
-  const a = Buffer.from(header), b = Buffer.from(`Bearer ${secret}`);
-  return a.length === b.length && timingSafeEqual(a, b);
+// Comparaison en temps constant ; faux si l'un des deux est vide (un secret absent ne doit jamais « correspondre »).
+export function safeEqual(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (!a || !b) return false;
+  const x = Buffer.from(a), y = Buffer.from(b);
+  return x.length === y.length && timingSafeEqual(x, y);
 }
+
+export const validBearer = (header: string | null, secret: string | undefined): boolean => !!secret && safeEqual(header, `Bearer ${secret}`);

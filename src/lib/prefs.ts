@@ -50,3 +50,17 @@ export function cleanWidgets(input: unknown): Widget[] {
   }
   return out.slice(0, 30);
 }
+
+export const PAGES = ["home", "historique", "projections", "courses"] as const;
+export type PrefsRow = { theme: string; accent: string | null; widgets: Record<string, unknown> };
+
+// Applique une mise à jour partielle : seuls les champs fournis changent. Un enregistrement de thème ou d'accent
+// ne doit jamais effacer la disposition des widgets.
+export function applyPrefsUpdate(cur: PrefsRow, input: { page?: string; widgets?: unknown; theme?: string; accent?: string | null }): PrefsRow {
+  const next: PrefsRow = { theme: cur.theme, accent: cur.accent, widgets: { ...cur.widgets } };
+  if (input.theme && (THEMES as readonly string[]).includes(input.theme)) next.theme = input.theme;
+  if (input.accent === null) next.accent = null;
+  else if (isHexColor(input.accent)) next.accent = input.accent;
+  if (input.page && (PAGES as readonly string[]).includes(input.page) && Array.isArray(input.widgets)) next.widgets[input.page] = cleanWidgets(input.widgets);
+  return next;
+}

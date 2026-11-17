@@ -84,7 +84,7 @@ Dédup : `insert … on conflict (source, external_id) do update`. Une activité
 
 ## État (17 novembre 2026)
 
-Faits : phases 1 à 8 sauf le fond de carte et les chaussures. Voir le README. Restent : appliquer `0002_features.sql`, déployer, créer l'abonnement webhook, calibrer le modèle de relief sur de vraies sorties.
+Écrites et testées par des tests unitaires, mais **pas encore exécutées contre la base** (la migration `0002_features.sql` n'est pas appliquée) : phases 2 à 8, sauf le fond de carte et les chaussures, non faits. Voir le README. Prouvé en vrai : connexion Strava, synchro dédupliquée, calcul des records contre les valeurs de Strava (1342 s contre 1343 s sur 5 km), handshake du webhook. Restent : appliquer `0002_features.sql`, déployer, créer l'abonnement webhook, calibrer le modèle de relief sur de vraies sorties.
 
 ## Phases
 

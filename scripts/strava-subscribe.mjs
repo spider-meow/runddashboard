@@ -9,6 +9,7 @@ if (!callback || !STRAVA_CLIENT_ID || !STRAVA_CLIENT_SECRET || !STRAVA_WEBHOOK_V
 }
 const r = await fetch("https://www.strava.com/api/v3/push_subscriptions", {
   method: "POST",
-  body: new URLSearchParams({ client_id: STRAVA_CLIENT_ID, client_secret: STRAVA_CLIENT_SECRET, callback_url: callback, verify_token: STRAVA_WEBHOOK_VERIFY_TOKEN }),
+  // Le même secret sert de verify_token (validation GET) et de ?token= (chaque événement POST doit le porter).
+  body: new URLSearchParams({ client_id: STRAVA_CLIENT_ID, client_secret: STRAVA_CLIENT_SECRET, callback_url: `${callback}?token=${encodeURIComponent(STRAVA_WEBHOOK_VERIFY_TOKEN)}`, verify_token: STRAVA_WEBHOOK_VERIFY_TOKEN }),
 });
 console.log(r.status, await r.text());

@@ -10,11 +10,10 @@ import { parseGpx, pointsToStream } from "@/lib/gpx";
 import { activityFromPoints, hashBytes } from "@/lib/import";
 import { isOwner } from "@/lib/owner";
 import { parsePace } from "@/lib/pace";
-import { cleanWidgets, isHexColor, THEMES } from "@/lib/prefs";
+import { applyPrefsUpdate } from "@/lib/prefs";
 import { encodePolyline } from "@/lib/polyline";
 
 const MAX_FILE = 10 * 1024 * 1024;
-const PAGES = ["home", "historique", "projections", "courses"];
 
 async function owner() {
   if (!(await isOwner())) throw new Error("Non autorisé");
@@ -25,12 +24,8 @@ export async function savePrefs(input: { page?: string; widgets?: unknown; theme
   await owner();
   const client = db();
   const { data: cur } = await client.from("user_prefs").select("*").eq("id", 1).maybeSingle();
-  const next = { id: 1, theme: cur?.theme ?? "poster", accent: cur?.accent ?? null, widgets: (cur?.widgets ?? {}) as Record<string, unknown> };
-  if (input.theme && (THEMES as readonly string[]).includes(input.theme)) next.theme = input.theme;
-  if (input.accent === null) next.accent = null;
-  else if (isHexColor(input.accent)) next.accent = input.accent;
-  if (input.page && PAGES.includes(input.page)) next.widgets[input.page] = cleanWidgets(input.widgets);
-  const { error } = await client.from("user_prefs").upsert(next);
+  const next = applyPrefsUpdate({ theme: cur?.theme ?? "poster", accent: cur?.accent ?? null, widgets: cur?.widgets ?? {} }, input);
+  const { error } = await client.from("user_prefs").upsert({ id: 1, ...next });
   if (error) throw new Error(error.message);
   revalidatePath("/", "layout");
 }
