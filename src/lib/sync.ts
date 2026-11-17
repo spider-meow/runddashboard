@@ -69,7 +69,11 @@ export async function syncActivities(db: SupabaseClient, athleteId: number): Pro
   }
 
   // Le matériel et l'analyse sont des bonus : s'ils échouent (quota, migration pas encore appliquée), la synchro réussit quand même.
-  try { await syncGear(db, accessToken, acts.map((a) => a.gear_id)); } catch (e) { console.error("Lecture du matériel échouée", e); }
+  // On part de toutes les paires utilisées en base (pas seulement des activités reçues cette fois) : la 1re synchro ne voit que 7 jours.
+  try {
+    const { data: used } = await db.from("activities").select("gear_id").not("gear_id", "is", null);
+    await syncGear(db, accessToken, (used ?? []).map((r) => r.gear_id));
+  } catch (e) { console.error("Lecture du matériel échouée", e); }
   try {
     return { fetched: acts.length, analyzed: await analyzePending(db, accessToken) };
   } catch (e) {

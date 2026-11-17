@@ -35,7 +35,7 @@ Importe le repo, saisis les mêmes variables dans Project Settings > Environment
 ## Données et fichiers
 
 - **Déduplication** : la clé unique `(source, external_id)` fait qu'une synchro ne crée jamais de doublon. Un fichier importé a pour identifiant l'empreinte SHA-256 de son contenu : le même fichier deux fois n'ajoute rien. Pas de dédoublonnage entre une course Strava et le même parcours importé en fichier.
-- **GPX / FIT** : l'import calcule distance, allures, splits, records et dénivelé à partir des points. Le fichier doit contenir l'heure de chaque point.
+- **GPX / FIT** : l'import calcule distance, allures, splits, records et dénivelé à partir des points. Le fichier doit contenir l'heure de chaque point, et peser 4 Mo au plus (Vercel refuse les requêtes de plus de 4,5 Mo).
 - **Relief** : le coût du relief est un modèle simple (+3,3 % de temps par % de montée, −1,8 % par % de descente), à calibrer sur tes sorties.
 
 ## Commandes

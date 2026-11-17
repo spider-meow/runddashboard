@@ -13,7 +13,8 @@ import { parsePace } from "@/lib/pace";
 import { applyPrefsUpdate } from "@/lib/prefs";
 import { encodePolyline } from "@/lib/polyline";
 
-const MAX_FILE = 10 * 1024 * 1024;
+// Vercel refuse tout corps de requête de plus de 4,5 Mo (limite fixe) : 4 Mo de fichier laissent la place du formulaire.
+const MAX_FILE = 4 * 1024 * 1024;
 
 async function owner() {
   if (!(await isOwner())) throw new Error("Non autorisé");
@@ -63,7 +64,7 @@ export async function updateRace(id: string, formData: FormData) {
 async function readFile(formData: FormData): Promise<{ name: string; ext: "gpx" | "fit"; bytes: Uint8Array } | string> {
   const f = formData.get("file");
   if (!(f instanceof File) || f.size === 0) return "Aucun fichier choisi.";
-  if (f.size > MAX_FILE) return "Fichier trop gros (10 Mo maximum).";
+  if (f.size > MAX_FILE) return "Fichier trop gros (4 Mo maximum).";
   const ext = f.name.toLowerCase().endsWith(".fit") ? "fit" : f.name.toLowerCase().endsWith(".gpx") ? "gpx" : null;
   if (!ext) return "Seuls les fichiers .gpx et .fit sont acceptés.";
   return { name: f.name.replace(/\.(gpx|fit)$/i, ""), ext, bytes: new Uint8Array(await f.arrayBuffer()) };

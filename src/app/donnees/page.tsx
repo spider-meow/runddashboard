@@ -38,7 +38,7 @@ export default async function Donnees({ searchParams }: { searchParams: Promise<
         <section className="card" data-size="m">
           <h2>Importer un fichier <span className="hint">plan B sans Strava</span></h2>
           <form action={importActivity} style={{ display: "grid", gap: 12 }}>
-            <div className="field"><label htmlFor="file">Fichier .gpx ou .fit</label><input id="file" name="file" type="file" accept=".gpx,.fit" required /><p className="hint">10 Mo maximum. Le fichier doit contenir l'heure de chaque point.</p></div>
+            <div className="field"><label htmlFor="file">Fichier .gpx ou .fit</label><input id="file" name="file" type="file" accept=".gpx,.fit" required /><p className="hint">4 Mo maximum. Le fichier doit contenir l'heure de chaque point.</p></div>
             <button className="btn primary" type="submit">Importer</button>
           </form>
           <div className="kv" style={{ marginTop: "var(--s5)" }}>

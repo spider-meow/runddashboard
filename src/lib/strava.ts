@@ -94,7 +94,8 @@ export async function fetchStreams(accessToken: string, activityId: number | str
 
 export type GearRow = { id: string; name: string; brand_name: string | null; model_name: string | null; distance_m: number | null };
 
-// Équipement (chaussures). Champs lus d'après la référence Strava ; null si l'équipement n'existe plus.
+// Équipement (chaussures). Champs d'après l'exemple du swagger officiel (distance, brand_name, model_name...) ; jamais essayé sur
+// une vraie paire, et le scope exigé par cet endpoint n'est pas documenté. null si l'équipement n'existe plus.
 export async function fetchGear(accessToken: string, gearId: string): Promise<GearRow | null> {
   const r = await fetch(`${API}/gear/${gearId}`, { headers: { Authorization: `Bearer ${accessToken}` } });
   if (r.status === 404) return null;

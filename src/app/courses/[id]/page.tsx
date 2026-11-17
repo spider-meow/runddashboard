@@ -89,7 +89,7 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
         <>
           <h2>Tracé du parcours</h2>
           <form action={importTrack} style={{ display: "grid", gap: 12 }}>
-            <div className="field"><label htmlFor="file">Fichier GPX ou FIT</label><input id="file" name="file" type="file" accept=".gpx,.fit" required /><p className="hint">10 Mo maximum. Remplace le tracé actuel.</p></div>
+            <div className="field"><label htmlFor="file">Fichier GPX ou FIT</label><input id="file" name="file" type="file" accept=".gpx,.fit" required /><p className="hint">4 Mo maximum. Remplace le tracé actuel.</p></div>
             <button className="btn" type="submit">Importer</button>
           </form>
         </>
