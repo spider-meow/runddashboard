@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { Split } from "./analyze";
 import type { Checkpoint } from "./checkpoints";
 import { db } from "./db";
@@ -66,12 +67,13 @@ export async function getRaces(): Promise<{ races: Race[]; migrationMissing: boo
   return { races: (data ?? []) as Race[], migrationMissing: false };
 }
 
-export async function getRace(id: string): Promise<Race | null> {
+// cache() : generateMetadata et la page lisent la même course dans la même requête, une seule lecture en base.
+export const getRace = cache(async (id: string): Promise<Race | null> => {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const { data, error } = await db().from("races").select("*").eq("id", id).maybeSingle();
   if (error && !missingTable(error)) throw new Error(error.message);
   return (data as Race) ?? null;
-}
+});
 
 export async function getGear(): Promise<{ id: string; name: string }[]> {
   const { data, error } = await db().from("gear").select("id,name");

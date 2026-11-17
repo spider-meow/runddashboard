@@ -3,16 +3,12 @@ import { fmtDate } from "@/lib/dates";
 import { fmtKm, fmtTime } from "@/lib/pace";
 import type { Records, Shoe } from "@/lib/stats";
 
-export const SyncButton = ({ label = "Synchroniser" }: { label?: string }) => (
-  <form action="/api/strava/sync" method="post"><button className="btn" type="submit">{label}</button></form>
-);
-
 export const Stat = ({ label, children, unit }: { label: string; children: ReactNode; unit?: string }) => (
   <div className="stat"><div className="l">{label}</div><div className="v">{children}{unit && <small>{unit}</small>}</div></div>
 );
 
 export const MigrationNotice = () => (
-  <p className="notice" role="alert">La migration <code>supabase/migrations/0002_features.sql</code> n'est pas encore appliquée à ta base. Colle-la dans le SQL editor de Supabase pour activer courses, préférences et records.</p>
+  <p className="notice" role="alert">La migration <code>supabase/migrations/0002_features.sql</code> n'est pas encore appliquée à ta base. Colle-la dans le SQL editor de Supabase pour activer les courses et les records.</p>
 );
 
 export function ShoeList({ shoes }: { shoes: Shoe[] }) {

@@ -1,51 +1,64 @@
 import Link from "next/link";
 import { createRace } from "@/app/actions";
 import { MigrationNotice } from "@/components/bits";
-import { daysUntil, fmtDate } from "@/lib/dates";
+import { Cards, PageHeader, type Item } from "@/components/Cards";
+import { RaceForm } from "@/components/RaceForm";
+import { StripParam } from "@/components/formkit";
+import { daysUntil, fmtDate, parisDay } from "@/lib/dates";
+import { splitRaces } from "@/lib/forms";
 import { requireOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime } from "@/lib/pace";
-import { getRaces } from "@/lib/queries";
+import { getRaces, type Race } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Courses" };
 
-const ERREURS: Record<string, string> = { champs: "Nom, date (AAAA-MM-JJ) et distance sont obligatoires.", allure: "L'allure doit être au format m:ss, par exemple 4:50." };
+function RaceLink({ r, now }: { r: Race; now: Date }) {
+  const days = daysUntil(r.race_date, now);
+  return (
+    <Link className="list-link" href={`/courses/${r.id}`}>
+      <span>
+        <strong>{r.name}</strong>
+        <span className="muted" style={{ fontSize: 14 }}>
+          {fmtDate(r.race_date, { day: "numeric", month: "long", year: "numeric" })} · {fmtKm(r.distance_m)} km{r.elevation_gain_m ? ` · ${Math.round(r.elevation_gain_m)} m D+` : ""}
+          {r.target_pace_s ? ` · objectif ${fmtPace(r.target_pace_s)} /km (${fmtTime((r.target_pace_s * r.distance_m) / 1000)})` : ""}
+        </span>
+      </span>
+      <span className="chip">{days > 0 ? `J-${days}` : days === 0 ? "Jour J" : "Passée"}</span>
+    </Link>
+  );
+}
 
-export default async function Courses({ searchParams }: { searchParams: Promise<{ erreur?: string }> }) {
+export default async function Courses({ searchParams }: { searchParams: Promise<{ supprimee?: string }> }) {
   await requireOwner();
-  const { erreur } = await searchParams;
+  const { supprimee } = await searchParams;
   const { races, migrationMissing } = await getRaces();
-  const now = new Date();
+  const now = new Date(), { upcoming, past } = splitRaces(races, parisDay(now));
+
+  const items: Item[] = [
+    {
+      id: "upcoming", size: "l",
+      node: (
+        <>
+          <h2>À venir</h2>
+          {upcoming.length === 0 ? <p className="empty">Aucune course à venir. Ajoute la prochaine avec le formulaire{past.length ? " (tes courses passées sont plus bas)" : ""}.</p> : upcoming.map((r) => <RaceLink key={r.id} r={r} now={now} />)}
+        </>
+      ),
+    },
+    {
+      id: "new", size: "s",
+      node: (<><h2>Nouvelle course</h2><RaceForm action={createRace} mode="create" initial={{}} /></>),
+    },
+  ];
+  if (past.length) items.splice(1, 0, { id: "past", size: "l", node: (<><h2>Passées</h2>{past.map((r) => <RaceLink key={r.id} r={r} now={now} />)}</>) });
 
   return (
     <>
-      <header className="top"><div><p className="eyebrow">Objectifs</p><h1 className="title">Courses à <em>venir</em></h1></div></header>
+      <PageHeader eyebrow="Objectifs">Tes <em>courses</em></PageHeader>
       {migrationMissing && <MigrationNotice />}
-      {erreur && ERREURS[erreur] && <p className="alert" role="alert">{ERREURS[erreur]}</p>}
-      <div className="grid">
-        <section className="card" data-size="l">
-          <h2>Mes courses</h2>
-          {races.length === 0 ? <p className="empty">Aucune course pour l'instant. Ajoute la première avec le formulaire.</p> : races.map((r) => {
-            const days = daysUntil(r.race_date, now);
-            return (
-              <Link key={r.id} className="list-link" href={`/courses/${r.id}`}>
-                <span><strong>{r.name}</strong><span className="muted" style={{ fontSize: 14 }}>{fmtDate(r.race_date, { day: "numeric", month: "long", year: "numeric" })} · {fmtKm(r.distance_m)} km{r.elevation_gain_m ? ` · ${Math.round(r.elevation_gain_m)} m D+` : ""}{r.target_pace_s ? ` · objectif ${fmtPace(r.target_pace_s)} /km (${fmtTime(r.target_pace_s * r.distance_m / 1000)})` : ""}</span></span>
-                <span className="chip">{days > 0 ? `J-${days}` : days === 0 ? "Jour J" : "Passée"}</span>
-              </Link>
-            );
-          })}
-        </section>
-        <section className="card" data-size="s">
-          <h2>Nouvelle course</h2>
-          <form action={createRace} style={{ display: "grid", gap: 12 }}>
-            <div className="field"><label htmlFor="name">Nom</label><input id="name" name="name" required /></div>
-            <div className="field"><label htmlFor="date">Date</label><input id="date" name="date" type="date" required /></div>
-            <div className="field"><label htmlFor="distance_km">Distance (km)</label><input id="distance_km" name="distance_km" inputMode="decimal" required /></div>
-            <div className="field"><label htmlFor="dplus">D+ (m)</label><input id="dplus" name="dplus" inputMode="numeric" /></div>
-            <div className="field"><label htmlFor="pace">Allure objectif (m:ss /km)</label><input id="pace" name="pace" placeholder="4:50" /></div>
-            <button className="btn primary" type="submit">Créer</button>
-          </form>
-        </section>
-      </div>
+      <div aria-live="polite">{supprimee && <p className="ok pop">Course supprimée.</p>}</div>
+      {supprimee && <StripParam name="supprimee" />}
+      <Cards items={items} />
     </>
   );
 }

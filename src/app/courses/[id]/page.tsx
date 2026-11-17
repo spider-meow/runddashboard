@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
-import { importRaceTrack, updateRace } from "@/app/actions";
+import { deleteRace, importRaceTrack, updateRace } from "@/app/actions";
 import { Cards, PageHeader, type Item } from "@/components/Cards";
 import { ElevationProfile } from "@/components/charts";
+import { FileForm } from "@/components/FileForm";
+import { DeleteRace, RaceForm } from "@/components/RaceForm";
 import { RouteMap } from "@/components/RouteMap";
+import { StripParam } from "@/components/formkit";
 import { formatCheckpoints, planCheckpoints } from "@/lib/checkpoints";
 import { daysUntil, fmtDate } from "@/lib/dates";
 import { requireOwner } from "@/lib/owner";
@@ -11,9 +14,14 @@ import { getRace } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
-export default async function Fiche({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ erreur?: string; ok?: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const race = await getRace((await params).id);
+  return { title: race?.name ?? "Course" };
+}
+
+export default async function Fiche({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cree?: string }> }) {
   await requireOwner();
-  const { id } = await params, { erreur, ok } = await searchParams;
+  const { id } = await params, { cree } = await searchParams;
   const race = await getRace(id);
   if (!race) notFound();
 
@@ -22,7 +30,7 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
   const targetS = race.target_pace_s ? race.target_pace_s * km : null;
   const planned = targetS ? planCheckpoints(race.checkpoints, profile, km, targetS) : null;
   const days = daysUntil(race.race_date, new Date());
-  const update = updateRace.bind(null, race.id), importTrack = importRaceTrack.bind(null, race.id);
+  const update = updateRace.bind(null, race.id), importTrack = importRaceTrack.bind(null, race.id), remove = deleteRace.bind(null, race.id);
 
   const items: Item[] = [
     {
@@ -39,7 +47,7 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
     },
     {
       id: "map", size: "l",
-      node: (<><h2>Tracé</h2>{race.course_polyline ? <RouteMap polyline={race.course_polyline} label={`Tracé de ${race.name}`} /> : <p className="empty">Pas encore de tracé. Importe le fichier GPX du parcours (formulaire plus bas).</p>}</>),
+      node: (<><h2>Tracé</h2>{race.course_polyline ? <RouteMap polyline={race.course_polyline} label={`Tracé de ${race.name}`} /> : <p className="empty">Pas encore de tracé. Importe le fichier GPX du parcours avec le formulaire « Tracé du parcours » plus bas.</p>}</>),
     },
     {
       id: "notes", size: "s",
@@ -74,12 +82,10 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
       node: (
         <>
           <h2>Modifier la course</h2>
-          <form action={update} style={{ display: "grid", gap: 12 }}>
-            <div className="field"><label htmlFor="pace">Allure objectif (m:ss /km)</label><input id="pace" name="pace" defaultValue={race.target_pace_s ? fmtPace(race.target_pace_s) : ""} placeholder="4:50" /></div>
-            <div className="field"><label htmlFor="checkpoints">Repères de passage</label><textarea id="checkpoints" name="checkpoints" defaultValue={formatCheckpoints(race.checkpoints)} /><p className="hint">Une ligne par repère : km | nom | consigne</p></div>
-            <div className="field"><label htmlFor="notes">Notes</label><textarea id="notes" name="notes" defaultValue={race.notes ?? ""} style={{ minHeight: 80 }} /></div>
-            <button className="btn primary" type="submit">Enregistrer</button>
-          </form>
+          <RaceForm
+            mode="edit" action={update}
+            initial={{ name: race.name, date: race.race_date.slice(0, 10), distance_km: String(km).replace(".", ","), dplus: race.elevation_gain_m != null ? String(Math.round(race.elevation_gain_m)) : "", pace: race.target_pace_s ? fmtPace(race.target_pace_s) : "", checkpoints: formatCheckpoints(race.checkpoints), notes: race.notes ?? "" }}
+          />
         </>
       ),
     },
@@ -88,20 +94,21 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
       node: (
         <>
           <h2>Tracé du parcours</h2>
-          <form action={importTrack} style={{ display: "grid", gap: 12 }}>
-            <div className="field"><label htmlFor="file">Fichier GPX ou FIT</label><input id="file" name="file" type="file" accept=".gpx,.fit" required /><p className="hint">4 Mo maximum. Remplace le tracé actuel.</p></div>
-            <button className="btn" type="submit">Importer</button>
-          </form>
+          <FileForm action={importTrack} label="Fichier GPX ou FIT du parcours" hint="4 Mo maximum. Remplace le tracé actuel." submit="Importer le tracé" pending="Lecture du tracé…" />
         </>
       ),
+    },
+    {
+      id: "danger", size: "s",
+      node: (<><h2>Supprimer</h2><DeleteRace name={race.name} action={remove} /></>),
     },
   ];
 
   return (
     <>
       <PageHeader eyebrow={`Fiche de course · ${fmtDate(race.race_date + "T12:00:00Z", { weekday: "long", day: "numeric", month: "long" })}`}>{race.name}</PageHeader>
-      {erreur && <p className="alert" role="alert">{erreur === "allure" ? "L'allure doit être au format m:ss, par exemple 4:50." : erreur}</p>}
-      {ok && <p className="ok" role="status">Enregistré.</p>}
+      <div aria-live="polite">{cree && <p className="ok pop">Course créée. Ajoute maintenant son tracé GPX et tes repères de passage.</p>}</div>
+      {cree && <StripParam name="cree" />}
       <Cards items={items} />
     </>
   );

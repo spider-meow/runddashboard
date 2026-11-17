@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Cards, PageHeader, type Item } from "@/components/Cards";
-import { MigrationNotice, PrList, ShoeList, SyncButton } from "@/components/bits";
+import { MigrationNotice, PrList, ShoeList } from "@/components/bits";
+import { SyncButton } from "@/components/SyncButton";
 import { ElevationProfile, PaceBars, VolumeBars } from "@/components/charts";
 import { RouteMap } from "@/components/RouteMap";
 import { daysUntil, fmtDate, parisDay } from "@/lib/dates";
@@ -101,6 +102,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
           ) : <p className="muted">Pas assez de données pour projeter un temps.</p>}
         </div>
       ),
+    });
+  } else {
+    items.push({
+      id: "race", size: "xl",
+      node: (<><h2>Prochaine course</h2><p className="empty">Aucune course à venir. <Link className="inline-link" href="/courses">Ajoute ta prochaine course</Link> pour voir ici son tracé, son compte à rebours et ta projection de temps.</p></>),
     });
   }
 
