@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projections · rundashboard (maquette)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css"><link rel="stylesheet" href="assets/base.css">
+<style>
+  .form { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); margin-bottom: var(--s5); }
+  .field label { display: block; font: 500 12px var(--font-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 6px; }
+  .field input, .field select { width: 100%; min-height: 44px; border-radius: var(--radius-sm); border: 1px solid var(--hairline); background: var(--bg); color: var(--ink); padding: 0 var(--s3); font: 500 15px var(--font-mono); }
+  .field input[type=range] { padding: 0; accent-color: var(--accent); }
+  .field .rv { font: 500 14px var(--font-mono); color: var(--accent); float: right; text-transform: none; letter-spacing: 0; }
+  .result { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: var(--s5); align-items: end; border-top: 1px solid var(--hairline); padding-top: var(--s5); }
+  .result .v { font: 400 clamp(40px, 5vw, 68px)/1 var(--font-display); letter-spacing: -.03em; }
+  .result .v.sm { font-size: clamp(26px, 3vw, 36px); }
+  .result .l { font: 500 11px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 8px; }
+  .band { position: relative; height: 10px; background: var(--surface-2); border-radius: 999px; min-width: 120px; }
+  .band i { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 999px; }
+  .band b { position: absolute; top: -3px; width: 4px; height: 16px; border-radius: 2px; background: var(--accent); transform: translateX(-2px); }
+  .band u { position: absolute; top: -6px; width: 0; height: 22px; border-left: 2px dashed var(--ink-2); text-decoration: none; }
+  .tablewrap { overflow-x: auto; } .tablewrap table { min-width: 560px; }
+  ul.lim { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; display: grid; gap: 8px; }
+  code { font-family: var(--font-mono); background: var(--surface-2); padding: 2px 6px; border-radius: 6px; font-size: 13px; }
+  @media (max-width: 760px) { .form, .result { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-page="proj">
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Navigation"></nav>
+  <main>
+    <header class="top">
+      <div><p class="eyebrow">Riegel + relief</p><h1 class="title">Projections de <em>temps</em></h1></div>
+      <button class="btn js-cfg" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Personnaliser</button>
+    </header>
+
+    <div class="grid" id="grid">
+      <section class="card" data-w="calc" data-size="xl" data-label="Calculateur">
+        <h2>Calculateur <span class="hint">modifie un champ, tout se recalcule</span></h2>
+        <div class="form">
+          <div class="field"><label for="ref">Performance de référence</label>
+            <select id="ref"><option value="0">5 km · 21:42</option><option value="1" selected>10 km · 45:58</option><option value="2">Semi · 1:42:10</option></select></div>
+          <div class="field"><label for="exp">Exposant de Riegel <span class="rv" id="expv"></span></label><input id="exp" type="range" min="1.03" max="1.10" step="0.01" value="1.06"></div>
+          <div class="field"><label for="obj">Allure objectif (min:s /km)</label><input id="obj" value="4:50" inputmode="numeric" pattern="[0-9]:[0-5][0-9]"></div>
+          <div class="field"><label for="dist">Distance de la course (km)</label><input id="dist" type="number" step="0.1" min="1" value="16.2"></div>
+          <div class="field"><label for="dp">Dénivelé positif (m)</label><input id="dp" type="number" step="5" min="0" value="275"></div>
+          <div class="field"><label for="exp2">Marge d'incertitude de l'exposant <span class="rv" id="spv"></span></label><input id="exp2" type="range" min="0" max="0.04" step="0.01" value="0.02"></div>
+        </div>
+        <div class="result">
+          <div><div class="l">Temps projeté (relief inclus)</div><div class="v" id="t-adj"></div><div class="band" id="band" aria-hidden="true"></div></div>
+          <div><div class="l">Allure</div><div class="v sm" id="p-adj"></div></div>
+          <div><div class="l">Par rapport à l'objectif</div><div class="v sm" id="gap"></div><p style="color:var(--ink-2);font-size:13px;margin-top:6px" id="gap-t"></p></div>
+        </div>
+      </section>
+
+      <section class="card" data-w="table" data-size="l" data-label="Distances courantes">
+        <h2>Distances courantes <span class="hint">à plat, depuis la référence</span></h2>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Distance</th><th class="num">Temps</th><th class="num">Allure</th><th class="num">Fourchette</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+      </section>
+
+      <section class="card" data-w="limits" data-size="s" data-label="Ce que le modèle ignore">
+        <h2>Ce que le modèle ignore</h2>
+        <ul class="lim"><li>Forme du jour, météo, chaleur.</li><li>Fatigue de la semaine et affûtage.</li><li>Un marathon n'est pas un 5 km étiré : l'exposant monte avec la distance.</li><li>Le coût du relief est un modèle type « allure ajustée », à calibrer sur tes sorties.</li></ul>
+      </section>
+
+      <section class="card" data-w="formula" data-size="xl" data-label="Formules">
+        <h2>Formules</h2>
+        <p style="color:var(--ink-2);font-size:14px;max-width:80ch"><code>T2 = T1 × (D2 / D1)<sup>k</sup></code> avec <code>k = 1,06</code> par défaut (Riegel). Ensuite, le temps est multiplié par un facteur de relief calculé tronçon par tronçon sur le profil de la course : environ +3,3 % de temps par % de montée et −1,8 % par % de descente. Pour une course sans profil connu, on prend <code>1 + 0,015 × pente moyenne positive (%)</code>.</p>
+      </section>
+    </div>
+    <p style="margin-top:var(--s6);font-size:12px;color:var(--mute)">Maquette : performances de référence synthétiques.</p>
+  </main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Navigation"></nav>
+
+<script src="assets/data.js"></script><script src="assets/app.js"></script>
+<script>
+  const f = RD.fmtTime, p = RD.fmtPace, $ = (id) => document.getElementById(id);
+  const REFS = [{ d: 5, t: 1302 }, { d: 10, t: 2758 }, { d: 21.0975, t: 6130 }];
+  const parse = (s) => { const m = /^(\d+):(\d{2})$/.exec(s.trim()); return m ? +m[1] * 60 + +m[2] : NaN; };
+  const factor = (dist, dp) => 1 + 0.015 * (dp / (dist * 10)); // pente moyenne positive en %
+  function calc() {
+    const r = REFS[+$("ref").value], k = +$("exp").value, sp = +$("exp2").value, dist = +$("dist").value, dp = +$("dp").value, obj = parse($("obj").value);
+    $("expv").textContent = k.toFixed(2).replace(".", ","); $("spv").textContent = "± " + sp.toFixed(2).replace(".", ",");
+    if (!(dist > 0) || !(dp >= 0)) return;
+    // si la course est celle de Garches, on utilise le profil réel ; sinon la formule générale
+    const garches = Math.abs(dist - RD.race.dist) < .01 && dp === RD.race.dplus, fx = garches ? RD.slope : factor(dist, dp);
+    const T = (kk) => r.t * Math.pow(dist / r.d, kk) * fx, t = T(k), lo = Math.min(T(k - sp), T(k + sp)), hi = Math.max(T(k - sp), T(k + sp)); // sous la distance de référence l'ordre s'inverse
+    $("t-adj").textContent = f(t); $("p-adj").innerHTML = p(t / dist) + '<small style="font:400 14px var(--font-mono);color:var(--mute)"> /km</small>';
+    const ob = obj * dist;
+    if (!isNaN(ob)) {
+      const g = Math.round(t - ob); $("gap").textContent = (g > 0 ? "+" : "−") + Math.abs(g) + " s";
+      $("gap-t").textContent = g > 120 ? "Objectif très ambitieux." : g > 0 ? "Objectif tenable avec une course bien gérée." : "Objectif en réserve.";
+    }
+    const a = Math.min(lo, ob || lo) * .985, b = Math.max(hi, ob || hi) * 1.015, pos = (v) => ((v - a) / (b - a)) * 100;
+    $("band").innerHTML = `<i style="left:${pos(lo)}%;width:${pos(hi) - pos(lo)}%"></i><b style="left:${pos(t)}%"></b>` + (isNaN(ob) ? "" : `<u style="left:${pos(ob)}%" title="objectif"></u>`);
+    $("band").setAttribute("title", `fourchette ${f(lo)} à ${f(hi)}`);
+    $("rows").innerHTML = [["5 km", 5], ["10 km", 10], ["Semi", 21.0975], ["Marathon", 42.195]].map(([n, d]) => { const x = r.t * Math.pow(d / r.d, k), e1 = r.t * Math.pow(d / r.d, k - sp), e2 = r.t * Math.pow(d / r.d, k + sp), l = Math.min(e1, e2), h = Math.max(e1, e2);
+      return `<tr><td>${n}</td><td class="num"><b>${f(x)}</b></td><td class="num">${p(x / d)} /km</td><td class="num" style="color:var(--ink-2)">${f(l)} – ${f(h)}</td></tr>`; }).join("");
+  }
+  document.querySelectorAll("input, select").forEach((e) => e.addEventListener("input", calc)); calc();
+</script>
+</body>
+</html>
