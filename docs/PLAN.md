@@ -82,6 +82,10 @@ Dédup : `insert … on conflict (source, external_id) do update`. Une activité
 - **Ajustement au dénivelé** : correction par pente style Minetti/Strava GAP, calculée sur le profil de la course visée, et comparée au profil de la course de référence. Les coefficients sont à calibrer sur tes données réelles. La projection affiche une fourchette, pas un chiffre unique.
 - **Objectif Garches** : 16,2 km × 4:50/km = 4698 s = **1:18:18**.
 
+## État (17 novembre 2026)
+
+Faits : phases 1 à 8 sauf le fond de carte et les chaussures. Voir le README. Restent : appliquer `0002_features.sql`, déployer, créer l'abonnement webhook, calibrer le modèle de relief sur de vraies sorties.
+
 ## Phases
 
 0. **Maquettes** (ce lot). Écrans HTML statiques, thèmes, mouvement. Validation avant tout code.
