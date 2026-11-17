@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Données · rundashboard (maquette)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css"><link rel="stylesheet" href="assets/base.css">
+<style>
+  .status { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s4); }
+  .pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 color-mix(in srgb, var(--good) 60%, transparent); animation: pulse 2.4s var(--ease) infinite; }
+  @keyframes pulse { to { box-shadow: 0 0 0 10px transparent; } }
+  .kv { display: grid; gap: 10px; font-size: 14px; }
+  .kv div { display: flex; justify-content: space-between; border-top: 1px solid var(--hairline); padding-top: 10px; gap: var(--s3); }
+  .kv b { font: 500 14px var(--font-mono); }
+  .flow { display: grid; gap: 0; counter-reset: s; }
+  .flow li { list-style: none; display: grid; grid-template-columns: 36px 1fr; gap: var(--s3); padding-bottom: var(--s4); position: relative; }
+  .flow li::before { counter-increment: s; content: counter(s); width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--hairline); display: grid; place-items: center; font: 500 12px var(--font-mono); color: var(--ink-2); background: var(--surface); position: relative; z-index: 1; }
+  .flow li::after { content: ""; position: absolute; left: 13.5px; top: 28px; bottom: 0; width: 1px; background: var(--hairline); }
+  .flow li:last-child::after { display: none; }
+  .flow ol, .flow { margin: 0; padding: 0; }
+  .flow h3 { font: 500 15px var(--font-ui); } .flow p { color: var(--ink-2); font-size: 13px; }
+  .flow .srv { color: var(--accent); font: 500 11px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+  .drop { border: 1.5px dashed var(--hairline); border-radius: var(--radius); padding: var(--s6) var(--s5); text-align: center; transition: border-color var(--t-ui), background var(--t-ui); }
+  .drop.over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .drop p { color: var(--ink-2); font-size: 14px; margin-bottom: var(--s3); }
+  #log { margin-top: var(--s4); display: grid; gap: 8px; font-size: 14px; }
+  #log div { display: flex; justify-content: space-between; gap: var(--s3); border-top: 1px solid var(--hairline); padding-top: 8px; }
+  #log code { font: 400 12px var(--font-mono); color: var(--mute); }
+  .lock li { color: var(--ink-2); font-size: 14px; margin-bottom: 6px; } .lock ul { margin: 0; padding-left: 18px; }
+</style>
+</head>
+<body data-page="link">
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Navigation"></nav>
+  <main>
+    <header class="top">
+      <div><p class="eyebrow">Sources</p><h1 class="title">Tes <em>données</em></h1></div>
+      <button class="btn js-cfg" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Personnaliser</button>
+    </header>
+
+    <div class="grid" id="grid">
+      <section class="card" data-w="strava" data-size="m" data-label="Strava">
+        <h2>Strava</h2>
+        <div class="status"><i class="pulse"></i><span>Connecté (état simulé)</span></div>
+        <div class="kv">
+          <div><span>Dernière synchro</span><b>il y a 2 min</b></div>
+          <div><span>Activités en base</span><b>312</b></div>
+          <div><span>Déclencheur</span><b>webhook + cron quotidien</b></div>
+          <div><span>Quota Strava utilisé</span><b>14 %</b></div>
+        </div>
+        <p style="margin-top:var(--s5);display:flex;gap:var(--s2);flex-wrap:wrap"><button class="btn primary" type="button">Se connecter avec Strava</button><button class="btn" type="button">Resynchroniser</button></p>
+        <p style="margin-top:var(--s3);font-size:12px;color:var(--mute)">Boutons non fonctionnels dans la maquette.</p>
+      </section>
+
+      <section class="card" data-w="flow" data-size="m" data-label="Comment la connexion marche">
+        <h2>Comment la connexion marche</h2>
+        <ol class="flow">
+          <li><div><h3>Clic sur « Se connecter »</h3><p>Le navigateur va sur <code class="num">/api/strava/connect</code>.</p><span class="srv">serveur</span></div></li>
+          <li><div><h3>Strava demande ton accord</h3><p>Redirection avec un <code class="num">state</code> aléatoire (cookie httpOnly).</p></div></li>
+          <li><div><h3>Retour sur <code class="num">/api/strava/callback</code></h3><p>Le code est échangé contre des tokens. Le secret client ne quitte jamais le serveur.</p><span class="srv">serveur</span></div></li>
+          <li><div><h3>Tokens rangés dans Supabase</h3><p>Table sans lecture côté navigateur. Rafraîchis automatiquement avant expiration.</p><span class="srv">serveur</span></div></li>
+          <li><div><h3>Synchro des activités</h3><p><code class="num">upsert … on conflict (source, external_id)</code> : jamais de doublon.</p><span class="srv">serveur</span></div></li>
+        </ol>
+      </section>
+
+      <section class="card" data-w="import" data-size="l" data-label="Import GPX / FIT (plan B)">
+        <h2>Import GPX / FIT <span class="hint">plan B</span></h2>
+        <div class="drop" id="drop">
+          <p>Dépose un fichier <b>.gpx</b> ou <b>.fit</b>, ou choisis-le.</p>
+          <label class="btn" style="cursor:pointer">Choisir un fichier<input id="file" type="file" accept=".gpx,.fit" class="sr"></label>
+        </div>
+        <div id="log" aria-live="polite"></div>
+        <p style="margin-top:var(--s4);font-size:12px;color:var(--mute)">Démo : le fichier reste dans ton navigateur. On calcule son empreinte SHA-256 ; la même empreinte deux fois est ignorée, comme le fera <code class="num">external_id</code> côté base.</p>
+      </section>
+
+      <section class="card" data-w="lock" data-size="s" data-label="Ce qui reste côté serveur">
+        <h2>Côté serveur seulement</h2>
+        <div class="lock"><ul>
+          <li><code class="num">STRAVA_CLIENT_SECRET</code></li><li>Tokens d'accès et de rafraîchissement</li><li><code class="num">SUPABASE_SERVICE_ROLE_KEY</code></li><li>Vérification du webhook</li></ul></div>
+        <p style="margin-top:var(--s3);font-size:13px;color:var(--ink-2)">Le navigateur ne voit que l'URL Supabase et la clé publique, protégées par RLS.</p>
+      </section>
+    </div>
+  </main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Navigation"></nav>
+
+<script src="assets/app.js"></script>
+<script>
+  const log = document.getElementById("log"), drop = document.getElementById("drop"), file = document.getElementById("file");
+  let seen; try { seen = new Set(JSON.parse(localStorage.getItem("rd.demo.hashes") || "[]")); } catch (e) { seen = new Set(); }
+  async function take(f) {
+    if (!f) return;
+    if (!/\.(gpx|fit)$/i.test(f.name)) return add("bad", f.name, "Format non pris en charge");
+    const buf = await f.arrayBuffer(), h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    const dup = seen.has(h); seen.add(h); try { localStorage.setItem("rd.demo.hashes", JSON.stringify([...seen])); } catch (e) { /* ignoré */ }
+    add(dup ? "warn" : "good", f.name, dup ? "Doublon, ignoré" : "Nouvelle activité", h.slice(0, 12));
+  }
+  function add(kind, name, msg, hash) {
+    const d = document.createElement("div");
+    d.innerHTML = `<span>${name.replace(/[<>&]/g, "")} <code>${hash || ""}</code></span><span class="chip ${kind}">${msg}</span>`; log.prepend(d);
+  }
+  file.onchange = () => take(file.files[0]);
+  ["dragenter", "dragover"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", (ev) => take(ev.dataTransfer.files[0]));
+</script>
+</body>
+</html>
