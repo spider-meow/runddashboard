@@ -38,7 +38,7 @@ export function Calculator({ refs, race }: Props) {
         <div className="field"><label htmlFor="exp">Exposant de Riegel <span className="rv">{k.toFixed(2).replace(".", ",")}</span></label>
           <input id="exp" type="range" min="1.03" max="1.10" step="0.01" value={k} onChange={(e) => setK(+e.target.value)} /></div>
         <div className="field"><label htmlFor="obj">Allure objectif (m:ss /km)</label>
-          <input id="obj" value={target} inputMode="numeric" placeholder="4:50" onChange={(e) => setTarget(e.target.value)} /></div>
+          <input id="obj" value={target} inputMode="text" autoComplete="off" placeholder="4:50" onChange={(e) => setTarget(e.target.value)} /></div>
         <div className="field"><label htmlFor="dist">Distance de la course (km)</label>
           <input id="dist" type="number" step="0.1" min="1" value={dist} onChange={(e) => setDist(e.target.value)} /></div>
         <div className="field"><label htmlFor="dp">Dénivelé positif (m)</label>

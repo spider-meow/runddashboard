@@ -13,13 +13,14 @@ const ITEMS: [string, string, ReactNode][] = [
   ["/donnees", "Données", icon(<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />)],
 ];
 
+// Navigation : icône + libellé visible (une icône seule est ambiguë), page courante annoncée par aria-current.
 export function Nav({ position }: { position: "rail" | "tabbar" }) {
   const path = usePathname();
   const links = ITEMS.map(([href, label, svg]) => {
     const current = href === "/" ? path === "/" : path.startsWith(href);
-    return <Link key={href} href={href} aria-label={label} title={label} aria-current={current ? "page" : undefined}>{svg}</Link>;
+    return <Link key={href} href={href} aria-current={current ? "page" : undefined}>{svg}<span>{label}</span></Link>;
   });
   return position === "rail"
-    ? <nav className="rail" aria-label="Navigation"><div className="logo" aria-hidden="true">rd</div>{links}</nav>
-    : <nav className="tabbar" aria-label="Navigation">{links}</nav>;
+    ? <nav className="rail" aria-label="Navigation principale"><div className="logo" aria-hidden="true">rd</div>{links}</nav>
+    : <nav className="tabbar" aria-label="Navigation principale (mobile)">{links}</nav>;
 }

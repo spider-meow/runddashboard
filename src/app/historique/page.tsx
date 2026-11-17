@@ -8,6 +8,7 @@ import { getRuns, racesTableMissing } from "@/lib/queries";
 import { personalRecords, weeklyVolume } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Historique" };
 
 export default async function Historique() {
   await requireOwner();

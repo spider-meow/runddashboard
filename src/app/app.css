@@ -74,3 +74,59 @@ body { font-family: var(--font-ui); }
 .band b { position: absolute; top: -3px; width: 4px; height: 16px; border-radius: 2px; background: var(--accent); transform: translateX(-2px); }
 .band u { position: absolute; top: -6px; height: 22px; border-left: 2px dashed var(--ink-2); text-decoration: none; }
 @media (max-width: 760px) { .form, .result { grid-template-columns: 1fr; } .race-hero { grid-template-columns: 1fr; } }
+
+/* ---------- navigation : icône + libellé ---------- */
+.rail a, .tabbar a { width: 62px; height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.rail a span, .tabbar a span { font: 500 10px/1 var(--font-ui); letter-spacing: .04em; text-transform: uppercase; }
+.rail a[aria-current="page"] span, .tabbar a[aria-current="page"] span { color: var(--accent); }
+.rail a[aria-current="page"], .tabbar a[aria-current="page"] { position: relative; }
+.rail a[aria-current="page"]::before { content: ""; position: absolute; left: -7px; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: var(--accent); }
+.tabbar a { width: auto; flex: 1; max-width: 90px; }
+.skip { position: absolute; left: 8px; top: -60px; z-index: 100; background: var(--accent); color: var(--on-accent); padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 600; transition: top var(--t-micro) var(--ease); }
+.skip:focus { top: 8px; }
+main:focus { outline: none; }
+
+/* ---------- formulaires et actions ---------- */
+.stackform { display: grid; gap: var(--s4); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
+@media (max-width: 520px) { .row2 { grid-template-columns: 1fr; } }
+.field .req { color: var(--accent); }
+.field p.hint, .field p.err { min-height: 0; margin-top: 4px; font-size: 12px; line-height: 1.4; }
+.field p.hint:empty, .field p.err:empty { display: none; }
+.field p.err { color: var(--bad); }
+.field input[aria-invalid="true"], .field textarea[aria-invalid="true"] { border-color: var(--bad); }
+.field input, .field textarea, .field select { transition: border-color var(--t-micro) var(--ease), box-shadow var(--t-micro) var(--ease); }
+.field input:focus-visible, .field textarea:focus-visible, .field select:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); outline: none; }
+.form-msg:empty { display: none; }
+.form-msg p { margin: 0 !important; }
+.pop { animation: pop var(--t-ui) var(--ease) both; }
+@keyframes pop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.inline-link { text-decoration: underline; text-underline-offset: 3px; color: var(--accent); }
+.btn:disabled { opacity: .6; cursor: progress; }
+.btn.danger { background: var(--bad); color: var(--bg); border-color: transparent; }
+.btn.danger-ghost { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, transparent); background: transparent; }
+.btn.danger-ghost:hover { background: color-mix(in srgb, var(--bad) 12%, transparent); border-color: var(--bad); }
+.confirm { display: grid; gap: var(--s3); animation: pop var(--t-ui) var(--ease) both; }
+.confirm p { color: var(--ink-2); font-size: 14px; }
+.confirm .actions { display: flex; gap: var(--s2); flex-wrap: wrap; }
+.sync { display: grid; gap: var(--s3); justify-items: start; }
+.sync > div:empty { display: none; }
+.sync p { margin: 0; }
+.spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- mouvement ---------- */
+.list-link { transition: padding var(--t-ui) var(--ease), background var(--t-micro); }
+.list-link:hover { padding-left: var(--s2); }
+.list-link:hover strong { color: var(--accent); }
+.list-link strong { transition: color var(--t-micro); }
+.card { transition: border-color var(--t-ui) var(--ease), transform var(--t-ui) var(--ease); }
+@media (hover: hover) { .card:not([data-tone="hot"]):hover { border-color: color-mix(in srgb, var(--accent) 35%, var(--hairline)); } }
+.alert, .notice, .ok { animation: pop var(--t-ui) var(--ease) both; }
+.top { animation: rise var(--t-enter) var(--ease) both; }
+
+/* entrée de page : fondu court (opacité seule), rejoué à chaque navigation par template.tsx */
+.page-in { animation: page-fade 180ms var(--ease) both; }
+@keyframes page-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .spin { animation-duration: 1.6s !important; animation-iteration-count: infinite !important; } }
+.chip { white-space: nowrap; flex-shrink: 0; }

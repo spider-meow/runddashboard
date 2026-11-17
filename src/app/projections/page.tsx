@@ -9,6 +9,7 @@ import { riegel, type Reference } from "@/lib/riegel";
 import { personalRecords } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Projections" };
 
 const DISTANCES: [string, number][] = [["5 km", 5], ["10 km", 10], ["Semi", 21.0975], ["Marathon", 42.195]];
 const REFS: [string, number][] = [["5K", 5], ["10K", 10], ["Semi", 21.0975]];
