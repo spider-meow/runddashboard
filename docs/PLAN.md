@@ -16,7 +16,7 @@ Dashboard de running perso. Un seul utilisateur (toi). Gratuit : Vercel Hobby + 
 - **Next.js (App Router) + TypeScript**, déployé sur Vercel. Un seul dépôt.
 - **Supabase** : Postgres seul, sans Auth. Le dashboard est **privé** : d'après la presse, l'accord API de Strava limite l'affichage des données d'un athlète à lui-même (texte de l'accord non vérifié), et un tracé GPS peut révéler son domicile. Le login Strava, limité à `OWNER_ATHLETE_ID`, pose un cookie de session signé (HMAC). RLS activée sans aucune policy ; le serveur accède aux tables avec la clé secrète Supabase.
 - **Pas de lib de graphiques** : SVG maison (les maquettes le prouvent, et c'est le plus petit code). À rediscuter si besoin d'interactions complexes.
-- **Pas de carte à tuiles au début** : le tracé est dessiné en SVG seul, sur fond neutre. Fond de carte (MapLibre + tuiles libres) en phase ultérieure.
+- **Fond de carte** : tuiles OpenStreetMap posées sous le tracé SVG (projection Web Mercator calculée côté serveur, pas de bibliothèque JS). Le navigateur les télécharge chez OSM : voir le README pour la confidentialité et `MAP_TILES=off`.
 - **Pas de tests écrits pour les maquettes**. À partir du prototype : tests sur les fonctions pures (Riegel, allures, dédup, parseur GPX) avant le code, puis un smoke test de bout en bout.
 
 ## Secrets et sécurité
@@ -84,7 +84,7 @@ Dédup : `insert … on conflict (source, external_id) do update`. Une activité
 
 ## État (17 novembre 2026)
 
-Phases 2 à 8 faites, chaussures et glisser-déposer compris (migration 0003). Le fond de carte est volontairement laissé de côté : il enverrait ton tracé à un service de tuiles tiers. Voir le README. Prouvé en local contre la vraie base (migration 0002 appliquée) : connexion Strava, synchro dédupliquée, analyse des courses (5 km en 1342 s contre 1343 s chez Strava), enregistrement des préférences (thème, widgets masqués, conservés au rechargement), modification d'une course, import de tracé GPX, import d'une activité GPX avec déduplication (le même fichier deux fois n'ajoute rien), handshake du webhook. Restent à prouver : la lecture d'une vraie paire de chaussures, un vrai fichier FIT de montre, le déploiement Vercel, le cron, l'abonnement webhook en ligne, le rafraîchissement du jeton. À faire : importer le vrai GPX de Garches, calibrer le modèle de relief sur de vraies sorties.
+Phases 2 à 8 faites, chaussures et glisser-déposer compris (migration 0003). Fond de carte ajouté (tuiles OSM, désactivable) et passe de vitesse faite : voir le README. Prouvé en local contre la vraie base (migration 0002 appliquée) : connexion Strava, synchro dédupliquée, analyse des courses (5 km en 1342 s contre 1343 s chez Strava), enregistrement des préférences (thème, widgets masqués, conservés au rechargement), modification d'une course, import de tracé GPX, import d'une activité GPX avec déduplication (le même fichier deux fois n'ajoute rien), handshake du webhook. Restent à prouver : la lecture d'une vraie paire de chaussures, un vrai fichier FIT de montre, le déploiement Vercel, le cron, l'abonnement webhook en ligne, le rafraîchissement du jeton. À faire : importer le vrai GPX de Garches, calibrer le modèle de relief sur de vraies sorties.
 
 ## Phases
 
@@ -96,7 +96,7 @@ Phases 2 à 8 faites, chaussures et glisser-déposer compris (migration 0003). L
 5. **Projections** Riegel + dénivelé ; suivi des chaussures (`gear`).
 6. **Fiches de course** et repères de passage.
 7. **Personnalisation persistée** (widgets, thème, accent dans `user_prefs`).
-8. **Fond de carte** et finitions de mouvement.
+8. Finitions de mouvement (fond de carte : fait).
 
 ## Hors prototype (volontairement)
 

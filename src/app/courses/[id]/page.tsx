@@ -39,7 +39,7 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
     },
     {
       id: "map", label: "Tracé", size: "l",
-      node: (<><h2>Tracé</h2>{race.course_polyline ? <RouteMap polyline={race.course_polyline} label={`Tracé de ${race.name}`} /> : <p className="empty">Pas encore de tracé. Importe le fichier GPX du parcours (formulaire plus bas).</p>}</>),
+      node: (<><h2>Tracé</h2>{race.course_polyline ? <RouteMap polyline={race.course_polyline} label={`Tracé de ${race.name}`} theme={prefs.theme} /> : <p className="empty">Pas encore de tracé. Importe le fichier GPX du parcours (formulaire plus bas).</p>}</>),
     },
     {
       id: "notes", label: "Notes", size: "s",

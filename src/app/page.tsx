@@ -82,7 +82,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
               {race.target_pace_s != null && <p className="muted">Temps visé <b className="num" style={{ color: "var(--ink)" }}>{fmtTime(race.target_pace_s * (race.distance_m / 1000))}</b></p>}
               <p style={{ marginTop: "var(--s4)" }}><Link className="btn primary" href={`/courses/${race.id}`}>Ouvrir la fiche</Link></p>
             </div>
-            {race.course_polyline ? <RouteMap polyline={race.course_polyline} label="Tracé de la course" /> : <p className="empty">Importe le tracé GPX de la course depuis sa fiche pour le voir ici.</p>}
+            {race.course_polyline ? <RouteMap polyline={race.course_polyline} label="Tracé de la course" theme={prefs.theme} /> : <p className="empty">Importe le tracé GPX de la course depuis sa fiche pour le voir ici.</p>}
           </div>
         </>
       ),

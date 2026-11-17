@@ -38,6 +38,19 @@ Importe le repo, saisis les mêmes variables dans Project Settings > Environment
 - **GPX / FIT** : l'import calcule distance, allures, splits, records et dénivelé à partir des points. Le fichier doit contenir l'heure de chaque point, et peser 4 Mo au plus (Vercel refuse les requêtes de plus de 4,5 Mo).
 - **Relief** : le coût du relief est un modèle simple (+3,3 % de temps par % de montée, −1,8 % par % de descente), à calibrer sur tes sorties.
 
+## Fond de carte
+
+Sous le tracé, des tuiles [OpenStreetMap](https://www.openstreetmap.org/copyright) (assombries en CSS pour Poster et Midnight). Le serveur ne fait que calculer quelles tuiles afficher : **c'est ton navigateur qui les télécharge chez tile.openstreetmap.org**, qui voit donc la zone affichée, ton adresse IP et le site d'où tu viens. Le tracé exact n'est jamais envoyé, mais une zone zoomée peut suffire à deviner où tu habites si ta course part de chez toi.
+
+- `MAP_TILES=off` : carte schématique sans aucun tiers (le tracé s'affiche, sans fond).
+- `MAP_TILE_URL=https://…/{z}/{x}/{y}.png` : autre fournisseur. La [politique d'OpenStreetMap](https://operations.osmfoundation.org/policies/tiles/) tolère un usage léger comme celui-ci, pas un site très fréquenté. Les tuiles CARTO ont été essayées : elles exigent une clé API et affichent un filigrane sans elle.
+
+## Vitesse
+
+- Les listes ne chargent ni tracé, ni splits, ni profil (seule la dernière sortie est lue en entier) : ~8 fois moins de données par sortie.
+- Les préférences ne sont lues qu'une fois par requête, les polices sont hébergées par l'app (aucun appel à Google Fonts), un squelette s'affiche pendant le chargement d'une page.
+- **Région des fonctions Vercel** : c'est probablement le réglage qui compte le plus. Chaque page fait des allers-retours vers Supabase ; si les fonctions Vercel sont à Washington (réglage par défaut) et ta base en Europe, chacun coûte 80 à 100 ms de plus. Dans Vercel > Settings > Functions, choisis la région la plus proche de ta base Supabase (affichée dans Supabase > Project Settings).
+
 ## Commandes
 
 ```bash
@@ -48,4 +61,4 @@ npm run build
 
 ## Limites connues
 
-La synchronisation initiale plafonne à 1 000 activités. Les chaussures viennent de l'équipement Strava affecté à tes sorties (lecture non vérifiée sur une vraie paire : aucune de tes courses n'en a). La carte est un schéma dessiné à partir du tracé, sans fond de carte : aucun service tiers ne voit où tu cours. Sur mobile, le texte des graphiques est agrandi par CSS, sans redessin au redimensionnement.
+La synchronisation initiale plafonne à 1 000 activités. Les chaussures viennent de l'équipement Strava affecté à tes sorties (lecture non vérifiée sur une vraie paire : aucune de tes courses n'en a). Sur mobile, le texte des graphiques est agrandi par CSS, sans redessin au redimensionnement.
