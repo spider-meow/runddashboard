@@ -116,8 +116,8 @@
   $("race-date").textContent = d0.toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
   $("dn").textContent = days > 0 ? "J-" + days : days === 0 ? "Jour J" : "Passée";
 
-  // projection : Riegel depuis le 10 km de référence, puis pénalité de dénivelé (provisoire : 1 s par m de D+)
-  const flat = RD.riegel(RD.refBest.time, RD.refBest.dist, R.dist), adj = flat + R.dplus * 1.0, gap = adj - R.targetTime;
+  // projection : Riegel depuis le 10 km de référence, puis coût du relief calculé sur le profil (modèle provisoire)
+  const flat = RD.riegel(RD.refBest.time, RD.refBest.dist, R.dist), adj = RD.gradeAdj(flat), gap = adj - R.targetTime;
   $("k-flat").textContent = f(flat); $("k-adj").textContent = f(adj);
   $("k-gap").textContent = (gap > 0 ? "+" : "") + Math.round(gap) + " s"; $("k-gap").className = "chip " + (gap > 120 ? "bad" : gap > 0 ? "warn" : "good");
 

@@ -51,8 +51,11 @@
     { km: 16.2, name: "Arrivée", note: "" },
   ];
   // temps cumulé cible : plus lent en montée, un peu plus rapide en descente, puis normalisé sur 1:18:18
-  const base = []; for (let i = 0; i <= N; i++) base.push(i === 0 ? 0 : 0.1 + Math.max(-0.05, (elev[i] - elev[i - 1]) * 0.012));
+  // modèle type « allure ajustée à la pente » : +3,3 % de temps par % de montée, -1,8 % par % de descente (à calibrer sur tes données)
+  const base = []; for (let i = 0; i <= N; i++) { const g = i ? (elev[i] - elev[i - 1]) : 0; base.push(i === 0 ? 0 : Math.max(.6, 1 + (g > 0 ? .033 : .018) * g)); }
   let acc = 0; const rawT = base.map((b) => (acc += b));
+  const slope = rawT[N] / N; // coût moyen du relief par rapport au plat (1,025 = +2,5 %)
+  const gradeAdj = (flatTime) => flatTime * slope;
   const tScale = race.targetTime / rawT[N];
   const timeAt = (km) => rawT[Math.round(km * 10)] * tScale;
   checkpoints.forEach((c) => { c.t = timeAt(c.km); });
@@ -85,5 +88,5 @@
   ];
   const refBest = { dist: 10, time: 2758 }; // base des projections (10 km, 4 oct)
 
-  window.RD = { fmtPace, fmtTime, riegel, race, elev, elevMin, elevMax, routeXY, checkpoints, lastRun, weeks, prs, recent, refBest, N };
+  window.RD = { fmtPace, fmtTime, riegel, gradeAdj, slope, race, elev, elevMin, elevMax, routeXY, checkpoints, lastRun, weeks, prs, recent, refBest, N };
 })();
