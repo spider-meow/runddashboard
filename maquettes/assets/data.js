@@ -42,7 +42,7 @@
 
   // repères de passage (km) avec allure cible ajustée à la pente
   const checkpoints = [
-    { km: 0, name: "Départ", note: "Se placer à 4:55, ne pas partir vite" },
+    { km: 0, name: "Départ", note: "Ne pas partir vite : la 1re côte arrive dès 2 km" },
     { km: 2.4, name: "1re côte", note: "Sommet bosse 1 : tenir l'effort, pas l'allure" },
     { km: 5.0, name: "Ravitaillement", note: "Eau, 1 gel optionnel" },
     { km: 7.9, name: "Plus longue montée", note: "Relancer dès la bascule" },
@@ -81,7 +81,7 @@
     { label: "Plus gros D+", v: "412 m", date: "2026-05-30" },
   ];
   const recent = [
-    ["2026-11-15", "Sortie du dimanche", 12.4, lastRun.time, 187],
+    ["2026-11-15", "Sortie du dimanche", 12.4, lastRun.time, lastRun.dplus],
     ["2026-11-12", "Footing récupération", 7.2, 2316, 41], ["2026-11-10", "Séance 6 × 1000 m", 11.0, 3085, 64],
     ["2026-11-08", "Footing facile", 9.6, 3006, 72], ["2026-11-04", "Tempo 3 × 2 km", 12.5, 3540, 95],
     ["2026-11-01", "Sortie longue", 20.1, 6420, 233], ["2026-10-29", "Footing facile", 8.0, 2512, 38],
