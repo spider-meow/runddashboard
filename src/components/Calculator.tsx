@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { setRaceTarget } from "@/app/actions";
+import type { FormState } from "@/lib/forms";
 import { fmtPace, fmtTime, parsePace } from "@/lib/pace";
 import { genericGradeFactor, profileGradeFactor, riegel, type Reference } from "@/lib/riegel";
 
 type Props = {
   refs: Reference[];                               // efforts de référence disponibles (tes records)
-  race: { name: string; distance_km: number; dplus: number; target_pace_s: number | null; profile: [number, number][] | null };
+  race: { id: string | null; name: string; distance_km: number; dplus: number; target_pace_s: number | null; profile: [number, number][] | null };
 };
 
 // Calculateur de projection : Riegel depuis une référence, puis coût du relief. Tout se recalcule à la saisie.
@@ -18,6 +20,8 @@ export function Calculator({ refs, race }: Props) {
   const [dplus, setDplus] = useState(String(race.dplus));
   const [target, setTarget] = useState(race.target_pace_s ? fmtPace(race.target_pace_s) : "");
 
+  const [saving, startSave] = useTransition();
+  const [saved, setSaved] = useState<FormState | null>(null);
   const ref = refs[refIdx];
   const d = parseFloat(dist.replace(",", ".")), up = parseFloat(dplus) || 0;
   const sameAsRace = Math.abs(d - race.distance_km) < 0.01 && up === race.dplus;
@@ -55,6 +59,14 @@ export function Calculator({ refs, race }: Props) {
             {gap !== null ? <><div className="v sm">{gap > 0 ? "+" : "−"}{Math.abs(gap)} s</div><p className="muted" style={{ fontSize: 13, marginTop: 6 }}>{gap > 120 ? "Objectif très ambitieux." : gap > 0 ? "Objectif tenable avec une course bien gérée." : "Objectif en réserve."}</p></> : <div className="v sm">–</div>}</div>
         </div>
       ) : <p className="empty">Saisis une distance valide.</p>}
+      {race.id && isFinite(t) && sameAsRace && (
+        <div className="use-goal">
+          <button type="button" className="btn" disabled={saving} aria-busy={saving} onClick={() => startSave(async () => setSaved(await setRaceTarget(race.id!, t / d)))}>
+            {saving && <span className="spin" aria-hidden="true" />}Utiliser {fmtPace(t / d)} /km comme objectif de « {race.name} »
+          </button>
+          <div aria-live="polite" aria-atomic="true">{saved && <p className={`${saved.status === "ok" ? "ok" : "alert"} pop`}>{saved.message}</p>}</div>
+        </div>
+      )}
     </>
   );
 }

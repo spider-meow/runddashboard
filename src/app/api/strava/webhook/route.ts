@@ -1,4 +1,6 @@
+import { revalidateTag } from "next/cache";
 import { after } from "next/server";
+import { DATA_TAG } from "@/lib/cache";
 import { db } from "@/lib/db";
 import { safeEqual } from "@/lib/owner";
 import { activityExists } from "@/lib/strava";
@@ -40,6 +42,7 @@ export async function POST(req: Request) {
     } catch (e) {
       console.error("Webhook Strava", e);
     }
+    revalidateTag(DATA_TAG, { expire: 0 });
   });
   return new Response("ok");
 }

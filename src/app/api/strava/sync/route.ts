@@ -1,4 +1,6 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
+import { DATA_TAG } from "@/lib/cache";
 import { db } from "@/lib/db";
 import { isOwner, validBearer } from "@/lib/owner";
 import { syncActivities } from "@/lib/sync";
@@ -16,7 +18,9 @@ async function handle(req: Request) {
   let result;
   try {
     result = await syncActivities(db(), Number(process.env.OWNER_ATHLETE_ID));
+    revalidateTag(DATA_TAG, { expire: 0 }); // les lectures en cache repartent de la base
   } catch (e) {
+    revalidateTag(DATA_TAG, { expire: 0 }); // une synchro partielle a pu écrire des lignes
     console.error("Synchronisation échouée", e);
     const message = e instanceof Error ? e.message : "erreur inconnue";
     return wantsJson ? Response.json({ error: message }, { status: 502 }) : req.method === "POST" ? back(req, "sync") : new Response("Synchronisation échouée", { status: 502 });

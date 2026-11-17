@@ -1,10 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { elevProfile, elevationGain } from "@/lib/analyze";
 import { parseCheckpoints } from "@/lib/checkpoints";
+import { DATA_TAG } from "@/lib/cache";
 import { db } from "@/lib/db";
 import { fmtDate } from "@/lib/dates";
 import { checkpointIssue, parseRaceFields, type FormState } from "@/lib/forms";
@@ -40,7 +41,7 @@ export async function createRace(_prev: FormState, formData: FormData): Promise<
   if (!data) return fail("Corrige les champs signalés.", { errors, values });
   const { data: row, error } = await db().from("races").insert(data).select("id").single();
   if (error) return fail(`Enregistrement impossible : ${error.message}`, { values });
-  revalidatePath("/courses");
+  updateTag(DATA_TAG);
   redirect(`/courses/${row.id}?cree=1`);
 }
 
@@ -55,7 +56,7 @@ export async function updateRace(id: string, _prev: FormState, formData: FormDat
   if (!data || Object.keys(errors).length) return fail("Corrige les champs signalés.", { errors, values });
   const { error } = await db().from("races").update({ ...data, checkpoints: parseCheckpoints(checkpoints), notes: (values.notes ?? "").trim() || null }).eq("id", id);
   if (error) return fail(`Enregistrement impossible : ${error.message}`, { values });
-  revalidatePath("/courses", "layout");
+  updateTag(DATA_TAG);
   return { status: "ok", message: "Modifications enregistrées.", values };
 }
 
@@ -63,7 +64,7 @@ export async function deleteRace(id: string, _prev: FormState): Promise<FormStat
   await guard();
   const { error } = await db().from("races").delete().eq("id", id);
   if (error) return fail(`Suppression impossible : ${error.message}`);
-  revalidatePath("/", "layout");
+  updateTag(DATA_TAG);
   redirect("/courses?supprimee=1");
 }
 
@@ -93,7 +94,7 @@ export async function importRaceTrack(id: string, _prev: FormState, formData: Fo
     course_profile: s.altitude ? elevProfile(s.distance, s.altitude) : null,
   }).eq("id", id);
   if (error) return fail(`Import impossible : ${error.message}`);
-  revalidatePath(`/courses/${id}`);
+  updateTag(DATA_TAG);
 
   // On dit ce qu'on a lu, et on signale un tracé qui ne correspond visiblement pas à la course.
   const trackM = s.distance[s.distance.length - 1], gain = s.altitude ? Math.round(elevationGain(s.altitude)) : null;
@@ -122,6 +123,29 @@ export async function importActivity(_prev: FormState, formData: FormData): Prom
   const { data, error } = await db().from("activities").upsert(row, { onConflict: "source,external_id", ignoreDuplicates: true }).select("id");
   if (error) return fail(`Import impossible : ${error.message}`);
   if (!data?.length) return { status: "warn", message: "Ce fichier est déjà importé : rien n'a été ajouté.", href: "/historique" };
-  revalidatePath("/", "layout");
+  updateTag(DATA_TAG);
   return { status: "ok", message: `Activité importée : « ${row.name} », ${fmtKm(row.distance_m)} km le ${fmtDate(row.started_at, { day: "numeric", month: "long" })}.`, href: "/historique" };
+}
+
+// ---------- sorties ----------
+// Suppression d'une sortie importée depuis un fichier. Les sorties Strava ne se suppriment pas ici : la prochaine synchro les remettrait.
+export async function deleteRun(id: string, _prev: FormState): Promise<FormState> {
+  await guard();
+  const { data: row } = await db().from("activities").select("source").eq("id", id).maybeSingle();
+  if (!row) return fail("Cette sortie n'existe plus.");
+  if (row.source === "strava") return fail("Une sortie Strava se supprime dans Strava, sinon la synchro la remettrait.");
+  const { error } = await db().from("activities").delete().eq("id", id);
+  if (error) return fail(`Suppression impossible : ${error.message}`);
+  updateTag(DATA_TAG);
+  redirect("/historique?supprimee=1");
+}
+
+// « Utiliser cette projection comme objectif » : l'allure projetée devient l'allure visée de la course.
+export async function setRaceTarget(id: string, paceS: number): Promise<FormState> {
+  await guard();
+  if (!Number.isFinite(paceS) || paceS < 120 || paceS > 1200) return fail("Allure hors limites.");
+  const { error } = await db().from("races").update({ target_pace_s: Math.round(paceS) }).eq("id", id);
+  if (error) return fail(`Enregistrement impossible : ${error.message}`);
+  updateTag(DATA_TAG);
+  return { status: "ok", message: "Objectif enregistré sur la fiche de la course." };
 }

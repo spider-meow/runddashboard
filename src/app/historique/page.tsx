@@ -1,13 +1,15 @@
+import Link from "next/link";
 import { Cards, PageHeader, type Item } from "@/components/Cards";
 import { MigrationNotice, PrList } from "@/components/bits";
+import { Flash } from "@/components/formkit";
 import { PaceLine, VolumeBars } from "@/components/charts";
 import { fmtDate } from "@/lib/dates";
+import { findDuplicates } from "@/lib/duplicates";
 import { requireOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime, paceSecPerKm } from "@/lib/pace";
 import { getRuns, racesTableMissing } from "@/lib/queries";
 import { personalRecords, weeklyVolume } from "@/lib/stats";
 
-export const dynamic = "force-dynamic";
 export const metadata = { title: "Historique" };
 
 export default async function Historique() {
@@ -19,6 +21,7 @@ export default async function Historique() {
   const avgPace = (w: typeof weeks) => { const km = sum(w, "km"); const t = w.reduce((a, x) => a + (x.pace ?? 0) * x.km, 0); return km ? t / km : null; };
   const km4 = sum(last4, "km"), kmP = sum(prev4, "km"), p4 = avgPace(last4), pP = avgPace(prev4);
   const records = personalRecords(runs);
+  const dups = findDuplicates(runs);
 
   const items: Item[] = [
     {
@@ -50,8 +53,8 @@ export default async function Historique() {
               {runs.slice(0, 15).map((r) => {
                 const p = paceSecPerKm(r.moving_time_s, r.distance_m);
                 return (
-                  <tr key={r.id}>
-                    <td>{fmtDate(r.started_at, { day: "2-digit", month: "short" })}</td><td>{r.name}{r.source !== "strava" && <span className="chip" style={{ marginLeft: 8 }}>{r.source.toUpperCase()}</span>}</td>
+                  <tr key={r.id} className="row">
+                    <td>{fmtDate(r.started_at, { day: "2-digit", month: "short" })}</td><td><Link className="row-link" href={`/historique/${r.id}`} prefetch>{r.name}</Link>{r.source !== "strava" && <span className="chip" style={{ marginLeft: 8 }}>{r.source.toUpperCase()}</span>}{dups.has(r.id) && <span className="chip warn" style={{ marginLeft: 8 }}>Doublon</span>}</td>
                     <td className="num">{fmtKm(r.distance_m)} km</td><td className="num">{fmtTime(r.moving_time_s)}</td><td className="num">{p ? fmtPace(p) : "–"} /km</td><td className="num">{Math.round(r.elevation_gain_m ?? 0)} m</td>
                   </tr>
                 );
@@ -67,6 +70,7 @@ export default async function Historique() {
     <>
       <PageHeader eyebrow={`24 dernières semaines · ${runs.length} sortie${runs.length > 1 ? "s" : ""}`}>Historique et <em>records</em></PageHeader>
       {migrationMissing && <MigrationNotice />}
+      <Flash param="supprimee">Sortie supprimée.</Flash>
       <Cards items={items} />
     </>
   );

@@ -39,13 +39,13 @@ export function RaceForm({ action, initial, mode }: { action: Action; initial: P
 }
 
 // Suppression en deux temps, sans boîte de dialogue du navigateur (qui bloque les agents et se rate au clavier).
-export function DeleteRace({ name, action }: { name: string; action: Action }) {
+export function DeleteRace({ name, action, what = "cette course", consequence = "Son tracé, ses repères et ses notes seront perdus. Tes courses Strava ne changent pas." }: { name: string; action: Action; what?: string; consequence?: string }) {
   const [state, formAction] = useActionState(action, IDLE);
   const [confirm, setConfirm] = useState(false);
-  if (!confirm) return <button type="button" className="btn danger-ghost" onClick={() => setConfirm(true)}>Supprimer cette course…</button>;
+  if (!confirm) return <button type="button" className="btn danger-ghost" onClick={() => setConfirm(true)}>Supprimer {what}…</button>;
   return (
     <form action={formAction} className="confirm" role="group" aria-label="Confirmer la suppression">
-      <p>Supprimer « {name} » ? Son tracé, ses repères et ses notes seront perdus. Tes courses Strava ne changent pas.</p>
+      <p>Supprimer « {name} » ? {consequence}</p>
       <FormMessage state={state} />
       <div className="actions">
         <SubmitButton tone="danger" pendingLabel="Suppression…">Oui, supprimer</SubmitButton>

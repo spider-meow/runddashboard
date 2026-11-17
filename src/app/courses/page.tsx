@@ -10,7 +10,6 @@ import { requireOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime } from "@/lib/pace";
 import { getRaces, type Race } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
 export const metadata = { title: "Courses" };
 
 function RaceLink({ r, now }: { r: Race; now: Date }) {

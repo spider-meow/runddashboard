@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import { decodePolyline, toSvgPath } from "@/lib/polyline";
 import { mercatorFit, tileUrl } from "@/lib/tiles";
 
-const W = 400, H = 300, PAD = 24;
+const DEFAULT = { w: 400, h: 300, pad: 24 };
 const OSM = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
 // Fond de carte : tuiles OpenStreetMap, assombries en CSS pour coller au thème sombre.
@@ -12,7 +12,8 @@ const tilesEnabled = () => process.env.MAP_TILES !== "off";
 const template = () => process.env.MAP_TILE_URL || OSM;
 
 // Tracé dessiné progressivement en CSS pur (pathLength=1 + stroke-dashoffset), sans JavaScript côté navigateur.
-export function RouteMap({ polyline, label = "Tracé de la dernière course" }: { polyline: string; label?: string }) {
+export function RouteMap({ polyline, label = "Tracé de la dernière course", w = DEFAULT.w, h = DEFAULT.h }: { polyline: string; label?: string; w?: number; h?: number }) {
+  const W = w, H = h, PAD = DEFAULT.pad;
   const points = decodePolyline(polyline);
   const fit = tilesEnabled() ? mercatorFit(points, W, H, PAD) : null;
   const d = fit?.d ?? toSvgPath(points, W, H, PAD);

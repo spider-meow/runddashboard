@@ -15,19 +15,19 @@ Ce qui reste à faire, par ordre de priorité. Cochez au fur et à mesure.
 
 ## Fonctionnalités proposées
 
-- [ ] **Page de détail d'une sortie** (`/historique/<id>`) : carte, splits, profil, et lignes de l'historique cliquables. Après un import, le lien « Voir » pointerait dessus.
-- [ ] **Supprimer une sortie importée** depuis l'interface (aujourd'hui impossible).
-- [ ] **Doublons Strava / fichier** : repérer une sortie importée en fichier qui existe déjà côté Strava (même début, même distance).
+- [x] **Page de détail d'une sortie** (`/historique/<id>`) : carte, splits, profil, et lignes de l'historique cliquables. Après un import, le lien « Voir » pointerait dessus.
+- [x] **Supprimer une sortie importée** depuis l'interface (aujourd'hui impossible).
+- [x] **Doublons Strava / fichier** : repérer une sortie importée en fichier qui existe déjà côté Strava (même début, même distance).
 - [ ] **Calibrer le modèle de relief** (+3,3 % par % de montée, −1,8 % par % de descente) sur tes vraies sorties.
-- [ ] **Course : « utiliser cette projection comme objectif »** depuis le calculateur.
+- [x] **Course : « utiliser cette projection comme objectif »** depuis le calculateur.
 - [ ] **Historique de plus de 1 000 activités** : la synchro initiale plafonne là.
 
 ## Qualité et vitesse
 
 - [ ] **Mesurer en production** (Vercel) les temps de réponse après le changement de région ; en local, seul l'aller-retour vers Supabase compte.
-- [ ] **Cache des lectures** (`unstable_cache` + invalidation après chaque écriture) si les pages restent lentes une fois la région réglée.
+- [x] **Cache des lectures** (`unstable_cache` + invalidation après chaque écriture) si les pages restent lentes une fois la région réglée.
 - [ ] **Fournisseur de tuiles** : OpenStreetMap tolère un usage léger ; prévoir `MAP_TILE_URL` si le site grossit. `MAP_TILES=off` coupe tout tiers.
-- [ ] **Infobulles des graphiques au toucher** : aujourd'hui seulement au survol (`<title>`), rien sur téléphone.
+- [x] **Infobulles des graphiques au toucher** : aujourd'hui seulement au survol (`<title>`), rien sur téléphone.
 - [ ] **Tests de bout en bout** (Playwright) des parcours création / édition / suppression de course et import, aujourd'hui vérifiés à la main dans le navigateur.
 - [ ] **Vérification visuelle sur téléphone** des écrans autres que Courses (accueil, historique, projections, fiche).
 
@@ -39,4 +39,4 @@ Ce qui reste à faire, par ordre de priorité. Cochez au fur et à mesure.
 
 ## Déjà fait (pour mémoire)
 
-Strava OAuth + synchro dédupliquée, import GPX/FIT, splits / records / profil, projections Riegel + relief, fiches de course, fond de carte OSM, passe de vitesse, retrait de « Personnaliser », actions et formulaires refaits, accessibilité. Détail : [docs/PLAN.md](docs/PLAN.md).
+Cache des lectures (`unstable_cache`, étiquette `data`, invalidée par chaque écriture), cache du routeur (`staleTimes`) et préchargement complet de la navigation, direction « affiche » (héros typographique, sections ouvertes), page de détail d'une sortie avec suppression et repérage des doublons, infobulles tactiles, objectif depuis le calculateur. Strava OAuth + synchro dédupliquée, import GPX/FIT, splits / records / profil, projections Riegel + relief, fiches de course, fond de carte OSM, passe de vitesse, retrait de « Personnaliser », actions et formulaires refaits, accessibilité. Détail : [docs/PLAN.md](docs/PLAN.md).

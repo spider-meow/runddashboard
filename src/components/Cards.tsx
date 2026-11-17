@@ -18,7 +18,7 @@ export function Cards({ items }: { items: Item[] }) {
   return (
     <div className="grid">
       {items.map((it, i) => (
-        <section key={it.id} className="card" data-widget={it.id} data-size={it.size} data-tone={it.tone} style={{ "--i": i } as CSSProperties}>{it.node}</section>
+        <section key={it.id} className="card" data-widget={it.id} data-size={it.size} data-tone={it.tone} data-n={String(i + 1).padStart(2, "0")} style={{ "--i": i } as CSSProperties}>{it.node}</section>
       ))}
     </div>
   );

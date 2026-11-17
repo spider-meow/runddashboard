@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Cards, PageHeader, type Item } from "@/components/Cards";
+import { Cards, type Item } from "@/components/Cards";
 import { MigrationNotice, PrList, ShoeList } from "@/components/bits";
 import { SyncButton } from "@/components/SyncButton";
 import { ElevationProfile, PaceBars, VolumeBars } from "@/components/charts";
@@ -11,7 +11,6 @@ import { getGear, getLastRun, getRaces, getRuns } from "@/lib/queries";
 import { genericGradeFactor, pickReference, profileGradeFactor, riegel } from "@/lib/riegel";
 import { personalRecords, shoeStats, weeklyVolume } from "@/lib/stats";
 
-export const dynamic = "force-dynamic";
 
 const ERREURS: Record<string, string> = {
   refus: "Tu as refusé l'accès à Strava.",
@@ -64,70 +63,32 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
     if (race.target_pace_s) gap = adj - race.target_pace_s * (race.distance_m / 1000);
   }
   const days = race ? daysUntil(race.race_date, now) : 0;
+  const sum = (w: typeof weeks, k: "km" | "dplus") => w.reduce((a, x) => a + x[k], 0);
+  const km4 = sum(weeks.slice(-4), "km"), kmP = sum(weeks.slice(-8, -4), "km");
+  const trend = kmP > 0 ? Math.round((km4 / kmP - 1) * 100) : null;
 
   const items: Item[] = [];
-  if (race) {
-    items.push({
-      id: "race", size: "xl",
-      node: (
-        <>
-          <h2>Prochaine course <span className="hint">{fmtDate(race.race_date, { day: "numeric", month: "long" })}</span></h2>
-          <div className="race-hero">
-            <div>
-              <h3>{race.name}</h3>
-              <div className="trio">
-                <div><div className="l">Distance</div><div className="v">{fmtKm(race.distance_m)}<small>km</small></div></div>
-                {race.elevation_gain_m != null && <div><div className="l">D+</div><div className="v">{Math.round(race.elevation_gain_m)}<small>m</small></div></div>}
-                {race.target_pace_s != null && <div><div className="l">Objectif</div><div className="v">{fmtPace(race.target_pace_s)}<small>/km</small></div></div>}
-              </div>
-              {race.target_pace_s != null && <p className="muted">Temps visé <b className="num" style={{ color: "var(--ink)" }}>{fmtTime(race.target_pace_s * (race.distance_m / 1000))}</b></p>}
-              <p style={{ marginTop: "var(--s4)" }}><Link className="btn primary" href={`/courses/${race.id}`}>Ouvrir la fiche</Link></p>
-            </div>
-            {race.course_polyline ? <RouteMap polyline={race.course_polyline} label="Tracé de la course" /> : <p className="empty">Importe le tracé GPX de la course depuis sa fiche pour le voir ici.</p>}
-          </div>
-        </>
-      ),
-    });
-    items.push({
-      id: "countdown", size: "s", tone: "hot",
-      node: (
-        <div className="count">
-          <div><h2>Compte à rebours</h2><div className="big">{days > 0 ? `J-${days}` : days === 0 ? "Jour J" : "Passée"}</div></div>
-          {adj !== null && flat !== null ? (
-            <div className="kv">
-              <div><span>Forme actuelle ({ref!.name === "Semi" ? "semi" : ref!.name.replace("K", " km")})</span><b>{fmtTime(flat)}</b></div>
-              <div><span>Avec le relief</span><b>{fmtTime(adj)}</b></div>
-              {gap !== null && <div><span>Écart à l'objectif</span><span className="chip">{gap > 0 ? "+" : "−"}{Math.abs(Math.round(gap))} s</span></div>}
-            </div>
-          ) : <p className="muted">Pas assez de données pour projeter un temps.</p>}
-        </div>
-      ),
-    });
-  } else {
-    items.push({
-      id: "race", size: "xl",
-      node: (<><h2>Prochaine course</h2><p className="empty">Aucune course à venir. <Link className="inline-link" href="/courses">Ajoute ta prochaine course</Link> pour voir ici son tracé, son compte à rebours et ta projection de temps.</p></>),
-    });
-  }
-
-  const profile = race?.course_profile && race.course_profile.length > 1 ? race.course_profile : last.elev_profile;
   items.push({
-    id: "elev", size: "l",
-    node: (<><h2>Profil de dénivelé <span className="hint">{race?.course_profile?.length ? "la course" : "dernière course"}</span></h2><ElevationProfile profile={profile ?? []} marks={race?.course_profile?.length ? race.checkpoints.map((c) => c.km) : []} /></>),
-  });
-  items.push({
-    id: "last", size: "m",
+    id: "rhythm", size: "xl",
     node: (
       <>
-        <h2>Dernière course</h2>
-        <div className="last-top"><h3>{last.name}</h3><span className="chip">{fmtDate(last.started_at, { day: "numeric", month: "short" })}</span></div>
-        <div className="quad">
-          <div><div className="l">Distance</div><div className="v">{fmtKm(last.distance_m)}<small>km</small></div></div>
-          <div><div className="l">Temps</div><div className="v">{fmtTime(last.moving_time_s)}</div></div>
-          <div><div className="l">Allure</div><div className="v">{pace ? fmtPace(pace) : "–"}<small>/km</small></div></div>
-          <div><div className="l">D+</div><div className="v">{Math.round(last.elevation_gain_m ?? 0)}<small>m</small></div></div>
-        </div>
-        <div style={{ marginTop: "var(--s4)" }}><SyncButton /></div>
+        <h2>Rythme <span className="hint">12 semaines, km</span></h2>
+        <p className="lede"><b>{Math.round(km4)} km</b> sur les 4 dernières semaines{trend !== null && <> <span className={"chip " + (trend >= 0 ? "good" : "warn")}>{trend >= 0 ? "+" : "−"}{Math.abs(trend)} %</span></>}, soit <b>{Math.round(sum(weeks.slice(-4), "dplus"))} m</b> de dénivelé.</p>
+        <VolumeBars weeks={weeks} height={230} />
+      </>
+    ),
+  });
+  items.push({
+    id: "last", size: "m", tone: "hot",
+    node: (
+      <>
+        <h2>Dernière course <span className="hint">{fmtDate(last.started_at, { day: "numeric", month: "short" })}</span></h2>
+        <Link className="ticket" href={`/historique/${last.id}`}>
+          <span className="ticket-name">{last.name}</span>
+          <span className="ticket-pace">{pace ? fmtPace(pace) : "–"}<small>/km</small></span>
+          <span className="ticket-row"><span>{fmtKm(last.distance_m)} km</span><span>{fmtTime(last.moving_time_s)}</span><span>{Math.round(last.elevation_gain_m ?? 0)} m D+</span></span>
+          <span className="ticket-go">Voir le détail →</span>
+        </Link>
       </>
     ),
   });
@@ -135,16 +96,54 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
     id: "pace", size: "m",
     node: (<><h2>Allure par kilomètre <span className="hint">plus haut = plus vite</span></h2><PaceBars splits={last.splits ?? []} totalM={last.distance_m} /></>),
   });
-  items.push({ id: "volume", size: "l", node: (<><h2>Volume hebdomadaire <span className="hint">12 semaines, km</span></h2><VolumeBars weeks={weeks} /></>) });
-  items.push({ id: "shoes", size: "s", node: (<><h2>Chaussures</h2><ShoeList shoes={shoeStats(runs, gear)} /></>) });
-  items.push({ id: "prs", size: "s", node: (<><h2>Records</h2><PrList records={records} /></>) });
+  const profile = race?.course_profile && race.course_profile.length > 1 ? race.course_profile : last.elev_profile;
+  items.push({
+    id: "elev", size: "xl",
+    node: (<><h2>Profil de dénivelé <span className="hint">{race?.course_profile?.length ? "la course" : "dernière course"}</span></h2><ElevationProfile profile={profile ?? []} marks={race?.course_profile?.length ? race.checkpoints.map((c) => c.km) : []} /></>),
+  });
+  items.push({ id: "shoes", size: "m", node: (<><h2>Chaussures</h2><ShoeList shoes={shoeStats(runs, gear)} /></>) });
+  items.push({ id: "prs", size: "m", node: (<><h2>Records</h2><PrList records={records} /></>) });
+
+  const proj = adj !== null && flat !== null ? (
+    <p className="hero-proj">
+      Projection <b className="num">{fmtTime(adj)}</b> relief inclus
+      {gap !== null && <> · <span className={"chip " + (gap > 0 ? "warn" : "good")}>{gap > 0 ? "+" : "−"}{Math.abs(Math.round(gap))} s sur l'objectif</span></>}
+    </p>
+  ) : null;
 
   return (
     <>
-      <PageHeader eyebrow={fmtDate(now.toISOString(), { weekday: "long", day: "numeric", month: "long" })}>{race ? <>En route pour <em>{race.name}</em></> : last.name}</PageHeader>
       {alert}
       {migrationMissing && <MigrationNotice />}
+      {race ? (
+        <section className="hero" data-widget="race" aria-labelledby="hero-name">
+          {race.course_polyline && <div className="hero-map"><RouteMap polyline={race.course_polyline} label="Tracé de la course" w={640} h={440} /></div>}
+          <div className="hero-body">
+            <p className="eyebrow">Prochaine course · {fmtDate(race.race_date + "T12:00:00Z", { weekday: "long", day: "numeric", month: "long" })}</p>
+            <div className="hero-count" data-widget="countdown"><span className="sr">Dans </span>{days > 0 ? `J-${days}` : days === 0 ? "Jour J" : "Passée"}</div>
+            <h1 className="hero-name" id="hero-name">{race.name}</h1>
+            <dl className="hero-facts">
+              <div><dt>Distance</dt><dd>{fmtKm(race.distance_m)}<small>km</small></dd></div>
+              {race.elevation_gain_m != null && <div><dt>D+</dt><dd>{Math.round(race.elevation_gain_m)}<small>m</small></dd></div>}
+              {race.target_pace_s != null && <div><dt>Objectif</dt><dd>{fmtPace(race.target_pace_s)}<small>/km</small></dd></div>}
+              {race.target_pace_s != null && <div><dt>Temps visé</dt><dd>{fmtTime(race.target_pace_s * (race.distance_m / 1000))}</dd></div>}
+            </dl>
+            {proj}
+            <p><Link className="btn primary" href={`/courses/${race.id}`}>Ouvrir la fiche</Link></p>
+            {!race.course_polyline && <p className="empty">Importe le tracé GPX depuis la fiche pour le voir ici.</p>}
+          </div>
+        </section>
+      ) : (
+        <section className="hero hero-empty" data-widget="race">
+          <div className="hero-body">
+            <p className="eyebrow">{fmtDate(now.toISOString(), { weekday: "long", day: "numeric", month: "long" })}</p>
+            <h1 className="hero-name" id="hero-name">{last.name}</h1>
+            <p className="muted">Aucune course à venir. <Link className="inline-link" href="/courses">Ajoute la prochaine</Link> pour voir ici son tracé, son compte à rebours et ta projection de temps.</p>
+          </div>
+        </section>
+      )}
       <Cards items={items} />
+      <footer className="foot"><SyncButton label="Synchroniser avec Strava" /></footer>
     </>
   );
 }

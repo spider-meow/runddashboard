@@ -7,7 +7,6 @@ import { fmtDate } from "@/lib/dates";
 import { requireOwner } from "@/lib/owner";
 import { getRuns } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
 export const metadata = { title: "Données" };
 
 export default async function Donnees() {

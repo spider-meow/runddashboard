@@ -24,7 +24,7 @@ export function Nav({ position }: { position: "rail" | "tabbar" }) {
   const path = usePathname();
   const links = ITEMS.map(([href, label, svg]) => {
     const current = href === "/" ? path === "/" : path.startsWith(href);
-    return <Link key={href} href={href} aria-current={current ? "page" : undefined}>{svg}<span>{label}</span><Pending /></Link>;
+    return <Link key={href} href={href} prefetch aria-current={current ? "page" : undefined}>{svg}<span>{label}</span><Pending /></Link>;
   });
   return position === "rail"
     ? <nav className="rail" aria-label="Navigation principale"><div className="logo" aria-hidden="true">rd</div>{links}</nav>

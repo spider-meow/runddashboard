@@ -12,7 +12,6 @@ import { requireOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime } from "@/lib/pace";
 import { getRace } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const race = await getRace((await params).id);

@@ -8,7 +8,6 @@ import { getRaces, getRuns } from "@/lib/queries";
 import { riegel, type Reference } from "@/lib/riegel";
 import { personalRecords } from "@/lib/stats";
 
-export const dynamic = "force-dynamic";
 export const metadata = { title: "Projections" };
 
 const DISTANCES: [string, number][] = [["5 km", 5], ["10 km", 10], ["Semi", 21.0975], ["Marathon", 42.195]];
@@ -30,7 +29,7 @@ export default async function Projections() {
           <h2>Calculateur <span className="hint">modifie un champ, tout se recalcule</span></h2>
           <Calculator
             refs={refs}
-            race={{ name: race?.name ?? "Ta course", distance_km: race ? race.distance_m / 1000 : 10, dplus: race?.elevation_gain_m ?? 0, target_pace_s: race?.target_pace_s ?? null, profile: race?.course_profile ?? null }}
+            race={{ id: race?.id ?? null, name: race?.name ?? "Ta course", distance_km: race ? race.distance_m / 1000 : 10, dplus: race?.elevation_gain_m ?? 0, target_pace_s: race?.target_pace_s ?? null, profile: race?.course_profile ?? null }}
           />
         </>
       ),

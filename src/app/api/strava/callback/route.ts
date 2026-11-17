@@ -1,4 +1,6 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
+import { DATA_TAG } from "@/lib/cache";
 import { db } from "@/lib/db";
 import { nowS, SESSION_COOKIE } from "@/lib/owner";
 import { signSession } from "@/lib/session";
@@ -35,6 +37,7 @@ export async function GET(req: NextRequest) {
   let syncFailed = false;
   try { await syncActivities(client, t.athlete.id); } catch (e) { syncFailed = true; console.error("Synchro initiale échouée", e); }
 
+  revalidateTag(DATA_TAG, { expire: 0 });
   const res = home(req, syncFailed ? "sync" : undefined);
   res.cookies.delete({ name: "rd_state", path: "/api/strava" });
   res.cookies.set(SESSION_COOKIE, signSession(t.athlete.id, SESSION_SECRET, nowS(), 30 * 86400), {

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { fmtDate } from "@/lib/dates";
 import { fmtKm, fmtTime } from "@/lib/pace";
 import type { Records, Shoe } from "@/lib/stats";
@@ -11,14 +11,18 @@ export const MigrationNotice = () => (
   <p className="notice" role="alert">La migration <code>supabase/migrations/0002_features.sql</code> n'est pas encore appliquée à ta base. Colle-la dans le SQL editor de Supabase pour activer les courses et les records.</p>
 );
 
+// Durée de vie indicative d'une paire de running : la jauge montre où on en est, sans prétendre à une usure exacte.
+const SHOE_LIFE_KM = 800;
+
 export function ShoeList({ shoes }: { shoes: Shoe[] }) {
   if (!shoes.length) return <p className="empty">Aucune chaussure associée à tes courses. Ajoute ton équipement dans Strava et affecte-le à tes sorties, puis resynchronise.</p>;
   return (
     <div>
       {shoes.map((s) => (
-        <div className="pr" key={s.id}>
+        <div className="pr shoe" key={s.id}>
           <span>{s.name}<small>{s.runs} sortie{s.runs > 1 ? "s" : ""} · dernière le {fmtDate(s.lastUsed + "T12:00:00Z", { day: "numeric", month: "short" })}</small></span>
           <b>{Math.round(s.km)} km</b>
+          <i className="meter" style={{ "--p": `${Math.min(100, (s.km / SHOE_LIFE_KM) * 100)}%` } as CSSProperties} aria-hidden="true" />
         </div>
       ))}
     </div>
