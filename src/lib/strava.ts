@@ -86,8 +86,8 @@ export async function fetchActivities(accessToken: string, afterEpoch: number | 
     const r = await fetch(`${ACTIVITIES}?${q}`, { headers: { Authorization: `Bearer ${accessToken}` } });
     if (!r.ok) throw new Error(`Strava activities ${r.status}`);
     const batch: StravaSummary[] = await r.json();
+    if (batch.length === 0) break; // une page courte n'est pas forcément la dernière : on s'arrête sur une page vide
     all.push(...batch);
-    if (batch.length < 100) break;
   }
   return all;
 }
