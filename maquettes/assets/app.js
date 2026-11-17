@@ -65,7 +65,7 @@
     <p style="margin-top:24px"><button class="btn" id="d-reset">Réinitialiser</button> <button class="btn primary" id="d-close">Fermer</button></p>`;
   document.body.append(scrim, drawer);
   const open = (v) => { drawer.classList.toggle("open", v); scrim.classList.toggle("on", v); if (v) drawer.querySelector("button").focus(); };
-  document.addEventListener("click", (e) => { if (e.target.closest("#open-cfg, #open-cfg-m")) { e.preventDefault(); open(true); } });
+  document.addEventListener("click", (e) => { if (e.target.closest("#open-cfg, #open-cfg-m, .js-cfg")) { e.preventDefault(); open(true); } });
   scrim.onclick = () => open(false); drawer.querySelector("#d-close").onclick = () => open(false);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") open(false); });
 

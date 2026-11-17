@@ -49,7 +49,7 @@ h1.title em { font-style: italic; color: var(--accent); }
 .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--s4); }
 .card {
   background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius);
-  padding: var(--s5); box-shadow: var(--shadow); position: relative; min-width: 0;
+  padding: var(--s5); box-shadow: var(--shadow); position: relative; min-width: 0; container-type: inline-size;
   animation: rise var(--t-enter) var(--ease) both; animation-delay: calc(var(--i, 0) * 60ms);
 }
 .card[data-size="s"] { grid-column: span 4; }
