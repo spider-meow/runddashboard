@@ -3,7 +3,7 @@ import { createRace } from "@/app/actions";
 import { MigrationNotice } from "@/components/bits";
 import { Cards, PageHeader, type Item } from "@/components/Cards";
 import { RaceForm } from "@/components/RaceForm";
-import { StripParam } from "@/components/formkit";
+import { Flash } from "@/components/formkit";
 import { daysUntil, fmtDate, parisDay } from "@/lib/dates";
 import { splitRaces } from "@/lib/forms";
 import { requireOwner } from "@/lib/owner";
@@ -29,9 +29,8 @@ function RaceLink({ r, now }: { r: Race; now: Date }) {
   );
 }
 
-export default async function Courses({ searchParams }: { searchParams: Promise<{ supprimee?: string }> }) {
+export default async function Courses() {
   await requireOwner();
-  const { supprimee } = await searchParams;
   const { races, migrationMissing } = await getRaces();
   const now = new Date(), { upcoming, past } = splitRaces(races, parisDay(now));
 
@@ -56,8 +55,7 @@ export default async function Courses({ searchParams }: { searchParams: Promise<
     <>
       <PageHeader eyebrow="Objectifs">Tes <em>courses</em></PageHeader>
       {migrationMissing && <MigrationNotice />}
-      <div aria-live="polite">{supprimee && <p className="ok pop">Course supprimée.</p>}</div>
-      {supprimee && <StripParam name="supprimee" />}
+      <Flash param="supprimee">Course supprimée.</Flash>
       <Cards items={items} />
     </>
   );

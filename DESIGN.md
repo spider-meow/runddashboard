@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: Rundashboard
-description: Un dashboard de running énergique. Grosses typos, chiffres énormes, une carte de couleur vive par écran, un tracé qui se dessine. Tout passe par des variables CSS : thèmes et accent modifiables par l'utilisateur.
+description: Un dashboard de running énergique. Grosses typos, chiffres énormes, une carte de couleur vive par écran, un tracé qui se dessine. Tout passe par des variables CSS. L'app n'utilise que le thème Poster ; les deux autres restent dans les maquettes.
 inspiration: Dribbble (tags « running dashboard » et « strava ») : tuiles de couleur vive, chiffres géants, photo et carte comme héros. Voir docs/RESOURCES.md.
 
 themes:

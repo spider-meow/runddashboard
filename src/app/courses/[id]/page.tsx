@@ -5,7 +5,7 @@ import { ElevationProfile } from "@/components/charts";
 import { FileForm } from "@/components/FileForm";
 import { DeleteRace, RaceForm } from "@/components/RaceForm";
 import { RouteMap } from "@/components/RouteMap";
-import { StripParam } from "@/components/formkit";
+import { Flash } from "@/components/formkit";
 import { formatCheckpoints, planCheckpoints } from "@/lib/checkpoints";
 import { daysUntil, fmtDate } from "@/lib/dates";
 import { requireOwner } from "@/lib/owner";
@@ -19,9 +19,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: race?.name ?? "Course" };
 }
 
-export default async function Fiche({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cree?: string }> }) {
+export default async function Fiche({ params }: { params: Promise<{ id: string }> }) {
   await requireOwner();
-  const { id } = await params, { cree } = await searchParams;
+  const { id } = await params;
   const race = await getRace(id);
   if (!race) notFound();
 
@@ -107,8 +107,7 @@ export default async function Fiche({ params, searchParams }: { params: Promise<
   return (
     <>
       <PageHeader eyebrow={`Fiche de course · ${fmtDate(race.race_date + "T12:00:00Z", { weekday: "long", day: "numeric", month: "long" })}`}>{race.name}</PageHeader>
-      <div aria-live="polite">{cree && <p className="ok pop">Course créée. Ajoute maintenant son tracé GPX et tes repères de passage.</p>}</div>
-      {cree && <StripParam name="cree" />}
+      <Flash param="cree">Course créée. Ajoute maintenant son tracé GPX et tes repères de passage.</Flash>
       <Cards items={items} />
     </>
   );

@@ -1,7 +1,7 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useEffect, useId, type ReactNode, type RefObject } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useId, useState, type ReactNode, type RefObject } from "react";
 import { useFormStatus } from "react-dom";
 import type { FormState } from "@/lib/forms";
 
@@ -52,15 +52,11 @@ export function useFocusFirstError(form: RefObject<HTMLFormElement | null>, stat
   }, [state, form]);
 }
 
-// Retire un paramètre « message ponctuel » de l'adresse une fois lu, pour qu'un rechargement ne le réaffiche pas.
-// useSearchParams : après une redirection d'action, l'adresse n'est à jour qu'après le premier rendu, l'effet doit la suivre.
-export function StripParam({ name }: { name: string }) {
-  const params = useSearchParams();
-  useEffect(() => {
-    if (!params.has(name)) return;
-    const u = new URL(location.href);
-    u.searchParams.delete(name);
-    history.replaceState(history.state, "", u);
-  }, [params, name]);
-  return null;
+// Message ponctuel après une redirection (« course créée »). Le paramètre d'adresse est lu au premier rendu puis retiré : le message reste
+// affiché (état local) mais un rechargement ou un lien partagé ne le rejoue pas. À rendre toujours, c'est le composant qui décide d'afficher.
+export function Flash({ param, children }: { param: string; children: ReactNode }) {
+  const params = useSearchParams(), router = useRouter(), pathname = usePathname();
+  const [shown] = useState(() => params.has(param));
+  useEffect(() => { if (params.has(param)) router.replace(pathname, { scroll: false }); }, [params, param, router, pathname]);
+  return <div aria-live="polite">{shown && <p className="ok pop">{children}</p>}</div>;
 }
