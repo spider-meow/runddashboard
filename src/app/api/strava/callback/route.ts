@@ -5,6 +5,8 @@ import { signSession } from "@/lib/session";
 import { exchangeCode } from "@/lib/strava";
 import { syncActivities } from "@/lib/sync";
 
+export const maxDuration = 60; // la synchro initiale enchaîne jusqu'à 10 appels Strava
+
 const home = (req: Request, erreur?: string) => NextResponse.redirect(new URL(erreur ? `/?erreur=${erreur}` : "/", req.url));
 
 export async function GET(req: NextRequest) {
@@ -29,9 +31,11 @@ export async function GET(req: NextRequest) {
     expires_at: t.expires_at, scope: p.get("scope"), updated_at: new Date().toISOString(),
   });
   if (error) throw error;
-  await syncActivities(client, t.athlete.id);
+  // Une synchro qui échoue ne doit pas empêcher la connexion : le bouton « Synchroniser » sert de nouvel essai.
+  let syncFailed = false;
+  try { await syncActivities(client, t.athlete.id); } catch (e) { syncFailed = true; console.error("Synchro initiale échouée", e); }
 
-  const res = home(req);
+  const res = home(req, syncFailed ? "sync" : undefined);
   res.cookies.delete({ name: "rd_state", path: "/api/strava" });
   res.cookies.set(SESSION_COOKIE, signSession(t.athlete.id, SESSION_SECRET, nowS(), 30 * 86400), {
     httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 30 * 86400,

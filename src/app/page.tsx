@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 const ERREURS: Record<string, string> = {
   refus: "Tu as refusé l'accès à Strava.",
   autorisation: "Il faut accepter de partager toutes tes activités (« activity:read_all »).",
+  sync: "Connecté, mais la première synchronisation a échoué. Clique sur « Synchroniser » pour réessayer.",
 };
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ erreur?: string }> }) {
