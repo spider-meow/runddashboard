@@ -31,7 +31,10 @@ export function Dashboard({ page, header, items, saved, theme: theme0, accent: a
     const s = document.documentElement.style;
     if (a) { s.setProperty("--accent", a); s.setProperty("--on-accent", onAccent(a)); } else { s.removeProperty("--accent"); s.removeProperty("--on-accent"); }
   };
-  const save = (p: { widgets?: Widget[]; theme?: Theme; accent?: string | null }) => start(async () => { await savePrefs({ page, ...p }); });
+  const [failed, setFailed] = useState(false);
+  // L'affichage change tout de suite ; si l'enregistrement échoue (migration 0002 pas appliquée, base injoignable), on le dit.
+  const save = (p: { widgets?: Widget[]; theme?: Theme; accent?: string | null }) =>
+    start(async () => { try { await savePrefs({ page, ...p }); setFailed(false); } catch { setFailed(true); } });
 
   const edit = (i: number, f: (w: Widget[]) => void) => { const next = widgets.map((w) => ({ ...w })); f(next); setWidgets(next); save({ widgets: next }); };
   const pickTheme = (t: Theme) => { setTheme(t); applyTheme(t); save({ theme: t }); };
@@ -87,7 +90,7 @@ export function Dashboard({ page, header, items, saved, theme: theme0, accent: a
           <button className="btn" type="button" onClick={reset}>Réinitialiser</button>{" "}
           <button className="btn primary" type="button" onClick={() => setOpen(false)}>Fermer</button>
         </p>
-        <p className="drawer-note" aria-live="polite">{pending ? "Enregistrement…" : "Enregistré dans ta base."}</p>
+        <p className="drawer-note" aria-live="polite">{pending ? "Enregistrement…" : failed ? "Enregistrement impossible : la migration 0002 est-elle appliquée ?" : "Enregistré dans ta base."}</p>
       </aside>
     </>
   );
