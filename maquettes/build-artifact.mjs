@@ -14,9 +14,6 @@ const relink = (s) => s.replace(/(["'])(index|historique|projections|course|conn
 
 // le viewer pose data-theme="dark|light" sur <html> : nos thèmes passent sur data-rd pour ne pas entrer en collision
 let tokens = read("assets/tokens.css").replace(/data-theme/g, "data-rd");
-const midnightBody = /:root\[data-rd="midnight"\]\s*\{([^}]*)\}/.exec(tokens)[1];
-tokens = tokens.replace(":root:not([data-rd]) {", ':root:not([data-rd]):not([data-theme="light"]) {')
-  + `\n/* le viewer a choisi « sombre » explicitement */\n:root[data-theme="dark"]:not([data-rd]) {${midnightBody}}\n`;
 const fontsUrl = /<link href="(https:\/\/fonts\.googleapis\.com\/css2[^"]*)"/.exec(read("index.html"))[1];
 const app = relink(read("assets/app.js")).replace(/root\.dataset\.theme/g, "root.dataset.rd");
 

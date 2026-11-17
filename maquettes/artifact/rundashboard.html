@@ -3,8 +3,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 /* Tokens : voir DESIGN.md. Trois directions, chacune = un bloc de variables (couleurs, typo, rayons, ton « hot »).
-   Sunrise = défaut (clair, énergique). Midnight = sombre. Poster = affiche noir et jaune volt. */
-:root, :root[data-rd="sunrise"] {
+   Poster = défaut (affiche noir et volt). Sunrise = clair, énergique. Midnight = sombre. */
+:root[data-rd="sunrise"] {
   color-scheme: light;
   --bg: #fdf0e6; --surface: #ffffff; --surface-2: #fff6ee; --hairline: #f0dccb;
   --ink: #1b1613; --ink-2: #5c4d43; --mute: #7a6a5e;
@@ -30,7 +30,7 @@
   --radius: 24px; --radius-sm: 14px; --pill: 999px;
   --shadow: none;
 }
-:root[data-rd="poster"] {
+:root, :root[data-rd="poster"] {
   color-scheme: dark;
   --bg: #0c0c0c; --surface: #151515; --surface-2: #1f1f1f; --hairline: #2c2c2c;
   --ink: #f6f6f2; --ink-2: #b4b4ac; --mute: #8d8d85;
@@ -48,34 +48,6 @@
   --ease: cubic-bezier(.2, .7, .2, 1);
   --t-micro: 140ms; --t-ui: 240ms; --t-enter: 480ms; --t-draw: 2200ms;
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
-}
-/* Sans choix de l'utilisateur, on suit l'OS : sombre -> Midnight. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-rd]):not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #0a0f1e; --surface: #121a2f; --surface-2: #1a2440; --hairline: #243055;
-    --ink: #eef2ff; --ink-2: #aab4d4; --mute: #8591b5;
-    --accent: #f0602f; --on-accent: #0a0f1e; --series-2: #3b8bcf;
-    --good: #4fbf86; --warn: #e3a93f; --bad: #ff7a6b;
-    --hot-bg: linear-gradient(135deg, #ff7a2b, #ff3d71); --hot-fg: #0a0f1e;
-    --font-display: "Sora", system-ui, sans-serif;
-    --dw: 600; --radius: 24px; --radius-sm: 14px; --pill: 999px; --shadow: none;
-  }
-}
-
-/* le viewer a choisi « sombre » explicitement */
-:root[data-theme="dark"]:not([data-rd]) {
-  color-scheme: dark;
-  --bg: #0a0f1e; --surface: #121a2f; --surface-2: #1a2440; --hairline: #243055;
-  --ink: #eef2ff; --ink-2: #aab4d4; --mute: #8591b5;
-  --accent: #f0602f; --on-accent: #0a0f1e; --series-2: #3b8bcf;
-  --good: #4fbf86; --warn: #e3a93f; --bad: #ff7a6b;
-  --hot-bg: linear-gradient(135deg, #ff7a2b, #ff3d71); --hot-fg: #0a0f1e;
-  --font-display: "Sora", system-ui, sans-serif;
-  --font-ui: "DM Sans", system-ui, sans-serif;
-  --dw: 600; --tt: none; --em-style: normal;
-  --radius: 24px; --radius-sm: 14px; --pill: 999px;
-  --shadow: none;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -573,7 +545,7 @@ tr:hover td { background: color-mix(in srgb, var(--surface-2) 50%, transparent);
 
   const tbox = drawer.querySelector("#d-themes");
   function renderThemes() {
-    const cur = root.dataset.rd || (matchMedia("(prefers-color-scheme: dark)").matches ? "midnight" : "sunrise");
+    const cur = root.dataset.rd || "poster";
     tbox.innerHTML = Object.keys(THEMES).map((k) => `<button class="theme-opt" data-t="${k}" aria-pressed="${k === cur}"><div class="sw">${THEMES[k].map((c) => `<i style="background:${c}"></i>`).join("")}</div>${NAMES[k]}</button>`).join("");
   }
   tbox.onclick = (e) => { const b = e.target.closest("[data-t]"); if (!b) return; store.set("theme", b.dataset.t); applyTheme(b.dataset.t); renderThemes(); };
@@ -581,7 +553,7 @@ tr:hover td { background: color-mix(in srgb, var(--surface-2) 50%, transparent);
   const abox = drawer.querySelector("#d-acc");
   function renderAcc() {
     const cur = store.get("accent", null);
-    abox.innerHTML = ACCENTS.map((c) => `<button style="background:${c}" data-a="${c}" aria-label="Accent ${c}" aria-pressed="${c === cur}"></button>`).join("") + `<input type="color" id="d-pick" value="${cur || "#cf3705"}" aria-label="Couleur libre">`;
+    abox.innerHTML = ACCENTS.map((c) => `<button style="background:${c}" data-a="${c}" aria-label="Accent ${c}" aria-pressed="${c === cur}"></button>`).join("") + `<input type="color" id="d-pick" value="${cur || "#c8f031"}" aria-label="Couleur libre">`;
   }
   abox.onclick = (e) => { const b = e.target.closest("[data-a]"); if (!b) return; store.set("accent", b.dataset.a); applyAccent(b.dataset.a); renderAcc(); };
   abox.oninput = (e) => { if (e.target.id === "d-pick") { store.set("accent", e.target.value); applyAccent(e.target.value); } };
