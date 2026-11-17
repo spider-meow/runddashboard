@@ -1,20 +1,43 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { fetchActivities, mapActivity, needsRefresh, refreshTokens } from "./strava";
+import { analyzeStream } from "./analyze";
+import { fetchActivities, fetchStreams, mapActivity, needsRefresh, refreshTokens } from "./strava";
 
-// Synchronise les activités de l'athlète. Relançable à volonté : l'upsert sur (source, external_id) évite les doublons.
-export async function syncActivities(db: SupabaseClient, athleteId: number): Promise<number> {
+export const RUN_SPORTS = ["Run", "TrailRun", "VirtualRun"];
+
+// Jeton d'accès valide : rafraîchi si besoin. Le refresh_token change à chaque fois, on stocke le nouveau.
+export async function getAccessToken(db: SupabaseClient, athleteId: number): Promise<string> {
   const { data: conn } = await db.from("strava_connections").select("*").eq("athlete_id", athleteId).maybeSingle();
   if (!conn) throw new Error("Strava n'est pas connecté");
+  if (!needsRefresh(conn.expires_at, Math.floor(Date.now() / 1000), 60)) return conn.access_token;
+  const t = await refreshTokens(process.env.STRAVA_CLIENT_ID!, process.env.STRAVA_CLIENT_SECRET!, conn.refresh_token);
+  const { error } = await db.from("strava_connections")
+    .update({ access_token: t.access_token, refresh_token: t.refresh_token, expires_at: t.expires_at, updated_at: new Date().toISOString() })
+    .eq("athlete_id", athleteId);
+  if (error) throw error;
+  return t.access_token;
+}
 
-  let accessToken: string = conn.access_token;
-  if (needsRefresh(conn.expires_at, Math.floor(Date.now() / 1000), 60)) {
-    const t = await refreshTokens(process.env.STRAVA_CLIENT_ID!, process.env.STRAVA_CLIENT_SECRET!, conn.refresh_token);
-    const { error } = await db.from("strava_connections")
-      .update({ access_token: t.access_token, refresh_token: t.refresh_token, expires_at: t.expires_at, updated_at: new Date().toISOString() })
-      .eq("athlete_id", athleteId);
-    if (error) throw error;
-    accessToken = t.access_token;
+// Analyse (splits, records, profil) des courses pas encore analysées. Limité pour rester sous les quotas Strava ;
+// ce qui reste est repris à la synchro suivante.
+export async function analyzePending(db: SupabaseClient, accessToken: string, limit = 30): Promise<number> {
+  const { data: todo, error } = await db.from("activities").select("external_id").eq("source", "strava").in("sport", RUN_SPORTS).is("analyzed_at", null).order("started_at", { ascending: false }).limit(limit);
+  if (error) throw error;
+  let done = 0;
+  for (const a of todo ?? []) {
+    const s = await fetchStreams(accessToken, a.external_id);
+    const r = s ? analyzeStream(s) : null; // sans flux : on marque quand même comme analysée pour ne pas réessayer sans fin
+    const { error: e } = await db.from("activities").update({
+      splits: r?.splits ?? null, best_efforts: r?.best_efforts ?? null, elev_profile: r?.elev_profile ?? null, analyzed_at: new Date().toISOString(),
+    }).eq("source", "strava").eq("external_id", a.external_id);
+    if (e) throw e;
+    done++;
   }
+  return done;
+}
+
+// Synchronise les activités. Relançable à volonté : l'upsert sur (source, external_id) évite les doublons.
+export async function syncActivities(db: SupabaseClient, athleteId: number): Promise<{ fetched: number; analyzed: number; analysisError?: string }> {
+  const accessToken = await getAccessToken(db, athleteId);
 
   // 1re synchro : tout l'historique (10 pages max). Ensuite : depuis la dernière activité connue, avec 7 jours de recul pour les modifications.
   const { data: last } = await db.from("activities").select("started_at").eq("source", "strava").order("started_at", { ascending: false }).limit(1);
@@ -25,5 +48,12 @@ export async function syncActivities(db: SupabaseClient, athleteId: number): Pro
     const { error } = await db.from("activities").upsert(acts.map(mapActivity), { onConflict: "source,external_id" });
     if (error) throw error;
   }
-  return acts.length;
+
+  // Une analyse qui échoue (quota, migration pas encore appliquée) ne doit pas faire échouer la synchro.
+  try {
+    return { fetched: acts.length, analyzed: await analyzePending(db, accessToken) };
+  } catch (e) {
+    console.error("Analyse des activités échouée", e);
+    return { fetched: acts.length, analyzed: 0, analysisError: e instanceof Error ? e.message : String(e) };
+  }
 }

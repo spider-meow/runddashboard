@@ -78,6 +78,27 @@ export const exchangeCode = (clientId: string, clientSecret: string, code: strin
 export const refreshTokens = (clientId: string, clientSecret: string, refreshToken: string): Promise<Tokens> =>
   tokenRequest({ client_id: clientId, client_secret: clientSecret, grant_type: "refresh_token", refresh_token: refreshToken });
 
+export type StravaStream = { time: number[]; distance: number[]; altitude?: number[] };
+
+const API = "https://www.strava.com/api/v3";
+
+// Flux de l'activité (temps, distance, altitude). null si l'activité n'en a pas (saisie manuelle) ou n'existe plus.
+export async function fetchStreams(accessToken: string, activityId: number | string): Promise<StravaStream | null> {
+  const r = await fetch(`${API}/activities/${activityId}/streams?keys=time,distance,altitude&key_by_type=true`, { headers: { Authorization: `Bearer ${accessToken}` } });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`Strava streams ${r.status}`);
+  const s = await r.json();
+  if (!s.time?.data || !s.distance?.data) return null;
+  return { time: s.time.data, distance: s.distance.data, altitude: s.altitude?.data };
+}
+
+export async function activityExists(accessToken: string, activityId: number | string): Promise<boolean> {
+  const r = await fetch(`${API}/activities/${activityId}`, { headers: { Authorization: `Bearer ${accessToken}` } });
+  if (r.status === 404) return false;
+  if (!r.ok) throw new Error(`Strava activity ${r.status}`);
+  return true;
+}
+
 export async function fetchActivities(accessToken: string, afterEpoch: number | null, maxPages = 10): Promise<StravaSummary[]> {
   const all: StravaSummary[] = [];
   for (let page = 1; page <= maxPages; page++) {
