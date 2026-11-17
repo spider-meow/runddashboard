@@ -14,6 +14,7 @@ export type Run = {
   moving_time_s: number;
   elevation_gain_m: number | null;
   avg_hr: number | null;
+  gear_id: string | null;
   polyline: string | null;
   splits: Split[] | null;
   best_efforts: Record<string, number> | null;
@@ -59,6 +60,12 @@ export async function getRace(id: string): Promise<Race | null> {
   const { data, error } = await db().from("races").select("*").eq("id", id).maybeSingle();
   if (error && !missingTable(error)) throw new Error(error.message);
   return (data as Race) ?? null;
+}
+
+export async function getGear(): Promise<{ id: string; name: string }[]> {
+  const { data, error } = await db().from("gear").select("id,name");
+  if (error) return []; // table absente (migration 0003 pas appliquée) : pas de chaussures, sans bruit
+  return data ?? [];
 }
 
 export async function getPrefs(): Promise<Prefs> {

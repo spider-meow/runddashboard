@@ -4,13 +4,13 @@ Dashboard de running perso, pour s'amuser. Next.js (TypeScript) + Supabase + Ver
 
 | Écran | Ce qu'il montre |
 |---|---|
-| Accueil | Prochaine course (tracé animé, compte à rebours, projection), profil de dénivelé, dernière course, allure au km, volume, records |
+| Accueil | Prochaine course (tracé animé, compte à rebours, projection), profil de dénivelé, dernière course, allure au km, volume, chaussures, records |
 | Historique | Volume et allure par semaine, records personnels, dernières sorties |
 | Projections | Riegel ajusté au relief, avec fourchette, calculateur modifiable |
 | Courses | Fiches de course : tracé GPX, profil, repères de passage, objectif |
 | Données | État de la connexion Strava, import de fichiers GPX/FIT |
 
-Chaque écran a un bouton « Personnaliser » : thème (Poster par défaut, Sunrise, Midnight), couleur d'accent, widgets à afficher, masquer, réordonner et redimensionner. Les choix sont enregistrés dans la base.
+Chaque écran a un bouton « Personnaliser » : thème (Poster par défaut, Sunrise, Midnight), couleur d'accent, widgets à afficher, masquer, réordonner (glisser-déposer ou flèches) et redimensionner. Les choix sont enregistrés dans la base.
 
 Plan : [docs/PLAN.md](docs/PLAN.md). Design : [DESIGN.md](DESIGN.md). Maquettes d'origine : [maquettes/](maquettes/index.html).
 
@@ -48,4 +48,4 @@ npm run build
 
 ## Limites connues
 
-La synchronisation initiale plafonne à 1 000 activités. Les chaussures (suivi du matériel) ne sont pas faites. Sur mobile, le texte des graphiques est agrandi par CSS, sans redessin au redimensionnement.
+La synchronisation initiale plafonne à 1 000 activités. Les chaussures viennent de l'équipement Strava affecté à tes sorties (lecture non vérifiée sur une vraie paire : aucune de tes courses n'en a). La carte est un schéma dessiné à partir du tracé, sans fond de carte : aucun service tiers ne voit où tu cours. Sur mobile, le texte des graphiques est agrandi par CSS, sans redessin au redimensionnement.

@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { Dashboard, type Item } from "@/components/Dashboard";
-import { MigrationNotice, PrList, Stat, SyncButton } from "@/components/bits";
+import { MigrationNotice, PrList, ShoeList, SyncButton } from "@/components/bits";
 import { ElevationProfile, PaceBars, VolumeBars } from "@/components/charts";
 import { RouteMap } from "@/components/RouteMap";
 import { daysUntil, fmtDate, parisDay } from "@/lib/dates";
 import { isOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime, paceSecPerKm } from "@/lib/pace";
-import { getPrefs, getRaces, getRuns } from "@/lib/queries";
+import { getGear, getPrefs, getRaces, getRuns } from "@/lib/queries";
 import { genericGradeFactor, pickReference, profileGradeFactor, riegel } from "@/lib/riegel";
-import { personalRecords, weeklyVolume } from "@/lib/stats";
+import { personalRecords, shoeStats, weeklyVolume } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
     );
   }
 
-  const [runs, prefs, { races, migrationMissing }] = await Promise.all([getRuns(), getPrefs(), getRaces()]);
+  const [runs, prefs, { races, migrationMissing }, gear] = await Promise.all([getRuns(), getPrefs(), getRaces(), getGear()]);
   const last = runs[0];
 
   if (!last) {
@@ -131,6 +131,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
     node: (<><h2>Allure par kilomètre <span className="hint">plus haut = plus vite</span></h2><PaceBars splits={last.splits ?? []} totalM={last.distance_m} /></>),
   });
   items.push({ id: "volume", label: "Volume hebdomadaire", size: "l", node: (<><h2>Volume hebdomadaire <span className="hint">12 semaines, km</span></h2><VolumeBars weeks={weeks} /></>) });
+  items.push({ id: "shoes", label: "Chaussures", size: "s", node: (<><h2>Chaussures</h2><ShoeList shoes={shoeStats(runs, gear)} /></>) });
   items.push({ id: "prs", label: "Records", size: "s", node: (<><h2>Records</h2><PrList records={records} /></>) });
 
   const header = (

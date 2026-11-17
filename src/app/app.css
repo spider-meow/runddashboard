@@ -10,6 +10,8 @@ body { font-family: var(--font-ui); }
 .drawer-foot { margin-top: 24px; }
 .drawer-note { margin-top: 12px; font-size: 13px; color: var(--mute); }
 .wlist button:disabled { opacity: .3; cursor: default; }
+.wlist .grab svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; }
+.wlist li[draggable="true"] { cursor: grab; }
 @media (max-width: 760px) { .chart text { font-size: 17px; } .tabbar { z-index: 20; } }
 
 /* blocs réutilisés par plusieurs écrans */

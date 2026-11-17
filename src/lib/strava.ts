@@ -92,6 +92,18 @@ export async function fetchStreams(accessToken: string, activityId: number | str
   return { time: s.time.data, distance: s.distance.data, altitude: s.altitude?.data };
 }
 
+export type GearRow = { id: string; name: string; brand_name: string | null; model_name: string | null; distance_m: number | null };
+
+// Équipement (chaussures). Champs lus d'après la référence Strava ; null si l'équipement n'existe plus.
+export async function fetchGear(accessToken: string, gearId: string): Promise<GearRow | null> {
+  const r = await fetch(`${API}/gear/${gearId}`, { headers: { Authorization: `Bearer ${accessToken}` } });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`Strava gear ${r.status}`);
+  const g = await r.json();
+  const brand = g.brand_name ?? null, model = g.model_name ?? null;
+  return { id: String(g.id ?? gearId), name: g.name || [brand, model].filter(Boolean).join(" ") || gearId, brand_name: brand, model_name: model, distance_m: typeof g.distance === "number" ? g.distance : null };
+}
+
 export async function activityExists(accessToken: string, activityId: number | string): Promise<boolean> {
   const r = await fetch(`${API}/activities/${activityId}`, { headers: { Authorization: `Bearer ${accessToken}` } });
   if (r.status === 404) return false;

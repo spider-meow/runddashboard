@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { analyzeStream } from "./analyze";
-import { fetchActivities, fetchStreams, mapActivity, needsRefresh, refreshTokens } from "./strava";
+import { fetchActivities, fetchGear, fetchStreams, mapActivity, needsRefresh, refreshTokens } from "./strava";
 
 export const RUN_SPORTS = ["Run", "TrailRun", "VirtualRun"];
 
@@ -35,6 +35,25 @@ export async function analyzePending(db: SupabaseClient, accessToken: string, li
   return done;
 }
 
+// Lit les paires de chaussures que la base ne connaît pas encore (une requête Strava par nouvelle paire).
+export async function syncGear(db: SupabaseClient, accessToken: string, gearIds: (string | null | undefined)[]): Promise<number> {
+  const wanted = [...new Set(gearIds.filter((g): g is string => !!g))];
+  if (!wanted.length) return 0;
+  const { data: known, error } = await db.from("gear").select("id").in("id", wanted);
+  if (error) throw new Error(error.message);
+  const have = new Set((known ?? []).map((g) => g.id));
+  const rows = [];
+  for (const id of wanted.filter((g) => !have.has(g))) {
+    const g = await fetchGear(accessToken, id);
+    if (g) rows.push({ ...g, updated_at: new Date().toISOString() });
+  }
+  if (rows.length) {
+    const { error: e } = await db.from("gear").upsert(rows);
+    if (e) throw new Error(e.message);
+  }
+  return rows.length;
+}
+
 // Synchronise les activités. Relançable à volonté : l'upsert sur (source, external_id) évite les doublons.
 export async function syncActivities(db: SupabaseClient, athleteId: number): Promise<{ fetched: number; analyzed: number; analysisError?: string }> {
   const accessToken = await getAccessToken(db, athleteId);
@@ -49,7 +68,8 @@ export async function syncActivities(db: SupabaseClient, athleteId: number): Pro
     if (error) throw new Error(error.message);
   }
 
-  // Une analyse qui échoue (quota, migration pas encore appliquée) ne doit pas faire échouer la synchro.
+  // Le matériel et l'analyse sont des bonus : s'ils échouent (quota, migration pas encore appliquée), la synchro réussit quand même.
+  try { await syncGear(db, accessToken, acts.map((a) => a.gear_id)); } catch (e) { console.error("Lecture du matériel échouée", e); }
   try {
     return { fetched: acts.length, analyzed: await analyzePending(db, accessToken) };
   } catch (e) {

@@ -84,7 +84,7 @@ Dédup : `insert … on conflict (source, external_id) do update`. Une activité
 
 ## État (17 novembre 2026)
 
-Phases 2 à 8 faites, sauf le fond de carte et les chaussures. Voir le README. Prouvé en local contre la vraie base (migration 0002 appliquée) : connexion Strava, synchro dédupliquée, analyse des courses (5 km en 1342 s contre 1343 s chez Strava), enregistrement des préférences (thème, widgets masqués, conservés au rechargement), modification d'une course, import de tracé GPX, import d'une activité GPX avec déduplication (le même fichier deux fois n'ajoute rien), handshake du webhook. Restent à prouver : un vrai fichier FIT de montre, le déploiement Vercel, le cron, l'abonnement webhook en ligne, le rafraîchissement du jeton. À faire : importer le vrai GPX de Garches, calibrer le modèle de relief sur de vraies sorties.
+Phases 2 à 8 faites, chaussures et glisser-déposer compris (migration 0003). Le fond de carte est volontairement laissé de côté : il enverrait ton tracé à un service de tuiles tiers. Voir le README. Prouvé en local contre la vraie base (migration 0002 appliquée) : connexion Strava, synchro dédupliquée, analyse des courses (5 km en 1342 s contre 1343 s chez Strava), enregistrement des préférences (thème, widgets masqués, conservés au rechargement), modification d'une course, import de tracé GPX, import d'une activité GPX avec déduplication (le même fichier deux fois n'ajoute rien), handshake du webhook. Restent à prouver : la lecture d'une vraie paire de chaussures, un vrai fichier FIT de montre, le déploiement Vercel, le cron, l'abonnement webhook en ligne, le rafraîchissement du jeton. À faire : importer le vrai GPX de Garches, calibrer le modèle de relief sur de vraies sorties.
 
 ## Phases
 

@@ -11,7 +11,7 @@ const NAME: Record<Theme, string> = { poster: "Poster", sunrise: "Sunrise", midn
 const ACCENTS = ["#c8f031", "#cf3705", "#f0602f", "#2a6fdb", "#1f9d6b", "#a63fd0"];
 
 const Icon = ({ d }: { d: string }) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg>;
-const I = { up: "M6 15l6-6 6 6", down: "M6 9l6 6 6-6", size: "M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6", eye: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z", off: "M3 3l18 18M10.6 6.1A9.7 9.7 0 0 1 12 5c6 0 10 7 10 7a17 17 0 0 1-3 3.7M6.6 6.7A17 17 0 0 0 2 12s4 7 10 7a9.6 9.6 0 0 0 4.2-1" };
+const I = { up: "M6 15l6-6 6 6", down: "M6 9l6 6 6-6", size: "M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6", eye: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z", off: "M3 3l18 18M10.6 6.1A9.7 9.7 0 0 1 12 5c6 0 10 7 10 7a17 17 0 0 1-3 3.7M6.6 6.7A17 17 0 0 0 2 12s4 7 10 7a9.6 9.6 0 0 0 4.2-1", grip: "M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01" };
 
 // En-tête de page + grille de widgets personnalisable (afficher, masquer, réordonner, redimensionner) + thème et accent.
 // Les widgets sont rendus côté serveur et passés en props ; ce composant ne gère que la disposition.
@@ -32,6 +32,7 @@ export function Dashboard({ page, header, items, saved, theme: theme0, accent: a
     if (a) { s.setProperty("--accent", a); s.setProperty("--on-accent", onAccent(a)); } else { s.removeProperty("--accent"); s.removeProperty("--on-accent"); }
   };
   const [failed, setFailed] = useState(false);
+  const [drag, setDrag] = useState<number | null>(null); // widget en cours de glisser-déposer
   // L'affichage change tout de suite ; si l'enregistrement échoue (migration 0002 pas appliquée, base injoignable), on le dit.
   const save = (p: { widgets?: Widget[]; theme?: Theme; accent?: string | null }) =>
     start(async () => { try { await savePrefs({ page, ...p }); setFailed(false); } catch { setFailed(true); } });
@@ -77,7 +78,10 @@ export function Dashboard({ page, header, items, saved, theme: theme0, accent: a
         <h4>Widgets de cette page</h4>
         <ul className="wlist">
           {widgets.map((w, i) => (
-            <li key={w.id}>
+            <li key={w.id} draggable className={drag === i ? "drag" : undefined}
+              onDragStart={() => setDrag(i)} onDragEnd={() => setDrag(null)} onDragOver={(e) => e.preventDefault()}
+              onDrop={() => { const from = drag; setDrag(null); if (from !== null && from !== i) edit(i, (n) => { n.splice(i, 0, n.splice(from, 1)[0]); }); }}>
+              <span className="grab" aria-hidden="true"><Icon d={I.grip} /></span>
               <span className="name">{byId[w.id].label}</span>
               <button type="button" aria-label={`Changer la taille (${w.size.toUpperCase()})`} title={`Taille : ${w.size.toUpperCase()}`} onClick={() => edit(i, (n) => { n[i].size = SIZES[(SIZES.indexOf(n[i].size) + 1) % SIZES.length]; })}><Icon d={I.size} /></button>
               <button type="button" aria-label="Monter" disabled={i === 0} onClick={() => edit(i, (n) => { [n[i - 1], n[i]] = [n[i], n[i - 1]]; })}><Icon d={I.up} /></button>

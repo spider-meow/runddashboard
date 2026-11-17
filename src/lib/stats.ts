@@ -29,6 +29,23 @@ export function weeklyVolume(runs: RunLike[], now: Date, weeks: number): Week[] 
   }));
 }
 
+export type Shoe = { id: string; name: string; km: number; runs: number; lastUsed: string };
+
+// Kilomètres et nombre de sorties par paire de chaussures, la plus utilisée d'abord. Les sorties sans matériel sont ignorées.
+export function shoeStats(runs: { gear_id: string | null; distance_m: number; started_at: string }[], gear: { id: string; name: string }[]): Shoe[] {
+  const names = new Map(gear.map((g) => [g.id, g.name]));
+  const by = new Map<string, Shoe>();
+  for (const r of runs) {
+    if (!r.gear_id) continue;
+    const s = by.get(r.gear_id) ?? { id: r.gear_id, name: names.get(r.gear_id) ?? r.gear_id, km: 0, runs: 0, lastUsed: "" };
+    s.km += r.distance_m / 1000; s.runs += 1;
+    const day = r.started_at.slice(0, 10);
+    if (day > s.lastUsed) s.lastUsed = day;
+    by.set(r.gear_id, s);
+  }
+  return [...by.values()].map((s) => ({ ...s, km: Math.round(s.km * 10) / 10 })).sort((a, b) => b.km - a.km);
+}
+
 export type Records = {
   efforts: Record<string, { time_s: number; date: string; activity_id: string }>;
   longest: { distance_m: number; date: string; activity_id: string } | null;
