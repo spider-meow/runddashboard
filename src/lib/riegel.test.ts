@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { genericGradeFactor, profileGradeFactor, riegel } from "./riegel";
+import { genericGradeFactor, pickReference, profileGradeFactor, riegel } from "./riegel";
 
 describe("riegel", () => {
   it("applique T2 = T1 × (D2/D1)^k", () => {
@@ -38,5 +38,17 @@ describe("genericGradeFactor", () => {
   });
   it("vaut 1 sans dénivelé", () => {
     expect(genericGradeFactor(10000, 0)).toBe(1);
+  });
+});
+
+describe("pickReference", () => {
+  it("prend l'effort le plus long parmi 5 km, 10 km et semi", () => {
+    expect(pickReference({ "1K": 250, "5K": 1360, "10K": 2900 })).toEqual({ name: "10K", distance_km: 10, time_s: 2900 });
+    expect(pickReference({ "5K": 1360, Semi: 6100 })).toMatchObject({ name: "Semi", distance_km: 21.0975 });
+  });
+  it("retombe sur le 5 km, ou null sans effort exploitable", () => {
+    expect(pickReference({ "5K": 1360 })).toEqual({ name: "5K", distance_km: 5, time_s: 1360 });
+    expect(pickReference({ "1K": 250 })).toBeNull();
+    expect(pickReference({})).toBeNull();
   });
 });

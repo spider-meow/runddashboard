@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isHexColor, mergeWidgets, onAccent, THEMES } from "./prefs";
+import { cleanWidgets, isHexColor, mergeWidgets, onAccent, THEMES } from "./prefs";
 
 const DEFAULTS = [
   { id: "a", visible: true, size: "m" as const },
@@ -39,5 +39,16 @@ describe("couleurs", () => {
   });
   it("connaît les trois thèmes", () => {
     expect(THEMES).toEqual(["poster", "sunrise", "midnight"]);
+  });
+});
+
+describe("cleanWidgets", () => {
+  it("ne garde que des widgets bien formés", () => {
+    const r = cleanWidgets([{ id: "a", visible: true, size: "m" }, { id: 5, visible: true, size: "m" }, { id: "b", visible: "x", size: "m" }, { id: "c", visible: false, size: "geant" }, null, { id: "a", visible: false, size: "s" }]);
+    expect(r).toEqual([{ id: "a", visible: true, size: "m" }]);
+  });
+  it("renvoie un tableau vide pour une entrée invalide et plafonne la taille de la liste", () => {
+    expect(cleanWidgets("n'importe quoi")).toEqual([]);
+    expect(cleanWidgets(Array.from({ length: 100 }, (_, i) => ({ id: "w" + i, visible: true, size: "s" }))).length).toBe(30);
   });
 });

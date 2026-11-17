@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planCheckpoints } from "./checkpoints";
+import { formatCheckpoints, parseCheckpoints, planCheckpoints } from "./checkpoints";
 
 const cps = [{ km: 5, name: "5 km", note: "" }, { km: 10, name: "10 km", note: "" }, { km: 15, name: "15 km", note: "" }, { km: 16.2, name: "Arrivée", note: "" }];
 const flat: [number, number][] = Array.from({ length: 163 }, (_, i) => [i / 10, 100]);
@@ -27,5 +27,23 @@ describe("planCheckpoints", () => {
   it("trie les repères par distance et ignore ceux au-delà de la course", () => {
     const p = planCheckpoints([{ km: 99, name: "hors course", note: "" }, ...cps.slice().reverse()], flat, 16.2, 4698);
     expect(p.map((x) => x.km)).toEqual([5, 10, 15, 16.2]);
+  });
+});
+
+describe("parseCheckpoints / formatCheckpoints", () => {
+  it("lit des lignes « km | nom | note »", () => {
+    const r = parseCheckpoints("5 | Ravitaillement | eau\n10,5|Bosse\n\n16.2 | Arrivée |");
+    expect(r).toEqual([
+      { km: 5, name: "Ravitaillement", note: "eau" },
+      { km: 10.5, name: "Bosse", note: "" },
+      { km: 16.2, name: "Arrivée", note: "" },
+    ]);
+  });
+  it("ignore les lignes invalides et donne un nom par défaut", () => {
+    expect(parseCheckpoints("abc | x\n-3 | y\n7")).toEqual([{ km: 7, name: "7 km", note: "" }]);
+  });
+  it("fait l'aller-retour avec formatCheckpoints", () => {
+    const cps = [{ km: 5, name: "5 km", note: "" }, { km: 16.2, name: "Arrivée", note: "tout donner" }];
+    expect(parseCheckpoints(formatCheckpoints(cps))).toEqual(cps);
   });
 });

@@ -41,3 +41,17 @@ export function planCheckpoints(checkpoints: Checkpoint[], profile: [number, num
     return out;
   });
 }
+
+// Saisie des repères : une ligne par repère, « km | nom | note ».
+export function parseCheckpoints(text: string): Checkpoint[] {
+  const out: Checkpoint[] = [];
+  for (const line of text.split(/\r?\n/)) {
+    const [kmRaw, name = "", ...note] = line.split("|").map((s) => s.trim());
+    const km = parseFloat((kmRaw ?? "").replace(",", "."));
+    if (!isFinite(km) || km <= 0 || !/^[\d.,]+$/.test(kmRaw)) continue;
+    out.push({ km, name: name || `${km} km`, note: note.join(" | ") });
+  }
+  return out;
+}
+
+export const formatCheckpoints = (cps: Checkpoint[]): string => cps.map((c) => `${c.km} | ${c.name} | ${c.note}`).join("\n");

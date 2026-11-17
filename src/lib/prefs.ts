@@ -36,3 +36,17 @@ const lum = (hex: string) => {
 
 // Couleur du texte posé sur l'accent choisi par l'utilisateur.
 export const onAccent = (hex: string) => (lum(hex) > 0.3 ? "#14110f" : "#ffffff");
+
+// Valide la forme des widgets reçus du navigateur avant de les enregistrer.
+export function cleanWidgets(input: unknown): Widget[] {
+  if (!Array.isArray(input)) return [];
+  const seen = new Set<string>();
+  const out: Widget[] = [];
+  for (const w of input as Partial<Widget>[]) {
+    if (!w || typeof w.id !== "string" || w.id.length > 40 || seen.has(w.id)) continue;
+    if (typeof w.visible !== "boolean" || !(SIZES as readonly string[]).includes(w.size as string)) continue;
+    seen.add(w.id);
+    out.push({ id: w.id, visible: w.visible, size: w.size as Size });
+  }
+  return out.slice(0, 30);
+}

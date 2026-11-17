@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fmtPace, fmtTime, paceSecPerKm } from "./pace";
+import { fmtKm, fmtPace, fmtTime, paceSecPerKm, parsePace } from "./pace";
 
 describe("pace", () => {
   it("formate une allure en min:s", () => {
@@ -15,5 +15,20 @@ describe("pace", () => {
   it("calcule l'allure en s/km", () => {
     expect(paceSecPerKm(3710, 12400)).toBeCloseTo(299.19, 1);
     expect(paceSecPerKm(100, 0)).toBeNull();
+  });
+});
+
+describe("parsePace et fmtKm", () => {
+  it("lit une allure saisie en min:s", () => {
+    expect(parsePace("4:50")).toBe(290);
+    expect(parsePace(" 5:05 ")).toBe(305);
+    expect(parsePace("4:5")).toBeNull();
+    expect(parsePace("abc")).toBeNull();
+    expect(parsePace("4:75")).toBeNull();
+  });
+  it("formate une distance en kilomètres avec une virgule", () => {
+    expect(fmtKm(12400)).toBe("12,4");
+    expect(fmtKm(5039.5)).toBe("5,0");
+    expect(fmtKm(16200)).toBe("16,2");
   });
 });

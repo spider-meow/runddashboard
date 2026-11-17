@@ -24,3 +24,13 @@ export function profileGradeFactor(profile: [number, number][]): number {
 // Sans profil : 1 + 0,015 × pente moyenne positive en %.
 export const genericGradeFactor = (distanceM: number, dplusM: number): number =>
   dplusM > 0 && distanceM > 0 ? 1 + 0.015 * (dplusM / (distanceM / 100)) : 1;
+
+export type Reference = { name: string; distance_km: number; time_s: number };
+
+// Base de la projection : l'effort le plus long parmi 5 km, 10 km et semi (les distances plus longues extrapolent mieux).
+export function pickReference(efforts: Record<string, number>): Reference | null {
+  for (const [name, distance_km] of [["Semi", 21.0975], ["10K", 10], ["5K", 5]] as const) {
+    if (efforts[name]) return { name, distance_km, time_s: efforts[name] };
+  }
+  return null;
+}
