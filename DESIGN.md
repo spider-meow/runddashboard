@@ -12,7 +12,7 @@ themes:
     hairline: "#332c27"
     ink: "#f4ede4"
     ink-2: "#bdb2a5"
-    mute: "#85796d"
+    mute: "#9a8e81"
     accent: "#ea5b2e"
     on-accent: "#14110f"
     series-2: "#4a98d6"
@@ -23,10 +23,13 @@ themes:
     hairline: "#e1dcd3"
     ink: "#1c1b1a"
     ink-2: "#52504b"
-    mute: "#7d7a74"
+    mute: "#6e6b65"
     accent: "#d8481f"
     on-accent: "#ffffff"
     series-2: "#2a78d6"
+    good: "#1f7a52"   # statuts propres au thème clair
+    warn: "#8a5d00"
+    bad: "#b83225"
   nocturne:         # sombre, froid
     bg: "#0b0d12"
     surface: "#12151c"
@@ -34,11 +37,11 @@ themes:
     hairline: "#252a35"
     ink: "#e8ecf4"
     ink-2: "#a4adbd"
-    mute: "#6b7486"
+    mute: "#8590a3"
     accent: "#5b8def"
     on-accent: "#0b0d12"
     series-2: "#d9693f"
-status:             # réservés, toujours avec une icône et un libellé
+status:             # défauts sombres ; le thème clair a les siens (contraste ≥ 4,5:1). Toujours avec libellé, jamais la couleur seule.
   good: "#4fbf86"
   warn: "#e3a93f"
   bad: "#e5604d"
