@@ -1,0 +1,42 @@
+/* Tokens : voir DESIGN.md. Ember = défaut. Un thème = un bloc de variables. */
+:root, :root[data-theme="ember"] {
+  color-scheme: dark;
+  --bg: #14110f; --surface: #1c1815; --surface-2: #26201c; --hairline: #332c27;
+  --ink: #f4ede4; --ink-2: #bdb2a5; --mute: #85796d;
+  --accent: #ea5b2e; --on-accent: #14110f; --series-2: #4a98d6;
+  --shadow: none;
+}
+:root[data-theme="paper"] {
+  color-scheme: light;
+  --bg: #f7f1e8; --surface: #fffdf9; --surface-2: #f0e9de; --hairline: #e1dcd3;
+  --ink: #1c1b1a; --ink-2: #52504b; --mute: #7d7a74;
+  --accent: #d8481f; --on-accent: #fff; --series-2: #2a78d6;
+  --shadow: 0 1px 2px rgb(60 40 20 / .06), 0 8px 24px rgb(60 40 20 / .06);
+}
+:root[data-theme="nocturne"] {
+  color-scheme: dark;
+  --bg: #0b0d12; --surface: #12151c; --surface-2: #1a1e27; --hairline: #252a35;
+  --ink: #e8ecf4; --ink-2: #a4adbd; --mute: #6b7486;
+  --accent: #5b8def; --on-accent: #0b0d12; --series-2: #d9693f;
+  --shadow: none;
+}
+:root {
+  --good: #4fbf86; --warn: #e3a93f; --bad: #e5604d;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-ui: "Geist", Inter, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --radius: 20px; --radius-sm: 12px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --t-micro: 140ms; --t-ui: 240ms; --t-enter: 480ms; --t-draw: 2200ms;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+}
+/* Par défaut on suit l'OS tant que l'utilisateur n'a rien choisi (pas de data-theme posé). */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --bg: #f7f1e8; --surface: #fffdf9; --surface-2: #f0e9de; --hairline: #e1dcd3;
+    --ink: #1c1b1a; --ink-2: #52504b; --mute: #7d7a74;
+    --accent: #d8481f; --on-accent: #fff; --series-2: #2a78d6;
+    --shadow: 0 1px 2px rgb(60 40 20 / .06), 0 8px 24px rgb(60 40 20 / .06);
+  }
+}
