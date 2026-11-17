@@ -5,25 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Accueil · rundashboard (maquette)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/tokens.css"><link rel="stylesheet" href="assets/base.css">
 <style>
   .race { display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--s5); align-items: stretch; }
-  .race h3 { font: 400 clamp(30px, 3.4vw, 46px)/1.05 var(--font-display); letter-spacing: -.02em; margin: var(--s1) 0 var(--s4); }
+  .race h3 { font: var(--dw) clamp(30px, 3.4vw, 46px)/1.05 var(--font-display); letter-spacing: -.02em; margin: var(--s1) 0 var(--s4); }
   .trio { display: grid; grid-template-columns: repeat(3, auto); gap: var(--s5); justify-content: start; margin-bottom: var(--s4); }
-  .trio .v { font: 400 40px/1 var(--font-display); letter-spacing: -.02em; }
+  .trio .v { font: var(--dw) 40px/1 var(--font-display); letter-spacing: -.02em; }
   .trio .v small { font: 400 14px var(--font-mono); color: var(--mute); margin-left: 3px; }
   .trio .l { font: 500 11px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 6px; }
   .race .map { min-height: 250px; }
   .count { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-  .count .big { font: 400 clamp(72px, 9vw, 120px)/.9 var(--font-display); letter-spacing: -.04em; color: var(--accent); font-variation-settings: "opsz" 144; }
+  .count .big { font: var(--dw) clamp(72px, 9vw, 120px)/.9 var(--font-display); letter-spacing: -.04em; color: var(--accent); font-variation-settings: "opsz" 144; }
   .kv { display: grid; gap: 10px; font-size: 14px; margin-top: var(--s4); }
   .kv div { display: flex; justify-content: space-between; border-top: 1px solid var(--hairline); padding-top: 10px; }
   .kv b { font: 500 14px var(--font-mono); }
   .last-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); flex-wrap: wrap; }
-  .last-top h3 { font: 400 26px/1.15 var(--font-display); }
+  .last-top h3 { font: var(--dw) 26px/1.15 var(--font-display); }
   .quad { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s4); margin-top: var(--s5); }
-  .quad .v { font: 400 28px var(--font-display); } .quad .v small { font: 400 12px var(--font-mono); color: var(--mute); }
+  .quad .v { font: var(--dw) 28px var(--font-display); } .quad .v small { font: 400 12px var(--font-mono); color: var(--mute); }
   .quad .l { font: 500 11px var(--font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
   .pr { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--hairline); font-size: 14px; }
   .pr:first-of-type { border-top: 0; } .pr small { color: var(--mute); display: block; font-size: 12px; }
@@ -66,7 +66,7 @@
         <svg id="c-elev" role="img"></svg>
       </section>
 
-      <section class="card" data-w="countdown" data-size="s" data-label="Compte à rebours">
+      <section class="card" data-w="countdown" data-size="s" data-tone="hot" data-label="Compte à rebours">
         <div class="count">
           <div><h2>Compte à rebours</h2><div class="big" id="dn">J-5</div><p style="color:var(--ink-2)">avant le départ</p></div>
           <div class="kv">

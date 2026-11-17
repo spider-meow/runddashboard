@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Historique · rundashboard (maquette)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/tokens.css"><link rel="stylesheet" href="assets/base.css">
 <style>
   .tablewrap { overflow-x: auto; } .tablewrap table { min-width: 560px; }
@@ -14,7 +14,7 @@
   .seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); }
   .pr { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 0; border-top: 1px solid var(--hairline); }
   .pr:first-of-type { border-top: 0; } .pr small { color: var(--mute); display: block; font-size: 12px; }
-  .pr b { font: 400 26px var(--font-display); letter-spacing: -.01em; }
+  .pr b { font: var(--dw) 26px var(--font-display); letter-spacing: -.01em; }
   .newpr { color: var(--good); }
 </style>
 </head>
@@ -28,7 +28,7 @@
     </header>
 
     <div class="grid" id="grid">
-      <section class="card" data-w="s1" data-size="s" data-label="4 semaines : volume"><div class="stat"><div class="l">4 dernières semaines</div><div class="v" id="s1"></div><div class="d" id="s1d"></div></div></section>
+      <section class="card" data-w="s1" data-size="s" data-tone="hot" data-label="4 semaines : volume"><div class="stat"><div class="l">4 dernières semaines</div><div class="v" id="s1"></div><div class="d" id="s1d"></div></div></section>
       <section class="card" data-w="s2" data-size="s" data-label="4 semaines : allure"><div class="stat"><div class="l">Allure moyenne</div><div class="v" id="s2"></div><div class="d" id="s2d"></div></div></section>
       <section class="card" data-w="s3" data-size="s" data-label="4 semaines : D+"><div class="stat"><div class="l">Dénivelé cumulé</div><div class="v" id="s3"></div><div class="d">sur les 4 dernières semaines</div></div></section>
 

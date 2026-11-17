@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fiche de course · rundashboard (maquette)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/tokens.css"><link rel="stylesheet" href="assets/base.css">
 <style>
   .hero { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s5); }
   .hero .l { font: 500 11px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 6px; }
-  .hero .v { font: 400 clamp(32px, 4vw, 52px)/1 var(--font-display); letter-spacing: -.02em; }
+  .hero .v { font: var(--dw) clamp(32px, 4vw, 52px)/1 var(--font-display); letter-spacing: -.02em; }
   .hero .v small { font: 400 14px var(--font-mono); color: var(--mute); margin-left: 4px; }
   .hero .v.acc { color: var(--accent); }
   .pace-cell { color: var(--ink-2); }
@@ -87,7 +87,7 @@
         </div>
       </section>
 
-      <section class="card" data-w="goal" data-size="m" data-label="Objectif et projection">
+      <section class="card" data-w="goal" data-size="m" data-tone="hot" data-label="Objectif et projection">
         <h2>Objectif et projection</h2>
         <div class="stat"><div class="l">Forme actuelle, ajustée au D+</div><div class="v" id="proj">–</div>
           <div class="d"><span class="chip warn" id="gap"></span> par rapport à l'objectif 1:18:18. Détail dans <a href="projections.html" style="color:var(--accent);text-decoration:underline">Projections</a>.</div></div>
