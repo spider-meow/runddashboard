@@ -5,7 +5,7 @@ description: Un dashboard de running énergique. Grosses typos, chiffres énorme
 inspiration: Dribbble (tags « running dashboard » et « strava ») : tuiles de couleur vive, chiffres géants, photo et carte comme héros. Voir docs/RESOURCES.md.
 
 themes:
-  sunrise:            # défaut, clair
+  sunrise:            # clair
     bg: "#fdf0e6"
     surface: "#ffffff"
     surface-2: "#fff6ee"
@@ -33,7 +33,7 @@ themes:
     hot: { bg: "linear-gradient(135deg, #ff7a2b, #ff3d71)", fg: "#0a0f1e" }
     status: { good: "#4fbf86", warn: "#e3a93f", bad: "#ff7a6b" }
     type: { display: "Sora 600", ui: "DM Sans", radius: 24 }
-  poster:             # sombre, affiche
+  poster:             # DÉFAUT (choisi) : sombre, affiche
     bg: "#0c0c0c"
     surface: "#151515"
     surface-2: "#1f1f1f"
@@ -76,6 +76,6 @@ rules:
 
 # Rundashboard — design
 
-Le bloc ci-dessus est la source de vérité. Trois directions livrées, changeables en direct depuis « Personnaliser » : **Sunrise** (clair, tuile jaune), **Midnight** (sombre, dégradé orange-rose), **Poster** (noir et volt, majuscules).
+Le bloc ci-dessus est la source de vérité. **Poster** (noir et volt, majuscules) est le thème par défaut, choisi par l'utilisateur. **Sunrise** (clair, tuile jaune) et **Midnight** (sombre, dégradé orange-rose) restent disponibles dans « Personnaliser ».
 
 Chaque thème règle aussi la police, le rayon et le poids des titres : changer de thème change le caractère de l'interface, pas seulement les couleurs. L'accent reste modifiable.
