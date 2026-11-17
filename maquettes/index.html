@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accueil · rundashboard (maquette)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css"><link rel="stylesheet" href="assets/base.css">
+<style>
+  .race { display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--s5); align-items: stretch; }
+  .race h3 { font: 400 clamp(30px, 3.4vw, 46px)/1.05 var(--font-display); letter-spacing: -.02em; margin: var(--s1) 0 var(--s4); }
+  .trio { display: grid; grid-template-columns: repeat(3, auto); gap: var(--s5); justify-content: start; margin-bottom: var(--s4); }
+  .trio .v { font: 400 40px/1 var(--font-display); letter-spacing: -.02em; }
+  .trio .v small { font: 400 14px var(--font-mono); color: var(--mute); margin-left: 3px; }
+  .trio .l { font: 500 11px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 6px; }
+  .race .map { min-height: 250px; }
+  .count { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+  .count .big { font: 400 clamp(72px, 9vw, 120px)/.9 var(--font-display); letter-spacing: -.04em; color: var(--accent); font-variation-settings: "opsz" 144; }
+  .kv { display: grid; gap: 10px; font-size: 14px; margin-top: var(--s4); }
+  .kv div { display: flex; justify-content: space-between; border-top: 1px solid var(--hairline); padding-top: 10px; }
+  .kv b { font: 500 14px var(--font-mono); }
+  .last-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); flex-wrap: wrap; }
+  .last-top h3 { font: 400 26px/1.15 var(--font-display); }
+  .quad { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s4); margin-top: var(--s5); }
+  .quad .v { font: 400 28px var(--font-display); } .quad .v small { font: 400 12px var(--font-mono); color: var(--mute); }
+  .quad .l { font: 500 11px var(--font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+  .pr { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--hairline); font-size: 14px; }
+  .pr:first-of-type { border-top: 0; } .pr small { color: var(--mute); display: block; font-size: 12px; }
+  .foot { margin-top: var(--s6); font-size: 12px; color: var(--mute); }
+  .race > * { min-width: 0; }
+  @container (max-width: 700px) { .race { grid-template-columns: 1fr; } .quad { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 760px) { .trio { gap: var(--s4); } }
+</style>
+</head>
+<body data-page="home">
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Navigation"></nav>
+  <main>
+    <header class="top">
+      <div><p class="eyebrow" id="today">Aujourd'hui</p><h1 class="title">En route pour <em>Garches</em></h1></div>
+      <button class="btn js-cfg" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Personnaliser</button>
+    </header>
+
+    <div class="grid" id="grid">
+      <section class="card" data-w="race" data-size="xl" data-label="Prochaine course">
+        <h2>Prochaine course <span class="hint" id="race-date"></span></h2>
+        <div class="race">
+          <div>
+            <p class="eyebrow">Course à pied · route vallonnée</p>
+            <h3>Les Collines de Garches</h3>
+            <div class="trio">
+              <div><div class="l">Distance</div><div class="v">16,2<small>km</small></div></div>
+              <div><div class="l">D+</div><div class="v">275<small>m</small></div></div>
+              <div><div class="l">Objectif</div><div class="v">4:50<small>/km</small></div></div>
+            </div>
+            <p style="color:var(--ink-2);font-size:14px">Temps visé <b class="num" style="color:var(--ink)">1:18:18</b> · repères tous les 2 à 3 km, dans la fiche de course.</p>
+            <p style="margin-top:var(--s4)"><a class="btn primary" href="course.html">Ouvrir la fiche</a></p>
+          </div>
+          <div class="map" id="map" style="aspect-ratio: 4/3"></div>
+        </div>
+      </section>
+
+      <section class="card" data-w="elev" data-size="l" data-label="Profil de dénivelé">
+        <h2>Profil de dénivelé <span class="hint">survole pour suivre sur la carte</span></h2>
+        <svg id="c-elev" role="img"></svg>
+      </section>
+
+      <section class="card" data-w="countdown" data-size="s" data-label="Compte à rebours">
+        <div class="count">
+          <div><h2>Compte à rebours</h2><div class="big" id="dn">J-5</div><p style="color:var(--ink-2)">avant le départ</p></div>
+          <div class="kv">
+            <div><span>Forme actuelle (Riegel)</span><b id="k-flat"></b></div>
+            <div><span>Ajusté au D+</span><b id="k-adj"></b></div>
+            <div><span>Écart à l'objectif</span><span class="chip warn" id="k-gap"></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" data-w="last" data-size="m" data-label="Dernière course">
+        <h2>Dernière course</h2>
+        <div class="last-top"><h3 id="l-name"></h3><span class="chip" id="l-date"></span></div>
+        <div class="quad">
+          <div><div class="l">Distance</div><div class="v" id="l-dist"></div></div>
+          <div><div class="l">Temps</div><div class="v" id="l-time"></div></div>
+          <div><div class="l">Allure</div><div class="v" id="l-pace"></div></div>
+          <div><div class="l">D+</div><div class="v" id="l-dp"></div></div>
+        </div>
+      </section>
+
+      <section class="card" data-w="pace" data-size="m" data-label="Allure par kilomètre">
+        <h2>Allure par kilomètre <span class="hint">plus haut = plus vite</span></h2>
+        <svg id="c-pace" role="img"></svg>
+      </section>
+
+      <section class="card" data-w="volume" data-size="l" data-label="Volume hebdomadaire">
+        <h2>Volume hebdomadaire <span class="hint">24 semaines, km</span></h2>
+        <svg id="c-vol" role="img"></svg>
+      </section>
+
+      <section class="card" data-w="prs" data-size="s" data-label="Records personnels">
+        <h2>Records</h2>
+        <div id="prs"></div>
+      </section>
+    </div>
+    <p class="foot">Maquette : données synthétiques, aucun vrai tracé GPS.</p>
+  </main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Navigation"></nav>
+
+<script src="assets/data.js"></script><script src="assets/charts.js"></script><script src="assets/app.js"></script>
+<script>
+  const R = RD.race, f = RD.fmtTime, p = RD.fmtPace, $ = (id) => document.getElementById(id);
+  const d0 = new Date(R.date + "T09:00:00"), days = Math.ceil((d0 - new Date()) / 864e5);
+  $("today").textContent = new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+  $("race-date").textContent = d0.toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+  $("dn").textContent = days > 0 ? "J-" + days : days === 0 ? "Jour J" : "Passée";
+
+  // projection : Riegel depuis le 10 km de référence, puis pénalité de dénivelé (provisoire : 1 s par m de D+)
+  const flat = RD.riegel(RD.refBest.time, RD.refBest.dist, R.dist), adj = flat + R.dplus * 1.0, gap = adj - R.targetTime;
+  $("k-flat").textContent = f(flat); $("k-adj").textContent = f(adj);
+  $("k-gap").textContent = (gap > 0 ? "+" : "") + Math.round(gap) + " s"; $("k-gap").className = "chip " + (gap > 120 ? "bad" : gap > 0 ? "warn" : "good");
+
+  const map = Charts.drawMap($("map"), RD.routeXY, { label: "Tracé des Collines de Garches (schéma)" });
+  map.marks(RD.checkpoints.slice(1, -1), R.dist);
+  Charts.elevation($("c-elev"), RD.elev, { marks: RD.checkpoints.slice(1, -1), h: 190, onHover: (fr) => map.at(fr) });
+
+  const L = RD.lastRun;
+  $("l-name").textContent = L.name; $("l-date").textContent = new Date(L.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  $("l-dist").innerHTML = String(L.dist).replace(".", ",") + "<small> km</small>"; $("l-time").textContent = f(L.time);
+  $("l-pace").innerHTML = p(L.time / L.dist) + "<small> /km</small>"; $("l-dp").innerHTML = L.dplus + "<small> m</small>";
+  Charts.paceBars($("c-pace"), L.splits, { h: 190, target: Math.round(L.time / L.dist) });
+  Charts.volume($("c-vol"), RD.weeks, { h: 190 });
+
+  $("prs").innerHTML = RD.prs.map((r) => `<div class="pr"><span>${r.label}<small>${new Date(r.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}</small></span><b class="num">${r.t ? f(r.t) : r.v}</b></div>`).join("");
+</script>
+</body>
+</html>
