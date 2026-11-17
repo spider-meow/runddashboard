@@ -32,12 +32,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
 main { padding: var(--s6) var(--s6) var(--s7); max-width: 1320px; width: 100%; margin: 0 auto; }
 .top { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s4); margin-bottom: var(--s6); flex-wrap: wrap; }
 .eyebrow { font: 500 12px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
-h1.title { font: 400 clamp(32px, 4.4vw, 56px)/1.05 var(--font-display); letter-spacing: -.02em; margin-top: var(--s1); }
-h1.title em { font-style: italic; color: var(--accent); }
+h1.title { font: var(--dw) clamp(32px, 4.4vw, 56px)/1.05 var(--font-display); letter-spacing: -.02em; margin-top: var(--s1); }
+h1.title em { font-style: var(--em-style); color: var(--accent); }
 
 .btn {
   display: inline-flex; align-items: center; gap: var(--s2); min-height: 44px; padding: 0 var(--s4);
-  border-radius: 999px; border: 1px solid var(--hairline); background: var(--surface); font-weight: 500; font-size: 14px;
+  border-radius: var(--pill); border: 1px solid var(--hairline); background: var(--surface); font-weight: 500; font-size: 14px;
   transition: transform var(--t-micro) var(--ease), border-color var(--t-micro), background var(--t-micro);
 }
 .btn:hover { border-color: var(--mute); }
@@ -61,7 +61,7 @@ h1.title em { font-style: italic; color: var(--accent); }
 .card h2 .hint { text-transform: none; letter-spacing: 0; color: var(--mute); font-weight: 400; }
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-.stat .v { font: 400 clamp(40px, 5vw, 72px)/1 var(--font-display); letter-spacing: -.03em; font-variation-settings: "opsz" 144; }
+.stat .v { font: var(--dw) clamp(40px, 5vw, 72px)/1 var(--font-display); letter-spacing: -.03em; font-variation-settings: "opsz" 144; }
 .stat .v small { font: 400 16px var(--font-mono); color: var(--mute); letter-spacing: 0; margin-left: 4px; }
 .stat .l { font: 500 12px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: var(--s2); }
 .stat .d { margin-top: var(--s2); font-size: 14px; color: var(--ink-2); display: flex; align-items: center; gap: 6px; }
@@ -124,7 +124,7 @@ tr:hover td { background: color-mix(in srgb, var(--surface-2) 50%, transparent);
   transform: translateX(100%); transition: transform var(--t-ui) var(--ease); visibility: hidden;
 }
 .drawer.open { transform: none; visibility: visible; }
-.drawer h3 { font: 400 28px var(--font-display); margin-bottom: var(--s4); }
+.drawer h3 { font: var(--dw) 28px var(--font-display); margin-bottom: var(--s4); }
 .drawer h4 { font: 500 12px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin: var(--s5) 0 var(--s3); }
 .themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); }
 .theme-opt { border: 1px solid var(--hairline); background: transparent; border-radius: var(--radius-sm); padding: var(--s2); text-align: left; font-size: 13px; min-height: 44px; }
@@ -166,3 +166,13 @@ tr:hover td { background: color-mix(in srgb, var(--surface-2) 50%, transparent);
   *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0ms !important; transition-duration: .001ms !important; }
   .draw { stroke-dashoffset: 0 !important; }
 }
+
+/* ---------- direction artistique : majuscules (Poster) et cartes « hot » ---------- */
+.stat .v, .trio .v, .hero .v, .quad .v, .result .v, .count .big, .pr b, h1.title, .race h3, .last-top h3, .drawer h3, .logo { text-transform: var(--tt) !important; }
+.card[data-tone="hot"] {
+  background: var(--hot-bg); color: var(--hot-fg); border-color: transparent;
+  --ink: var(--hot-fg); --ink-2: var(--hot-fg); --mute: var(--hot-fg); --accent: var(--hot-fg);
+  --hairline: color-mix(in srgb, var(--hot-fg) 22%, transparent);
+}
+.card[data-tone="hot"] .chip { color: var(--hot-fg); border-color: color-mix(in srgb, var(--hot-fg) 45%, transparent); }
+.card[data-tone="hot"] a { text-decoration: underline; }

@@ -1,44 +1,60 @@
-/* Tokens : voir DESIGN.md. Ember = défaut. Un thème = un bloc de variables. */
-:root, :root[data-theme="ember"] {
+/* Tokens : voir DESIGN.md. Trois directions, chacune = un bloc de variables (couleurs, typo, rayons, ton « hot »).
+   Sunrise = défaut (clair, énergique). Midnight = sombre. Poster = affiche noir et jaune volt. */
+:root, :root[data-theme="sunrise"] {
+  color-scheme: light;
+  --bg: #fdf0e6; --surface: #ffffff; --surface-2: #fff6ee; --hairline: #f0dccb;
+  --ink: #1b1613; --ink-2: #5c4d43; --mute: #7a6a5e;
+  --accent: #cf3705; --on-accent: #ffffff; --series-2: #2a6fdb;
+  --good: #1f7a52; --warn: #8a5d00; --bad: #b83225;
+  --hot-bg: #ffc933; --hot-fg: #1b1613;           /* cartes mises en avant */
+  --font-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --font-ui: "DM Sans", system-ui, sans-serif;
+  --dw: 700; --tt: none; --em-style: normal;
+  --radius: 28px; --radius-sm: 16px; --pill: 999px;
+  --shadow: 0 1px 2px rgb(120 60 20 / .06), 0 10px 30px rgb(120 60 20 / .08);
+}
+:root[data-theme="midnight"] {
   color-scheme: dark;
-  --bg: #14110f; --surface: #1c1815; --surface-2: #26201c; --hairline: #332c27;
-  --ink: #f4ede4; --ink-2: #bdb2a5; --mute: #9a8e81;
-  --accent: #ea5b2e; --on-accent: #14110f; --series-2: #4a98d6;
+  --bg: #0a0f1e; --surface: #121a2f; --surface-2: #1a2440; --hairline: #243055;
+  --ink: #eef2ff; --ink-2: #aab4d4; --mute: #8591b5;
+  --accent: #f0602f; --on-accent: #0a0f1e; --series-2: #3b8bcf;
+  --good: #4fbf86; --warn: #e3a93f; --bad: #ff7a6b;
+  --hot-bg: linear-gradient(135deg, #ff7a2b, #ff3d71); --hot-fg: #0a0f1e;
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-ui: "DM Sans", system-ui, sans-serif;
+  --dw: 600; --tt: none; --em-style: normal;
+  --radius: 24px; --radius-sm: 14px; --pill: 999px;
   --shadow: none;
 }
-:root[data-theme="paper"] {
-  color-scheme: light;
-  --bg: #f7f1e8; --surface: #fffdf9; --surface-2: #f0e9de; --hairline: #e1dcd3;
-  --ink: #1c1b1a; --ink-2: #52504b; --mute: #6e6b65;
-  --accent: #d8481f; --on-accent: #fff; --series-2: #2a78d6;  /* statuts plus foncés sur fond clair */
-  --good: #1f7a52; --warn: #8a5d00; --bad: #b83225;
-  --shadow: 0 1px 2px rgb(60 40 20 / .06), 0 8px 24px rgb(60 40 20 / .06);
-}
-:root[data-theme="nocturne"] {
+:root[data-theme="poster"] {
   color-scheme: dark;
-  --bg: #0b0d12; --surface: #12151c; --surface-2: #1a1e27; --hairline: #252a35;
-  --ink: #e8ecf4; --ink-2: #a4adbd; --mute: #8590a3;
-  --accent: #5b8def; --on-accent: #0b0d12; --series-2: #d9693f;
+  --bg: #0c0c0c; --surface: #151515; --surface-2: #1f1f1f; --hairline: #2c2c2c;
+  --ink: #f6f6f2; --ink-2: #b4b4ac; --mute: #8d8d85;
+  --accent: #c8f031; --on-accent: #0c0c0c; --series-2: #f6f6f2;
+  --good: #4fbf86; --warn: #e3a93f; --bad: #ff7a6b;
+  --hot-bg: #c8f031; --hot-fg: #0c0c0c;
+  --font-display: "Anton", Impact, "Arial Narrow", sans-serif;
+  --font-ui: "Barlow", system-ui, sans-serif;
+  --dw: 400; --tt: uppercase; --em-style: normal;
+  --radius: 6px; --radius-sm: 4px; --pill: 4px;
   --shadow: none;
 }
 :root {
-  --good: #4fbf86; --warn: #e3a93f; --bad: #e5604d;
-  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
-  --font-ui: "Geist", Inter, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --radius: 20px; --radius-sm: 12px;
   --ease: cubic-bezier(.2, .7, .2, 1);
   --t-micro: 140ms; --t-ui: 240ms; --t-enter: 480ms; --t-draw: 2200ms;
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
 }
-/* Par défaut on suit l'OS tant que l'utilisateur n'a rien choisi (pas de data-theme posé). */
-@media (prefers-color-scheme: light) {
+/* Sans choix de l'utilisateur, on suit l'OS : sombre -> Midnight. */
+@media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    color-scheme: light;
-    --bg: #f7f1e8; --surface: #fffdf9; --surface-2: #f0e9de; --hairline: #e1dcd3;
-    --ink: #1c1b1a; --ink-2: #52504b; --mute: #6e6b65;
-    --accent: #d8481f; --on-accent: #fff; --series-2: #2a78d6;  /* statuts plus foncés sur fond clair */
-  --good: #1f7a52; --warn: #8a5d00; --bad: #b83225;
-    --shadow: 0 1px 2px rgb(60 40 20 / .06), 0 8px 24px rgb(60 40 20 / .06);
+    color-scheme: dark;
+    --bg: #0a0f1e; --surface: #121a2f; --surface-2: #1a2440; --hairline: #243055;
+    --ink: #eef2ff; --ink-2: #aab4d4; --mute: #8591b5;
+    --accent: #f0602f; --on-accent: #0a0f1e; --series-2: #3b8bcf;
+    --good: #4fbf86; --warn: #e3a93f; --bad: #ff7a6b;
+    --hot-bg: linear-gradient(135deg, #ff7a2b, #ff3d71); --hot-fg: #0a0f1e;
+    --font-display: "Sora", system-ui, sans-serif;
+    --dw: 600; --radius: 24px; --radius-sm: 14px; --pill: 999px; --shadow: none;
   }
 }
