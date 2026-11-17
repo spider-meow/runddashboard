@@ -14,9 +14,10 @@ const relink = (s) => s.replace(/(["'])(index|historique|projections|course|conn
 
 // le viewer pose data-theme="dark|light" sur <html> : nos thèmes passent sur data-rd pour ne pas entrer en collision
 let tokens = read("assets/tokens.css").replace(/data-theme/g, "data-rd");
-const paperBody = /:root\[data-rd="paper"\]\s*\{([^}]*)\}/.exec(tokens)[1];
-tokens = tokens.replace(":root:not([data-rd]) {", ':root:not([data-rd]):not([data-theme="dark"]) {')
-  + `\n/* le viewer a choisi « clair » explicitement */\n:root[data-theme="light"]:not([data-rd]) {${paperBody}}\n`;
+const midnightBody = /:root\[data-rd="midnight"\]\s*\{([^}]*)\}/.exec(tokens)[1];
+tokens = tokens.replace(":root:not([data-rd]) {", ':root:not([data-rd]):not([data-theme="light"]) {')
+  + `\n/* le viewer a choisi « sombre » explicitement */\n:root[data-theme="dark"]:not([data-rd]) {${midnightBody}}\n`;
+const fontsUrl = /<link href="(https:\/\/fonts\.googleapis\.com\/css2[^"]*)"/.exec(read("index.html"))[1];
 const app = relink(read("assets/app.js")).replace(/root\.dataset\.theme/g, "root.dataset.rd");
 
 const parts = PAGES.map(([key, file]) => {
@@ -32,7 +33,7 @@ const routes = JSON.stringify(Object.fromEntries(PAGES.map(([k, , r]) => [r, k])
 
 const head = `<title>Rundashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="${fontsUrl}" rel="stylesheet">
 <style>
 ${tokens}
 ${read("assets/base.css")}
