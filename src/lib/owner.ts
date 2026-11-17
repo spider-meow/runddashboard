@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { timingSafeEqual } from "node:crypto";
 import { verifySession } from "./session";
 
@@ -12,6 +13,11 @@ export async function isOwner(): Promise<boolean> {
   if (!secret || !owner) return false;
   const id = verifySession((await cookies()).get(SESSION_COOKIE)?.value, secret, nowS());
   return id !== null && String(id) === owner;
+}
+
+// Pages protégées : sans session du propriétaire, retour à l'accueil (qui propose la connexion Strava).
+export async function requireOwner(): Promise<void> {
+  if (!(await isOwner())) redirect("/");
 }
 
 export function validBearer(header: string | null, secret: string | undefined): boolean {
