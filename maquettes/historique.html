@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Historique · rundashboard (maquette)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css"><link rel="stylesheet" href="assets/base.css">
+<style>
+  .tablewrap { overflow-x: auto; } .tablewrap table { min-width: 560px; }
+  .seg { display: inline-flex; border: 1px solid var(--hairline); border-radius: 999px; padding: 3px; gap: 2px; }
+  .seg button { border: 0; background: none; min-height: 36px; padding: 0 14px; border-radius: 999px; font-size: 13px; color: var(--ink-2); }
+  .seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); }
+  .pr { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 0; border-top: 1px solid var(--hairline); }
+  .pr:first-of-type { border-top: 0; } .pr small { color: var(--mute); display: block; font-size: 12px; }
+  .pr b { font: 400 26px var(--font-display); letter-spacing: -.01em; }
+  .newpr { color: var(--good); }
+</style>
+</head>
+<body data-page="hist">
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Navigation"></nav>
+  <main>
+    <header class="top">
+      <div><p class="eyebrow">24 dernières semaines</p><h1 class="title">Historique et <em>records</em></h1></div>
+      <button class="btn js-cfg" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Personnaliser</button>
+    </header>
+
+    <div class="grid" id="grid">
+      <section class="card" data-w="s1" data-size="s" data-label="4 semaines : volume"><div class="stat"><div class="l">4 dernières semaines</div><div class="v" id="s1"></div><div class="d" id="s1d"></div></div></section>
+      <section class="card" data-w="s2" data-size="s" data-label="4 semaines : allure"><div class="stat"><div class="l">Allure moyenne</div><div class="v" id="s2"></div><div class="d" id="s2d"></div></div></section>
+      <section class="card" data-w="s3" data-size="s" data-label="4 semaines : D+"><div class="stat"><div class="l">Dénivelé cumulé</div><div class="v" id="s3"></div><div class="d">sur les 4 dernières semaines</div></div></section>
+
+      <section class="card" data-w="volume" data-size="l" data-label="Volume hebdomadaire">
+        <h2>Volume hebdomadaire <span class="hint">km · la dernière barre est la semaine en cours</span></h2>
+        <svg id="c-vol" role="img"></svg>
+      </section>
+      <section class="card" data-w="prs" data-size="s" data-label="Records personnels">
+        <h2>Records personnels</h2><div id="prs"></div>
+      </section>
+
+      <section class="card" data-w="pace" data-size="l" data-label="Courbe d'allure">
+        <h2>Allure moyenne par semaine <span class="hint">plus haut = plus vite</span></h2>
+        <svg id="c-pace" role="img"></svg>
+        <div class="legend"><span><i class="dot"></i> allure moyenne de la semaine</span></div>
+      </section>
+      <section class="card" data-w="note" data-size="s" data-label="Lecture">
+        <h2>Lecture</h2>
+        <p style="color:var(--ink-2);font-size:14px">L'allure moyenne gagne environ <b class="num" style="color:var(--ink)" id="gain"></b> par kilomètre sur 24 semaines, avec un volume en hausse jusqu'à la semaine 17 puis un allègement avant la course.</p>
+      </section>
+
+      <section class="card" data-w="recent" data-size="xl" data-label="Dernières sorties">
+        <h2>Dernières sorties</h2>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Date</th><th>Sortie</th><th class="num">Distance</th><th class="num">Temps</th><th class="num">Allure</th><th class="num">D+</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+      </section>
+    </div>
+    <p style="margin-top:var(--s6);font-size:12px;color:var(--mute)">Maquette : données synthétiques.</p>
+  </main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Navigation"></nav>
+
+<script src="assets/data.js"></script><script src="assets/charts.js"></script><script src="assets/app.js"></script>
+<script>
+  const f = RD.fmtTime, p = RD.fmtPace, $ = (id) => document.getElementById(id), W = RD.weeks, last4 = W.slice(-4), prev4 = W.slice(-8, -4);
+  const sum = (a, k) => a.reduce((s, x) => s + x[k], 0), avg = (a, k) => sum(a, k) / a.length;
+  const km4 = sum(last4, "km"), kmP = sum(prev4, "km");
+  $("s1").innerHTML = km4 + "<small> km</small>"; $("s1d").innerHTML = `<span class="chip ${km4 >= kmP ? "good" : "warn"}">${km4 >= kmP ? "+" : ""}${Math.round((km4 / kmP - 1) * 100)} %</span> vs les 4 semaines d'avant`;
+  $("s2").innerHTML = p(avg(last4, "pace")) + "<small> /km</small>"; const dp = avg(prev4, "pace") - avg(last4, "pace");
+  $("s2d").innerHTML = `<span class="chip ${dp > 0 ? "good" : "warn"}">${dp > 0 ? "−" : "+"}${Math.abs(Math.round(dp))} s</span> vs les 4 semaines d'avant`;
+  $("s3").innerHTML = Math.round(sum(last4, "dplus")) + "<small> m</small>";
+  $("gain").textContent = Math.round(W[0].pace - W[W.length - 1].pace) + " s";
+
+  Charts.volume($("c-vol"), W, { h: 220 });
+  Charts.paceLine($("c-pace"), W, { h: 220 });
+  $("prs").innerHTML = RD.prs.map((r, i) => `<div class="pr"><span>${r.label}<small>${new Date(r.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}${i === 2 ? ' · <span class="newpr">record récent</span>' : ""}</small></span><b class="num">${r.t ? f(r.t) : r.v}</b></div>`).join("");
+  $("rows").innerHTML = RD.recent.map(([d, n, km, t, dp]) => `<tr><td class="num" style="text-align:left">${new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}</td><td>${n}</td><td class="num">${String(km).replace(".", ",")} km</td><td class="num">${f(t)}</td><td class="num">${p(t / km)} /km</td><td class="num">${dp} m</td></tr>`).join("");
+</script>
+</body>
+</html>
