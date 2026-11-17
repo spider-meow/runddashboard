@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     athlete_id: t.athlete.id, access_token: t.access_token, refresh_token: t.refresh_token,
     expires_at: t.expires_at, scope: p.get("scope"), updated_at: new Date().toISOString(),
   });
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   // Une synchro qui échoue ne doit pas empêcher la connexion : le bouton « Synchroniser » sert de nouvel essai.
   let syncFailed = false;
   try { await syncActivities(client, t.athlete.id); } catch (e) { syncFailed = true; console.error("Synchro initiale échouée", e); }

@@ -31,7 +31,7 @@ export async function savePrefs(input: { page?: string; widgets?: unknown; theme
   else if (isHexColor(input.accent)) next.accent = input.accent;
   if (input.page && PAGES.includes(input.page)) next.widgets[input.page] = cleanWidgets(input.widgets);
   const { error } = await client.from("user_prefs").upsert(next);
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   revalidatePath("/", "layout");
 }
 
@@ -46,7 +46,7 @@ export async function createRace(formData: FormData) {
   if (!name || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !(km > 0)) redirect("/courses?erreur=champs");
   if (text(formData, "pace") && pace === null) redirect("/courses?erreur=allure");
   const { data, error } = await db().from("races").insert({ name, race_date: date, distance_m: Math.round(km * 1000), elevation_gain_m: isFinite(dplus) ? dplus : null, target_pace_s: pace }).select("id").single();
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   revalidatePath("/courses");
   redirect(`/courses/${data.id}`);
 }
@@ -60,7 +60,7 @@ export async function updateRace(id: string, formData: FormData) {
     checkpoints: parseCheckpoints(text(formData, "checkpoints")),
     notes: text(formData, "notes") || null,
   }).eq("id", id);
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   revalidatePath(`/courses/${id}`);
   redirect(`/courses/${id}?ok=1`);
 }
@@ -89,7 +89,7 @@ export async function importRaceTrack(id: string, formData: FormData) {
     course_polyline: encodePolyline(reduced),
     course_profile: s.altitude ? elevProfile(s.distance, s.altitude) : null,
   }).eq("id", id);
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   revalidatePath(`/courses/${id}`);
   redirect(`/courses/${id}?ok=1`);
 }
@@ -109,7 +109,7 @@ export async function importActivity(formData: FormData) {
   }
   // ignoreDuplicates : même fichier = même empreinte = ligne déjà présente, rien n'est ajouté.
   const { data, error } = await db().from("activities").upsert(row, { onConflict: "source,external_id", ignoreDuplicates: true }).select("id");
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   revalidatePath("/", "layout");
   redirect(`/donnees?r=${data && data.length ? "ok" : "doublon"}`);
 }

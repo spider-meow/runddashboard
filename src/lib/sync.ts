@@ -13,7 +13,7 @@ export async function getAccessToken(db: SupabaseClient, athleteId: number): Pro
   const { error } = await db.from("strava_connections")
     .update({ access_token: t.access_token, refresh_token: t.refresh_token, expires_at: t.expires_at, updated_at: new Date().toISOString() })
     .eq("athlete_id", athleteId);
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   return t.access_token;
 }
 
@@ -21,7 +21,7 @@ export async function getAccessToken(db: SupabaseClient, athleteId: number): Pro
 // ce qui reste est repris à la synchro suivante.
 export async function analyzePending(db: SupabaseClient, accessToken: string, limit = 30): Promise<number> {
   const { data: todo, error } = await db.from("activities").select("external_id").eq("source", "strava").in("sport", RUN_SPORTS).is("analyzed_at", null).order("started_at", { ascending: false }).limit(limit);
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   let done = 0;
   for (const a of todo ?? []) {
     const s = await fetchStreams(accessToken, a.external_id);
@@ -29,7 +29,7 @@ export async function analyzePending(db: SupabaseClient, accessToken: string, li
     const { error: e } = await db.from("activities").update({
       splits: r?.splits ?? null, best_efforts: r?.best_efforts ?? null, elev_profile: r?.elev_profile ?? null, analyzed_at: new Date().toISOString(),
     }).eq("source", "strava").eq("external_id", a.external_id);
-    if (e) throw e;
+    if (e) throw new Error(e.message);
     done++;
   }
   return done;
@@ -46,7 +46,7 @@ export async function syncActivities(db: SupabaseClient, athleteId: number): Pro
   const acts = await fetchActivities(accessToken, after);
   if (acts.length) {
     const { error } = await db.from("activities").upsert(acts.map(mapActivity), { onConflict: "source,external_id" });
-    if (error) throw error;
+    if (error) throw new Error(error.message);
   }
 
   // Une analyse qui échoue (quota, migration pas encore appliquée) ne doit pas faire échouer la synchro.

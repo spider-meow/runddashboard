@@ -40,7 +40,7 @@ export const DEFAULT_PREFS: Prefs = { theme: "poster", accent: null, widgets: {}
 // « select * » : les colonnes ajoutées par la migration 0002 arrivent à null tant qu'elle n'est pas appliquée.
 export async function getRuns(): Promise<Run[]> {
   const { data, error } = await db().from("activities").select("*").in("sport", RUN_SPORTS).order("started_at", { ascending: false }).limit(1000);
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   return (data ?? []).map((r) => ({ ...r, splits: r.splits ?? null, best_efforts: r.best_efforts ?? null, elev_profile: r.elev_profile ?? null, analyzed_at: r.analyzed_at ?? null }));
 }
 
@@ -50,14 +50,14 @@ const missingTable = (e: { code?: string; message?: string } | null) => !!e && (
 export async function getRaces(): Promise<{ races: Race[]; migrationMissing: boolean }> {
   const { data, error } = await db().from("races").select("*").order("race_date", { ascending: true });
   if (missingTable(error)) return { races: [], migrationMissing: true };
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   return { races: (data ?? []) as Race[], migrationMissing: false };
 }
 
 export async function getRace(id: string): Promise<Race | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const { data, error } = await db().from("races").select("*").eq("id", id).maybeSingle();
-  if (error && !missingTable(error)) throw error;
+  if (error && !missingTable(error)) throw new Error(error.message);
   return (data as Race) ?? null;
 }
 
