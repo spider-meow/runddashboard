@@ -6,7 +6,7 @@ import { RouteMap } from "@/components/RouteMap";
 import { daysUntil, fmtDate, parisDay } from "@/lib/dates";
 import { isOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime, paceSecPerKm } from "@/lib/pace";
-import { getGear, getPrefs, getRaces, getRuns } from "@/lib/queries";
+import { getGear, getLastRun, getPrefs, getRaces, getRuns } from "@/lib/queries";
 import { genericGradeFactor, pickReference, profileGradeFactor, riegel } from "@/lib/riegel";
 import { personalRecords, shoeStats, weeklyVolume } from "@/lib/stats";
 
@@ -34,8 +34,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
     );
   }
 
-  const [runs, prefs, { races, migrationMissing }, gear] = await Promise.all([getRuns(), getPrefs(), getRaces(), getGear()]);
-  const last = runs[0];
+  const [runs, last, prefs, { races, migrationMissing }, gear] = await Promise.all([getRuns(), getLastRun(), getPrefs(), getRaces(), getGear()]);
 
   if (!last) {
     return (

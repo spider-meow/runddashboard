@@ -1,5 +1,16 @@
 /* Les styles de base (cartes, stats, graphiques, tiroir, thèmes) viennent de maquettes/assets. Ici : ce qui manque à l'app. */
+/* Polices : next/font fournit --f-*, on les branche sur les variables de typo de chaque thème (les maquettes gardent Google Fonts). */
+:root { --font-mono: var(--f-mono), ui-monospace, "SF Mono", Menlo, monospace; }
+:root[data-theme="poster"] { --font-display: var(--f-anton), Impact, "Arial Narrow", sans-serif; --font-ui: var(--f-barlow), system-ui, sans-serif; }
+:root[data-theme="sunrise"] { --font-display: var(--f-bricolage), "Arial Narrow", system-ui, sans-serif; --font-ui: var(--f-dmsans), system-ui, sans-serif; }
+:root[data-theme="midnight"] { --font-display: var(--f-sora), system-ui, sans-serif; --font-ui: var(--f-dmsans), system-ui, sans-serif; }
 body { font-family: var(--font-ui); }
+.skeleton { display: grid; gap: var(--s5); }
+.sk { background: var(--surface); border-radius: var(--radius); animation: sk-pulse 1.2s ease-in-out infinite; }
+.sk-title { height: 56px; max-width: 420px; }
+.sk-card { min-height: 180px; }
+@keyframes sk-pulse { 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
 .stack { display: grid; gap: var(--s4); max-width: 520px; }
 .stack p, .muted { color: var(--ink-2); }
 .alert { border: 1px solid var(--bad); color: var(--bad); border-radius: var(--radius-sm); padding: var(--s3) var(--s4); font-size: 14px; margin-bottom: var(--s4); }

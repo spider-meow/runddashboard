@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { Split } from "./analyze";
 import type { Checkpoint } from "./checkpoints";
 import { db } from "./db";
@@ -38,11 +39,26 @@ export type Race = {
 export type Prefs = { theme: Theme; accent: string | null; widgets: Record<string, Widget[]> };
 export const DEFAULT_PREFS: Prefs = { theme: "poster", accent: null, widgets: {} };
 
-// « select * » : les colonnes ajoutées par la migration 0002 arrivent à null tant qu'elle n'est pas appliquée.
-export async function getRuns(): Promise<Run[]> {
-  const { data, error } = await db().from("activities").select("*").in("sport", RUN_SPORTS).order("started_at", { ascending: false }).limit(1000);
+// Liste légère : sans tracé, splits ni profil (plusieurs Ko par sortie, inutiles pour les totaux, records et tableaux).
+export type RunSummary = Omit<Run, "polyline" | "splits" | "elev_profile">;
+const SUMMARY_COLS = "id,source,external_id,name,started_at,distance_m,moving_time_s,elevation_gain_m,avg_hr,gear_id,best_efforts,analyzed_at";
+
+const withDefaults = (r: Record<string, unknown>) => ({ ...r, splits: r.splits ?? null, best_efforts: r.best_efforts ?? null, elev_profile: r.elev_profile ?? null, analyzed_at: r.analyzed_at ?? null, polyline: r.polyline ?? null });
+
+// Les colonnes ajoutées par la migration 0002 n'existent pas tant qu'elle n'est pas appliquée : dans ce cas on relit avec « * » (elles arrivent à null).
+export async function getRuns(): Promise<RunSummary[]> {
+  const base = () => db().from("activities");
+  let res = await base().select(SUMMARY_COLS).in("sport", RUN_SPORTS).order("started_at", { ascending: false }).limit(1000);
+  if (res.error) res = await base().select("*").in("sport", RUN_SPORTS).order("started_at", { ascending: false }).limit(1000);
+  if (res.error) throw new Error(res.error.message);
+  return (res.data ?? []).map((r) => withDefaults(r) as unknown as RunSummary);
+}
+
+// La dernière sortie en entier (splits, profil) : une seule ligne lourde au lieu de mille.
+export async function getLastRun(): Promise<Run | null> {
+  const { data, error } = await db().from("activities").select("*").in("sport", RUN_SPORTS).order("started_at", { ascending: false }).limit(1);
   if (error) throw new Error(error.message);
-  return (data ?? []).map((r) => ({ ...r, splits: r.splits ?? null, best_efforts: r.best_efforts ?? null, elev_profile: r.elev_profile ?? null, analyzed_at: r.analyzed_at ?? null }));
+  return data?.[0] ? (withDefaults(data[0]) as unknown as Run) : null;
 }
 
 // Table absente = migration 0002 pas encore appliquée : les pages affichent un bandeau au lieu de planter.
@@ -68,7 +84,8 @@ export async function getGear(): Promise<{ id: string; name: string }[]> {
   return data ?? [];
 }
 
-export async function getPrefs(): Promise<Prefs> {
+// cache() : le layout et la page demandent les préférences dans la même requête, une seule lecture en base.
+export const getPrefs = cache(async (): Promise<Prefs> => {
   const { data, error } = await db().from("user_prefs").select("*").eq("id", 1).maybeSingle();
   if (error || !data) return DEFAULT_PREFS;
   return {
@@ -76,4 +93,10 @@ export async function getPrefs(): Promise<Prefs> {
     accent: data.accent ?? null,
     widgets: data.widgets && typeof data.widgets === "object" ? data.widgets : {},
   };
+});
+
+// Juste « la table des courses existe-t-elle » : évite de relire tous les tracés pour un simple bandeau.
+export async function racesTableMissing(): Promise<boolean> {
+  const { error } = await db().from("races").select("id").limit(1);
+  return missingTable(error);
 }

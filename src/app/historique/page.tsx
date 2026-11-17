@@ -4,14 +4,14 @@ import { PaceLine, VolumeBars } from "@/components/charts";
 import { fmtDate } from "@/lib/dates";
 import { requireOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime, paceSecPerKm } from "@/lib/pace";
-import { getPrefs, getRaces, getRuns } from "@/lib/queries";
+import { getPrefs, getRuns, racesTableMissing } from "@/lib/queries";
 import { personalRecords, weeklyVolume } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 
 export default async function Historique() {
   await requireOwner();
-  const [runs, prefs, { migrationMissing }] = await Promise.all([getRuns(), getPrefs(), getRaces()]);
+  const [runs, prefs, migrationMissing] = await Promise.all([getRuns(), getPrefs(), racesTableMissing()]);
   const now = new Date(), weeks = weeklyVolume(runs, now, 24);
   const last4 = weeks.slice(-4), prev4 = weeks.slice(-8, -4);
   const sum = (w: typeof weeks, k: "km" | "dplus") => w.reduce((a, x) => a + x[k], 0);
