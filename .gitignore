@@ -10,3 +10,5 @@ node_modules/
 *.gpx
 *.fit
 !maquettes/**/*.gpx
+
+maquettes/artifact/preview.html
