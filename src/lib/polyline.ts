@@ -21,6 +21,21 @@ export function decodePolyline(encoded: string): LatLng[] {
   return pts;
 }
 
+export function encodePolyline(points: LatLng[]): string {
+  const enc = (v: number) => {
+    let n = v < 0 ? ~(v << 1) : v << 1, s = "";
+    while (n >= 0x20) { s += String.fromCharCode((0x20 | (n & 0x1f)) + 63); n >>= 5; }
+    return s + String.fromCharCode(n + 63);
+  };
+  let out = "", pLat = 0, pLng = 0;
+  for (const [lat, lng] of points) {
+    const la = Math.round(lat * 1e5), ln = Math.round(lng * 1e5);
+    out += enc(la - pLat) + enc(ln - pLng);
+    pLat = la; pLng = ln;
+  }
+  return out;
+}
+
 // Projette les points dans un cadre w x h (marge pad), nord en haut, proportions respectées.
 export function toSvgPath(points: LatLng[], w: number, h: number, pad: number): string {
   if (points.length < 2) return "";

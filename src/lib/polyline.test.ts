@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decodePolyline, toSvgPath } from "./polyline";
+import { decodePolyline, encodePolyline, toSvgPath } from "./polyline";
 
 // exemple officiel de l'algorithme Google
 const ENC = "_p~iF~ps|U_ulLnnqC_mqNvxq`@";
@@ -12,6 +12,13 @@ describe("polyline", () => {
     expect(pts[0][1]).toBeCloseTo(-120.2, 5);
     expect(pts[2][0]).toBeCloseTo(43.252, 5);
     expect(pts[2][1]).toBeCloseTo(-126.453, 5);
+  });
+  it("encode comme l'exemple officiel et fait l'aller-retour", () => {
+    expect(encodePolyline([[38.5, -120.2], [40.7, -120.95], [43.252, -126.453]])).toBe(ENC);
+    const pts: [number, number][] = [[48.80123, 2.19876], [48.80456, 2.2012]];
+    const back = decodePolyline(encodePolyline(pts));
+    expect(back[1][0]).toBeCloseTo(48.80456, 5);
+    expect(back[1][1]).toBeCloseTo(2.2012, 5);
   });
   it("renvoie une liste vide pour une chaîne vide", () => {
     expect(decodePolyline("")).toEqual([]);
