@@ -1,4 +1,4 @@
-import { segmentFactor } from "./riegel";
+import { DEFAULT_GRADE_MODEL, segmentFactor, type GradeModel } from "./riegel";
 
 export type Checkpoint = { km: number; name: string; note: string };
 export type PlannedCheckpoint = Checkpoint & {
@@ -17,12 +17,12 @@ function interp(xs: number[], ys: number[], x: number): number {
 }
 
 // Répartit le temps cible sur le parcours : plus lent en montée, plus rapide en descente, arrivée pile à l'objectif.
-export function planCheckpoints(checkpoints: Checkpoint[], profile: [number, number][], distanceKm: number, targetS: number): PlannedCheckpoint[] {
+export function planCheckpoints(checkpoints: Checkpoint[], profile: [number, number][], distanceKm: number, targetS: number, model: GradeModel = DEFAULT_GRADE_MODEL): PlannedCheckpoint[] {
   const hasProfile = profile.length >= 2;
   const xs = hasProfile ? profile.map((p) => p[0]) : [0, distanceKm];
   const alt = hasProfile ? profile.map((p) => p[1]) : [0, 0];
   const w = [0];
-  for (let i = 1; i < xs.length; i++) w.push(w[i - 1] + segmentFactor(xs[i - 1], alt[i - 1], xs[i], alt[i]) * Math.max(0, xs[i] - xs[i - 1]));
+  for (let i = 1; i < xs.length; i++) w.push(w[i - 1] + segmentFactor(xs[i - 1], alt[i - 1], xs[i], alt[i], model) * Math.max(0, xs[i] - xs[i - 1]));
   const profEnd = xs[xs.length - 1], scale = profEnd / distanceKm;
   const timeAt = (km: number) => (targetS * interp(xs, w, km * scale)) / w[w.length - 1];
 

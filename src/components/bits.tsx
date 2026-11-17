@@ -1,6 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import { fmtDate } from "@/lib/dates";
 import { fmtKm, fmtTime } from "@/lib/pace";
+import type { Calibration } from "@/lib/calibrate";
+import { MIN_KM } from "@/lib/calibrate";
 import type { Records, Shoe } from "@/lib/stats";
 
 export const Stat = ({ label, children, unit }: { label: string; children: ReactNode; unit?: string }) => (
@@ -41,6 +43,28 @@ export function PrList({ records }: { records: Records }) {
       ))}
       {records.longest && <div className="pr"><span>Plus longue sortie<small>{fmtDate(records.longest.date, { day: "numeric", month: "short", year: "numeric" })}</small></span><b>{fmtKm(records.longest.distance_m)} km</b></div>}
       {records.biggestClimb && <div className="pr"><span>Plus gros dénivelé<small>{fmtDate(records.biggestClimb.date, { day: "numeric", month: "short", year: "numeric" })}</small></span><b>{Math.round(records.biggestClimb.elevation_gain_m)} m</b></div>}
+    </div>
+  );
+}
+
+const pct = (v: number) => `${(v * 100).toFixed(1).replace(".", ",")} %`;
+
+// Où en est le modèle de relief : ses coefficients, ce qu'ils valent sur tes sorties, et pourquoi il est (ou non) adopté.
+export function CalibrationNote({ c }: { c: Calibration }) {
+  if (c.km === 0) return <p className="empty">Aucune sortie avec détail kilomètre par kilomètre et dénivelé : le modèle par défaut est utilisé.</p>;
+  return (
+    <div>
+      <div className="kv">
+        <div><span>Montée, temps en plus par % de pente</span><b>{pct(c.model.up)}</b></div>
+        <div><span>Descente, temps en moins par % de pente</span><b>{pct(c.model.down)}</b></div>
+        <div><span>Kilomètres analysés</span><b>{Math.round(c.km)} · {c.runs} sorties</b></div>
+        <div><span>Erreur sur un kilomètre</span><b>{pct(c.errFlat)} à plat → {pct(c.errFitted)}</b></div>
+      </div>
+      <p className="muted" style={{ fontSize: 13, marginTop: "var(--s3)" }}>
+        {c.calibrated
+          ? `Ajusté sur tes sorties (recalculé chaque jour). Le modèle par défaut (3,3 % et 1,8 %) se trompait de ${pct(c.errDefault)}.`
+          : `Pas assez de données pour s'y fier (${Math.round(c.km)} km sur ${MIN_KM} nécessaires) : le modèle par défaut reste utilisé. Sur tes sorties, il aurait donné ${pct(c.fitted.up)} en montée et ${pct(c.fitted.down)} en descente.`}
+      </p>
     </div>
   );
 }

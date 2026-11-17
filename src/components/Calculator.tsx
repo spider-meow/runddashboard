@@ -4,15 +4,17 @@ import { useState, useTransition } from "react";
 import { setRaceTarget } from "@/app/actions";
 import type { FormState } from "@/lib/forms";
 import { fmtPace, fmtTime, parsePace } from "@/lib/pace";
+import type { GradeModel } from "@/lib/riegel";
 import { genericGradeFactor, profileGradeFactor, riegel, type Reference } from "@/lib/riegel";
 
 type Props = {
+  model: GradeModel;                               // coût du relief (calibré sur tes sorties quand il y a assez de données)
   refs: Reference[];                               // efforts de référence disponibles (tes records)
   race: { id: string | null; name: string; distance_km: number; dplus: number; target_pace_s: number | null; profile: [number, number][] | null };
 };
 
 // Calculateur de projection : Riegel depuis une référence, puis coût du relief. Tout se recalcule à la saisie.
-export function Calculator({ refs, race }: Props) {
+export function Calculator({ refs, race, model }: Props) {
   const [refIdx, setRefIdx] = useState(0);
   const [k, setK] = useState(1.06);
   const [margin, setMargin] = useState(0.02);
@@ -25,7 +27,7 @@ export function Calculator({ refs, race }: Props) {
   const ref = refs[refIdx];
   const d = parseFloat(dist.replace(",", ".")), up = parseFloat(dplus) || 0;
   const sameAsRace = Math.abs(d - race.distance_km) < 0.01 && up === race.dplus;
-  const factor = sameAsRace && race.profile && race.profile.length > 1 ? profileGradeFactor(race.profile) : genericGradeFactor(d * 1000, up);
+  const factor = sameAsRace && race.profile && race.profile.length > 1 ? profileGradeFactor(race.profile, model) : genericGradeFactor(d * 1000, up, model);
   const T = (kk: number) => (ref ? riegel(ref.time_s, ref.distance_km, d, kk) * factor : NaN);
   const t = T(k), a = T(k - margin), b = T(k + margin), lo = Math.min(a, b), hi = Math.max(a, b);
   const objPace = target ? parsePace(target) : null, obj = objPace ? objPace * d : null;

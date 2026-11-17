@@ -4,7 +4,8 @@ import type { Split } from "./analyze";
 import type { Checkpoint } from "./checkpoints";
 import { db } from "./db";
 import { RUN_SPORTS } from "./sync";
-import { DATA_TAG, DATA_TTL } from "./cache";
+import { calibrateGrade, type Calibration } from "./calibrate";
+import { CALIB_TAG, CALIB_TTL, DATA_TAG, DATA_TTL } from "./cache";
 
 export type Run = {
   id: string;
@@ -110,3 +111,15 @@ async function readRacesMissing(): Promise<boolean> {
   return missingTable(error);
 }
 export const racesTableMissing = unstable_cache(readRacesMissing, ["races-missing"], { tags: [DATA_TAG], revalidate: DATA_TTL });
+
+// Modèle de relief ajusté sur les kilomètres de toutes les sorties. Lecture lourde (tous les splits) : cache d'un jour, hors de l'invalidation
+// par écriture (une sortie de plus ne change presque rien aux coefficients). Une panne de lecture retombe sur le modèle par défaut.
+async function readCalibration(): Promise<Calibration> {
+  const { data, error } = await db().from("activities").select("splits").in("sport", RUN_SPORTS).not("splits", "is", null).order("started_at", { ascending: false }).limit(1000);
+  if (error) throw new Error(error.message);
+  return calibrateGrade((data ?? []) as { splits: Split[] | null }[]);
+}
+const cachedCalibration = unstable_cache(readCalibration, ["calibration"], { tags: [CALIB_TAG], revalidate: CALIB_TTL });
+export async function getCalibration(): Promise<Calibration> {
+  try { return await cachedCalibration(); } catch { return calibrateGrade([]); }
+}

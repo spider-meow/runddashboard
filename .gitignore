@@ -15,3 +15,5 @@ maquettes/artifact/preview.html
 
 next-env.d.ts
 *.tsbuildinfo
+test-results/
+playwright-report/

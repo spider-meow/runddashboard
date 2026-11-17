@@ -10,7 +10,7 @@ import { formatCheckpoints, planCheckpoints } from "@/lib/checkpoints";
 import { daysUntil, fmtDate } from "@/lib/dates";
 import { requireOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime } from "@/lib/pace";
-import { getRace } from "@/lib/queries";
+import { getCalibration, getRace } from "@/lib/queries";
 
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -21,13 +21,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function Fiche({ params }: { params: Promise<{ id: string }> }) {
   await requireOwner();
   const { id } = await params;
-  const race = await getRace(id);
+  const [race, { model }] = await Promise.all([getRace(id), getCalibration()]);
   if (!race) notFound();
 
   const km = race.distance_m / 1000;
   const profile = race.course_profile ?? [];
   const targetS = race.target_pace_s ? race.target_pace_s * km : null;
-  const planned = targetS ? planCheckpoints(race.checkpoints, profile, km, targetS) : null;
+  const planned = targetS ? planCheckpoints(race.checkpoints, profile, km, targetS, model) : null;
   const days = daysUntil(race.race_date, new Date());
   const update = updateRace.bind(null, race.id), importTrack = importRaceTrack.bind(null, race.id), remove = deleteRace.bind(null, race.id);
 

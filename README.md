@@ -61,10 +61,15 @@ Sous le tracé, des tuiles [OpenStreetMap](https://www.openstreetmap.org/copyrig
 - La course d'une fiche n'est lue qu'une fois par requête, les polices sont hébergées par l'app (aucun appel à Google Fonts), le lien de navigation cliqué affiche un trait de progression pendant que la page arrive.
 - **Région des fonctions Vercel** : c'est probablement le réglage qui compte le plus. Chaque page fait des allers-retours vers Supabase ; si les fonctions Vercel sont à Washington (réglage par défaut) et ta base en Europe, chacun coûte 80 à 100 ms de plus. Dans Vercel > Settings > Functions, choisis la région la plus proche de ta base Supabase (affichée dans Supabase > Project Settings).
 
+- **Cache des lectures** : les lectures en base sont en cache (`unstable_cache`, étiquette `data`) et invalidées par toute écriture ; le routeur garde les pages 30 s (2 min si préchargées) et la navigation précharge ses pages en entier. Pendant qu'une page se lit, un squelette de la même forme s'affiche (`loading.tsx`).
+- **Calibrage du relief** : le coût de la montée et de la descente est ajusté sur les kilomètres de tes sorties (carte « Calibrage du relief » dans Projections), recalculé chaque jour, et adopté à partir de 150 km analysés.
+
 ## Commandes
 
 ```bash
 npm test         # tests unitaires
+npm run e2e      # parcours de bout en bout (Playwright) : compile l'app et la lance contre un faux Supabase en mémoire (e2e/fake-supabase.mjs).
+                 # Sans Chromium installé par Playwright : PW_CHROMIUM=/chemin/vers/chromium npm run e2e
 npm run typecheck
 npm run build
 ```

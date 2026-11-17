@@ -7,7 +7,7 @@ import { RouteMap } from "@/components/RouteMap";
 import { daysUntil, fmtDate, parisDay } from "@/lib/dates";
 import { isOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime, paceSecPerKm } from "@/lib/pace";
-import { getGear, getLastRun, getRaces, getRuns } from "@/lib/queries";
+import { getCalibration, getGear, getLastRun, getRaces, getRuns } from "@/lib/queries";
 import { genericGradeFactor, pickReference, profileGradeFactor, riegel } from "@/lib/riegel";
 import { personalRecords, shoeStats, weeklyVolume } from "@/lib/stats";
 
@@ -34,7 +34,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
     );
   }
 
-  const [runs, last, { races, migrationMissing }, gear] = await Promise.all([getRuns(), getLastRun(), getRaces(), getGear()]);
+  const [runs, last, { races, migrationMissing }, gear, { model }] = await Promise.all([getRuns(), getLastRun(), getRaces(), getGear(), getCalibration()]);
 
   if (!last) {
     return (
@@ -59,7 +59,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
   let flat: number | null = null, adj: number | null = null, gap: number | null = null;
   if (race && ref) {
     flat = riegel(ref.time_s, ref.distance_km, race.distance_m / 1000);
-    adj = flat * (race.course_profile && race.course_profile.length > 1 ? profileGradeFactor(race.course_profile) : genericGradeFactor(race.distance_m, race.elevation_gain_m ?? 0));
+    adj = flat * (race.course_profile && race.course_profile.length > 1 ? profileGradeFactor(race.course_profile, model) : genericGradeFactor(race.distance_m, race.elevation_gain_m ?? 0, model));
     if (race.target_pace_s) gap = adj - race.target_pace_s * (race.distance_m / 1000);
   }
   const days = race ? daysUntil(race.race_date, now) : 0;
