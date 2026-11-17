@@ -1,91 +1,81 @@
 ---
 version: alpha
 name: Rundashboard
-description: Un dashboard de running chaud et éditorial. Papier ou charbon, un seul accent braise, de grands chiffres en serif, des données en mono, un tracé qui se dessine. Tout est piloté par des variables CSS, donc thèmes et couleurs sont modifiables par l'utilisateur.
-inspiration: Oura (palette chaude, serif éditorial) et Linear (rigueur, densité), via VoltAgent/awesome-design-md. Voir docs/design-refs/.
+description: Un dashboard de running énergique. Grosses typos, chiffres énormes, une carte de couleur vive par écran, un tracé qui se dessine. Tout passe par des variables CSS : thèmes et accent modifiables par l'utilisateur.
+inspiration: Dribbble (tags « running dashboard » et « strava ») : tuiles de couleur vive, chiffres géants, photo et carte comme héros. Voir docs/RESOURCES.md.
 
 themes:
-  ember:            # défaut, sombre
-    bg: "#14110f"
-    surface: "#1c1815"
-    surface-2: "#26201c"
-    hairline: "#332c27"
-    ink: "#f4ede4"
-    ink-2: "#bdb2a5"
-    mute: "#9a8e81"
-    accent: "#ea5b2e"
-    on-accent: "#14110f"
-    series-2: "#4a98d6"
-  paper:            # clair, chaud
-    bg: "#f7f1e8"
-    surface: "#fffdf9"
-    surface-2: "#f0e9de"
-    hairline: "#e1dcd3"
-    ink: "#1c1b1a"
-    ink-2: "#52504b"
-    mute: "#6e6b65"
-    accent: "#d8481f"
+  sunrise:            # défaut, clair
+    bg: "#fdf0e6"
+    surface: "#ffffff"
+    surface-2: "#fff6ee"
+    hairline: "#f0dccb"
+    ink: "#1b1613"
+    ink-2: "#5c4d43"
+    mute: "#7a6a5e"
+    accent: "#cf3705"
     on-accent: "#ffffff"
-    series-2: "#2a78d6"
-    good: "#1f7a52"   # statuts propres au thème clair
-    warn: "#8a5d00"
-    bad: "#b83225"
-  nocturne:         # sombre, froid
-    bg: "#0b0d12"
-    surface: "#12151c"
-    surface-2: "#1a1e27"
-    hairline: "#252a35"
-    ink: "#e8ecf4"
-    ink-2: "#a4adbd"
-    mute: "#8590a3"
-    accent: "#5b8def"
-    on-accent: "#0b0d12"
-    series-2: "#d9693f"
-status:             # défauts sombres ; le thème clair a les siens (contraste ≥ 4,5:1). Toujours avec libellé, jamais la couleur seule.
-  good: "#4fbf86"
-  warn: "#e3a93f"
-  bad: "#e5604d"
+    series-2: "#2a6fdb"
+    hot: { bg: "#ffc933", fg: "#1b1613" }
+    status: { good: "#1f7a52", warn: "#8a5d00", bad: "#b83225" }
+    type: { display: "Bricolage Grotesque 700", ui: "DM Sans", radius: 28 }
+  midnight:           # sombre
+    bg: "#0a0f1e"
+    surface: "#121a2f"
+    surface-2: "#1a2440"
+    hairline: "#243055"
+    ink: "#eef2ff"
+    ink-2: "#aab4d4"
+    mute: "#8591b5"
+    accent: "#f0602f"
+    on-accent: "#0a0f1e"
+    series-2: "#3b8bcf"
+    hot: { bg: "linear-gradient(135deg, #ff7a2b, #ff3d71)", fg: "#0a0f1e" }
+    status: { good: "#4fbf86", warn: "#e3a93f", bad: "#ff7a6b" }
+    type: { display: "Sora 600", ui: "DM Sans", radius: 24 }
+  poster:             # sombre, affiche
+    bg: "#0c0c0c"
+    surface: "#151515"
+    surface-2: "#1f1f1f"
+    hairline: "#2c2c2c"
+    ink: "#f6f6f2"
+    ink-2: "#b4b4ac"
+    mute: "#8d8d85"
+    accent: "#c8f031"
+    on-accent: "#0c0c0c"
+    series-2: "#f6f6f2"
+    hot: { bg: "#c8f031", fg: "#0c0c0c" }
+    status: { good: "#4fbf86", warn: "#e3a93f", bad: "#ff7a6b" }
+    type: { display: "Anton, majuscules", ui: "Barlow", radius: 6 }
 
 typography:
-  display:  { family: "Fraunces", weight: 400, use: "gros chiffres, titres d'écran", opsz: auto }
-  ui:       { family: "Geist", fallback: "Inter, system-ui", weights: [400, 500, 600] }
-  numeric:  { family: "Geist Mono", fallback: "ui-monospace", features: "tabular-nums", use: "allures, temps, tableaux" }
-  scale:    [12, 14, 16, 20, 28, 44, 72]   # px, base 16, interligne ~1.5 sur le texte courant
+  numeric: { family: "Geist Mono", features: "tabular-nums", use: "allures, temps, tableaux, axes" }
+  scale: [12, 14, 16, 20, 28, 44, 72]
 
-spacing: [4, 8, 12, 16, 24, 32, 48, 72]
-radius:  { card: 20, control: 12, pill: 999 }
-elevation: "aucune ombre portée en sombre ; bordure hairline 1px. En clair : ombre très douce."
-
+spacing: [4, 8, 12, 16, 24, 32, 48]
 motion:
   ease: "cubic-bezier(.2,.7,.2,1)"
   durations: { micro: 140, ui: 240, enter: 480, draw: 2200 }
   rules:
-    - "Le tracé d'une course se dessine une fois (stroke-dashoffset), 2,2 s, quand la carte entre dans l'écran."
-    - "Les barres et courbes montent à l'entrée. Rien ne boucle."
-    - "Animer seulement transform et opacity (et stroke-dashoffset). Sorties plus rapides que les entrées."
-    - "prefers-reduced-motion : tout est affiché directement, sans animation."
+    - "Le tracé se dessine une fois (stroke-dashoffset, 2,2 s) à l'entrée dans l'écran. Barres et courbes montent une fois. Rien ne boucle."
+    - "Animer transform, opacity et stroke-dashoffset seulement."
+    - "prefers-reduced-motion : tout est affiché directement."
 
 components:
-  card: "surface, radius card, bordure hairline, padding 24"
-  widget: "card + poignée de réordonnancement + bouton masquer en mode édition"
-  stat: "libellé 12px ink-2 en capitales espacées, valeur display 44 ou 72, unité mono mute"
-  chart: "traits 2px, grille hairline, légende directe, infobulle au survol (crosshair), jamais d'axe double"
+  card: "surface, rayon du thème, padding 24"
+  hot-card: "data-tone=\"hot\" : une seule carte colorée par écran, pour le chiffre qui compte (compte à rebours, volume des 4 semaines, projection)"
+  stat: "libellé 12px capitales espacées, valeur en police display, unité en mono"
+  chart: "traits 2px, grille discrète, infobulle au survol, jamais d'axe double"
 
 rules:
-  - "Aucune valeur de couleur brute dans un composant : uniquement des variables."
-  - "Le texte n'a jamais la couleur d'une série : la couleur est portée par une puce à côté."
-  - "Contraste texte ≥ 4,5:1. Cibles tactiles ≥ 44px. Focus visible partout."
+  - "Aucune couleur brute dans un composant : uniquement des variables."
+  - "Contraste texte ≥ 4,5:1 (vérifié sur les trois thèmes). Cibles tactiles ≥ 44px. Focus visible."
   - "Pas d'emoji comme icône. Un seul jeu d'icônes SVG au trait de 1,5px."
-  - "Éviter : dégradés génériques, cartes identiques empilées, ombres lourdes, violet par défaut."
-
-validation:
-  charts: "Paires de séries validées avec le validateur de palette du skill dataviz, en mode sombre et clair (écart daltonien ≥ 22, plancher vision normale ≥ 28)."
+  - "Poster : l'accent volt sort de la bande de luminosité des palettes de séries. Acceptable ici : une seule série par graphique, contraste 13:1."
 ---
 
 # Rundashboard — design
 
-Le tableau ci-dessus est la source de vérité. En pratique :
+Le bloc ci-dessus est la source de vérité. Trois directions livrées, changeables en direct depuis « Personnaliser » : **Sunrise** (clair, tuile jaune), **Midnight** (sombre, dégradé orange-rose), **Poster** (noir et volt, majuscules).
 
-- **Trois thèmes livrés** (Ember, Paper, Nocturne) + un sélecteur d'accent libre. L'accent doit rester dans la bande de luminosité des graphiques : si l'utilisateur choisit une couleur trop claire ou trop terne, l'interface la corrige (voir la phase 7 du plan).
-- **Personnalisation** : chaque widget a `visible`, `order`, `size`. Le mode édition montre des poignées ; l'état est sauvegardé dans `user_prefs`.
-- **Taste Skill** sert de garde-fou artistique (typo travaillée, pas d'interface générique) mais ses règles de page vitrine ne s'appliquent pas ici.
+Chaque thème règle aussi la police, le rayon et le poids des titres : changer de thème change le caractère de l'interface, pas seulement les couleurs. L'accent reste modifiable.
