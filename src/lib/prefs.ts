@@ -1,0 +1,38 @@
+export const THEMES = ["poster", "sunrise", "midnight"] as const;
+export type Theme = (typeof THEMES)[number];
+export const SIZES = ["s", "m", "l", "xl"] as const;
+export type Size = (typeof SIZES)[number];
+export type Widget = { id: string; visible: boolean; size: Size };
+
+// Fusionne les widgets enregistrés avec les widgets que la page propose : on ignore ceux qui n'existent plus,
+// on corrige les valeurs invalides, et les nouveaux widgets arrivent à la fin.
+export function mergeWidgets(saved: unknown, defaults: Widget[]): Widget[] {
+  const byId = new Map(defaults.map((d) => [d.id, d]));
+  const seen = new Set<string>();
+  const out: Widget[] = [];
+  if (Array.isArray(saved)) {
+    for (const w of saved as Partial<Widget>[]) {
+      const d = w && typeof w.id === "string" ? byId.get(w.id) : undefined;
+      if (!d || seen.has(d.id)) continue;
+      seen.add(d.id);
+      out.push({
+        id: d.id,
+        visible: typeof w.visible === "boolean" ? w.visible : d.visible,
+        size: (SIZES as readonly string[]).includes(w.size as string) ? (w.size as Size) : d.size,
+      });
+    }
+  }
+  for (const d of defaults) if (!seen.has(d.id)) out.push(d);
+  return out;
+}
+
+export const isHexColor = (v: unknown): v is string => typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v);
+
+const lum = (hex: string) => {
+  const n = parseInt(hex.slice(1), 16);
+  const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+// Couleur du texte posé sur l'accent choisi par l'utilisateur.
+export const onAccent = (hex: string) => (lum(hex) > 0.3 ? "#14110f" : "#ffffff");
