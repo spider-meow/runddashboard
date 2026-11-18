@@ -156,7 +156,7 @@ test("projections : « utiliser comme objectif » l'enregistre sur la course", a
 test("calibrage du relief : la carte explique le modèle utilisé", async ({ page }) => {
   await page.goto("/projections");
   const card = page.locator('[data-widget="calib"]');
-  await expect(card).toContainText("Calibrage du relief");
+  await expect(card).toContainText("Relief");
   await expect(card).toContainText(/Kilomètres analysés/);
 });
 

@@ -235,3 +235,28 @@ html { scroll-behavior: smooth; }
 [data-skeleton] .card, [data-skeleton] .hero-body, [data-skeleton] .top { animation: none; }
 /* les cartes de chiffre seul (sans titre) n'ont pas de numéro : il chevaucherait le libellé */
 .card:has(> .stat)::after { display: none; }
+
+/* ---------- projections : un verdict, pas un formulaire ---------- */
+.proj { display: grid; gap: var(--s3); justify-items: start; margin-bottom: var(--s7); max-width: 760px; }
+.proj-lbl { font: 500 12px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.proj-time { font: var(--dw) clamp(88px, 17vw, 220px)/.85 var(--font-display); color: var(--accent); letter-spacing: -.02em; text-transform: uppercase; margin-left: -.03em; }
+.proj-sub { color: var(--ink-2); font-size: 18px; }
+.proj-sub b { color: var(--ink); }
+.proj-band { width: 100%; margin: var(--s6) 0 var(--s3); }
+.proj-band u { border-left: 2px dashed var(--ink); top: -8px; height: 26px; }
+.proj-band u em { position: absolute; top: 30px; left: 6px; font: 500 12px var(--font-mono); font-style: normal; color: var(--ink-2); white-space: nowrap; }
+.proj-verdict { font: 500 17px/1.4 var(--font-ui); max-width: 56ch; padding-left: var(--s3); border-left: 3px solid var(--ink-2); margin-top: var(--s4); }
+.proj-verdict.good { border-color: var(--good); } .proj-verdict.warn { border-color: var(--warn); } .proj-verdict.bad { border-color: var(--bad); }
+.scen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4); width: 100%; margin-top: var(--s4); }
+.scen > div { display: grid; gap: 2px; border-top: 1px solid var(--hairline); padding-top: var(--s3); }
+.scen > div.on { border-color: var(--accent); }
+.scen span { font: 500 11px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.scen b { font: var(--dw) clamp(26px, 4vw, 40px)/1 var(--font-display); text-transform: var(--tt); }
+.scen small { font: 400 13px var(--font-mono); color: var(--mute); }
+.next-races { width: 100%; margin-top: var(--s5); }
+.next-races h2 { font: 500 12px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: var(--s2); }
+.rng { display: block; font: 400 12px var(--font-mono); color: var(--mute); }
+.how { margin-top: var(--s7); max-width: 70ch; color: var(--ink-2); font-size: 14px; }
+.how summary { cursor: pointer; font: 500 12px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; min-height: 44px; display: flex; align-items: center; }
+.how p { margin-top: var(--s2); }
+@media (max-width: 520px) { .scen { grid-template-columns: 1fr; } }

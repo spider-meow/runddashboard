@@ -94,14 +94,21 @@ export function ProjectionsSk() {
   return (
     <Loading>
       <HeaderSk title={380} />
+      <section className="proj">
+        <Sk w={300} h={12} />
+        <Sk w="min(100%, 560px)" h="clamp(88px, 17vw, 190px)" />
+        <Sk w={320} h={20} />
+        <Sk h={10} style={{ margin: "32px 0 12px" }} />
+        <Sk w="70%" h={20} />
+        <div className="scen">{[0, 1, 2].map((i) => <div key={i}><Sk w={70} h={11} /><Sk w="70%" h={34} style={{ marginTop: 6 }} /><Sk w={60} h={13} style={{ marginTop: 4 }} /></div>)}</div>
+        <Sk w={330} h={44} style={{ marginTop: 16 }} />
+      </section>
       <Cards items={[
-        card("calc", "xl", <><H2 w={140} />
-          <div className="form">{Array.from({ length: 6 }, (_, i) => <div className="field" key={i}><Sk w={140} h={12} /><Sk h={44} style={{ marginTop: 8 }} /></div>)}</div>
-          <div className="result"><div><Sk w={160} h={12} /><Sk w="70%" h={56} style={{ marginTop: 8 }} /></div><div><Sk w={80} h={12} /><Sk w="70%" h={34} style={{ marginTop: 8 }} /></div><div><Sk w={120} h={12} /><Sk w="50%" h={34} style={{ marginTop: 8 }} /></div></div></>),
-        card("table", "l", <><H2 w={200} /><Lines n={4} gap={20} /></>),
+        card("trend", "l", <><H2 w={120} /><Sk w="min(100%, 300px)" h={26} /><Chart /></>),
+        card("table", "m", <><H2 w={170} /><Lines n={4} gap={20} /></>),
+        card("sources", "m", <><H2 w={190} /><Rows n={3} /></>),
+        card("calib", "m", <><H2 w={80} /><Rows n={4} /></>),
         card("limits", "m", <><H2 w={190} /><Lines n={4} /></>),
-        card("calib", "m", <><H2 w={160} /><Rows n={4} /></>),
-        card("formula", "xl", <><H2 w={90} /><Lines n={2} /></>),
       ]} />
     </Loading>
   );

@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { Split } from "@/lib/analyze";
-import { fmtPace } from "@/lib/pace";
+import { fmtPace, fmtTime } from "@/lib/pace";
 import type { Week } from "@/lib/stats";
 import { Tip } from "./Tip";
 
@@ -98,5 +98,27 @@ export function PaceLine({ weeks, height = 190 }: { weeks: Week[]; height?: numb
       {weeks.map((w, i) => w.pace !== null && <circle key={`h${w.weekStart}`} className="hit" cx={x(i)} cy={y(w.pace)} r={12} data-tip={`semaine du ${w.weekStart} : ${fmtPace(w.pace)} /km`} />)}
       {weeks.map((_, i) => i % 4 === 0 && <text key={i} x={x(i)} y={height - 6} textAnchor="middle">S{i + 1}</text>)}
     </svg></Frame>
+  );
+}
+
+// Évolution d'un temps dans le temps (plus bas = plus rapide, donc l'axe est inversé : la courbe monte quand on progresse).
+export function TrendLine({ points, height = 190 }: { points: { end: string; time_s: number }[]; height?: number }) {
+  if (points.length < 2) return <Empty>Il faut des efforts de 5 km ou plus sur au moins deux périodes pour tracer ta progression.</Empty>;
+  const times = points.map((p) => p.time_s), m = { l: 56, r: 12, t: 14, b: 24 };
+  const pad = (Math.max(...times) - Math.min(...times)) * 0.25 + 20, hi = Math.max(...times) + pad, lo = Math.min(...times) - pad;
+  const x = scale(0, points.length - 1, m.l, W - m.r), y = scale(hi, lo, height - m.b, m.t);
+  const d = "M" + points.map((p, i) => `${x(i).toFixed(1)} ${y(p.time_s).toFixed(1)}`).join("L");
+  const first = points[0], last = points[points.length - 1], gain = first.time_s - last.time_s;
+  const label = (iso: string) => new Date(iso + "T12:00:00Z").toLocaleDateString("fr-FR", { day: "numeric", month: "short", timeZone: "Europe/Paris" });
+  return (
+    <Frame>
+      <svg className="chart" viewBox={`0 0 ${W} ${height}`} role="img" aria-label={`Temps projeté sur semi : ${fmtTime(first.time_s)} le ${label(first.end)}, ${fmtTime(last.time_s)} le ${label(last.end)}, soit ${gain >= 0 ? "−" : "+"}${fmtTime(Math.abs(gain))}`}>
+        {[lo + pad * 0.4, (lo + hi) / 2, hi - pad * 0.4].map((v) => <g key={v}><line className="grid-l" x1={m.l} x2={W - m.r} y1={y(v)} y2={y(v)} /><text x={0} y={y(v) + 4}>{fmtTime(v)}</text></g>)}
+        <path className="line draw go" d={d} pathLength={1} style={DRAW} />
+        {points.map((p, i) => <circle key={p.end} className="pt" cx={x(i)} cy={y(p.time_s)} r={4} />)}
+        {points.map((p, i) => <circle key={`h${p.end}`} className="hit" cx={x(i)} cy={y(p.time_s)} r={14} data-tip={`${label(p.end)} : ${fmtTime(p.time_s)} sur semi`} />)}
+        {points.map((p, i) => (i % 2 === 0 || points.length < 5) && <text key={`t${p.end}`} x={x(i)} y={height - 6} textAnchor="middle">{label(p.end)}</text>)}
+      </svg>
+    </Frame>
   );
 }

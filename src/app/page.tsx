@@ -8,7 +8,7 @@ import { daysUntil, fmtDate, parisDay } from "@/lib/dates";
 import { isOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime, paceSecPerKm } from "@/lib/pace";
 import { getCalibration, getGear, getLastRun, getRaces, getRuns } from "@/lib/queries";
-import { genericGradeFactor, pickReference, profileGradeFactor, riegel } from "@/lib/riegel";
+import { currentForm, projectRace } from "@/lib/projection";
 import { personalRecords, shoeStats, weeklyVolume } from "@/lib/stats";
 
 
@@ -51,17 +51,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
   const now = new Date(), today = parisDay(now);
   const race = races.find((r) => r.race_date >= today);
   const records = personalRecords(runs);
-  const ref = pickReference(Object.fromEntries(Object.entries(records.efforts).map(([k, v]) => [k, v.time_s])));
   const weeks = weeklyVolume(runs, now, 12);
   const pace = paceSecPerKm(last.moving_time_s, last.distance_m);
 
-  // Projection de la prochaine course : Riegel depuis le meilleur effort de référence, puis coût du relief.
-  let flat: number | null = null, adj: number | null = null, gap: number | null = null;
-  if (race && ref) {
-    flat = riegel(ref.time_s, ref.distance_km, race.distance_m / 1000);
-    adj = flat * (race.course_profile && race.course_profile.length > 1 ? profileGradeFactor(race.course_profile, model) : genericGradeFactor(race.distance_m, race.elevation_gain_m ?? 0, model));
-    if (race.target_pace_s) gap = adj - race.target_pace_s * (race.distance_m / 1000);
-  }
+  // Projection de la prochaine course : même moteur que l'onglet Projections (efforts récents, relief calibré).
+  const rp = race ? projectRace(currentForm(runs, now).efforts, race, model) : null;
+  const adj = rp?.time_s ?? null, gap = rp?.gapS ?? null;
   const days = race ? daysUntil(race.race_date, now) : 0;
   const sum = (w: typeof weeks, k: "km" | "dplus") => w.reduce((a, x) => a + x[k], 0);
   const km4 = sum(weeks.slice(-4), "km"), kmP = sum(weeks.slice(-8, -4), "km");
@@ -104,7 +99,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
   items.push({ id: "shoes", size: "m", node: (<><h2>Chaussures</h2><ShoeList shoes={shoeStats(runs, gear)} /></>) });
   items.push({ id: "prs", size: "m", node: (<><h2>Records</h2><PrList records={records} /></>) });
 
-  const proj = adj !== null && flat !== null ? (
+  const proj = adj !== null ? (
     <p className="hero-proj">
       Projection <b className="num">{fmtTime(adj)}</b> relief inclus
       {gap !== null && <> · <span className={"chip " + (gap > 0 ? "warn" : "good")}>{gap > 0 ? "+" : "−"}{Math.abs(Math.round(gap))} s sur l'objectif</span></>}
