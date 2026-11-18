@@ -66,6 +66,8 @@ Sous le tracé, des tuiles [OpenStreetMap](https://www.openstreetmap.org/copyrig
 
 - **Projections sans réglage** : le moteur (`src/lib/projection.ts`) choisit seul ses paramètres. Efforts de référence = tes meilleurs 5 km / 10 km / 15 km / semi des 4 derniers mois (tout l'historique s'ils sont trop anciens, signalé), pondérés par la proximité de la distance visée ; exposant de Riegel ajusté sur tes efforts (borné 1,03 à 1,10, relevé au-delà de 25 km) ; relief du parcours avec le modèle calibré ; fourchette qui grandit avec l'extrapolation. L'accueil utilise le même moteur.
 
+- **Courses** : la fiche d'une course à venir donne sans réglage une stratégie complète (`src/lib/strategy.ts`) : plan kilomètre par kilomètre (relief du parcours + départ retenu, effort constant, fin libérée), consignes, montées à gérer, ravitaillement selon la durée, repères de passage cohérents avec le plan, version imprimable. Le plan suit l'objectif, ou la projection s'il n'y en a pas. Une course passée affiche son bilan (`src/lib/review.ts`) : la sortie correspondante est retrouvée toute seule (même jour, distance à 6 % près) et comparée à l'objectif et à la projection qu'on aurait faite la veille ; la liste résume la précision du modèle.
+
 ## Commandes
 
 ```bash

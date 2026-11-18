@@ -24,7 +24,7 @@ function seed() {
   });
   return {
     activities: runs,
-    races: [{ id: "11111111-1111-4111-8111-111111111111", name: "Semi de Garches", race_date: new Date(now + 23 * DAY).toISOString().slice(0, 10), distance_m: 21097, elevation_gain_m: 215, target_pace_s: 290, course_polyline: poly(loop(1.5)), course_profile: Array.from({ length: 40 }, (_, k) => [+((k / 39) * 21.1).toFixed(2), 120 + 35 * Math.sin(k / 6)]), checkpoints: [], notes: null }],
+    races: [{ id: "22222222-2222-4222-8222-222222222222", name: "10 km du Parc", race_date: runs[13].started_at.slice(0, 10), distance_m: 6000, elevation_gain_m: 30, target_pace_s: 300, course_polyline: null, course_profile: null, checkpoints: [], notes: null }, { id: "11111111-1111-4111-8111-111111111111", name: "Semi de Garches", race_date: new Date(now + 23 * DAY).toISOString().slice(0, 10), distance_m: 21097, elevation_gain_m: 215, target_pace_s: 290, course_polyline: poly(loop(1.5)), course_profile: Array.from({ length: 40 }, (_, k) => [+((k / 39) * 21.1).toFixed(2), 120 + 35 * Math.sin(k / 6)]), checkpoints: [], notes: null }],
     gear: [{ id: "g1", name: "Pegasus 41" }],
     strava_connections: [],
   };

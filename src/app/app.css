@@ -260,3 +260,29 @@ html { scroll-behavior: smooth; }
 .how summary { cursor: pointer; font: 500 12px var(--font-ui); letter-spacing: .12em; text-transform: uppercase; min-height: 44px; display: flex; align-items: center; }
 .how p { margin-top: var(--s2); }
 @media (max-width: 520px) { .scen { grid-template-columns: 1fr; } }
+
+/* ---------- fiche de course : stratégie ---------- */
+.proj.compact .proj-time { font-size: clamp(64px, 11vw, 140px); }
+.proj.compact { margin-bottom: var(--s6); }
+.how-list { margin: 0 0 var(--s5); padding-left: 18px; display: grid; gap: 8px; color: var(--ink-2); font-size: 15px; max-width: 70ch; }
+.how-list b { color: var(--ink); }
+.plan-chart { max-width: 760px; margin-bottom: var(--s5); }
+table.plan tr.key td { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+table.plan td.note { max-width: 44ch; }
+@media print {
+  :root, :root[data-theme="poster"] { --bg: #fff; --surface: #fff; --surface-2: #eee; --ink: #000; --ink-2: #222; --mute: #444; --hairline: #bbb; --accent: #000; --on-accent: #fff; }
+  .rail, .tabbar, .skip, .noprint, form, .foot { display: none !important; }
+  .shell { display: block; } main { padding: 0; max-width: none; }
+  .card { break-inside: avoid; animation: none; } .card::before, .card::after { display: none; }
+  .proj-time, .hero-count { color: #000; }
+  tr:hover td { background: none; }
+}
+
+/* ---------- liste des courses ---------- */
+.next-race { display: grid; gap: var(--s2); max-width: 720px; margin-bottom: var(--s7); padding-bottom: var(--s6); border-bottom: 1px solid var(--hairline); }
+.next-name { font: var(--dw) clamp(40px, 7vw, 84px)/.95 var(--font-display); text-transform: var(--tt); }
+.next-proj { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s3); margin-top: var(--s2); }
+.next-proj b { font: var(--dw) clamp(36px, 5vw, 56px)/1 var(--font-display); color: var(--accent); text-transform: var(--tt); }
+.next-race .ticket-go { color: var(--accent); margin-top: var(--s3); }
+.next-race:hover .ticket-go { text-decoration: underline; text-underline-offset: 3px; }
+.chips { display: flex; gap: var(--s2); flex-wrap: wrap; justify-content: flex-end; }

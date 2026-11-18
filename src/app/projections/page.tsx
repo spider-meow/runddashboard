@@ -6,7 +6,7 @@ import { UseAsGoal } from "@/components/UseAsGoal";
 import { daysUntil, fmtDate, parisDay } from "@/lib/dates";
 import { requireOwner } from "@/lib/owner";
 import { fmtKm, fmtPace, fmtTime } from "@/lib/pace";
-import { currentForm, formTrend, project, projectRace, SEMI, type RaceProjection } from "@/lib/projection";
+import { currentForm, formTrend, project, projectRace, SEMI, verdict, type RaceProjection } from "@/lib/projection";
 import { getCalibration, getRaces, getRuns } from "@/lib/queries";
 
 export const metadata = { title: "Projections" };
@@ -14,17 +14,6 @@ export const metadata = { title: "Projections" };
 const DISTANCES: [string, number][] = [["5 km", 5], ["10 km", 10], ["Semi", SEMI], ["Marathon", 42.195]];
 const EFFORT_LABEL: Record<string, string> = { "5K": "5 km", "10K": "10 km", "15K": "15 km", Semi: "Semi" };
 const pct = (v: number) => `${v >= 1 ? "+" : "−"}${Math.abs((v - 1) * 100).toFixed(1).replace(".", ",")} %`;
-const sec = (s: number) => `${s > 0 ? "+" : "−"}${Math.abs(Math.round(s))} s`;
-
-// Phrase de verdict, calculée : où se situe l'objectif par rapport à la forme actuelle.
-function verdict(rp: RaceProjection, km: number): { tone: "good" | "warn" | "bad"; text: string } | null {
-  if (rp.gapS === null) return null;
-  const perKm = rp.gapS / km, target = rp.time_s - rp.gapS;
-  if (target < rp.low) return { tone: "bad", text: `Objectif très ambitieux : il demande ${sec(-rp.gapS)} de mieux que ta projection, même dans le meilleur cas.` };
-  if (rp.gapS > 0) return { tone: "warn", text: `Objectif ambitieux mais dans la fourchette : il demande ${Math.round(rp.gapS)} s de mieux que la projection, soit ${Math.abs(Math.round(perKm))} s par km.` };
-  if (target > rp.high) return { tone: "good", text: `Objectif confortable : tu as ${Math.round(-rp.gapS)} s de marge sur la projection, tu peux viser plus haut.` };
-  return { tone: "good", text: `Objectif tenable : il est dans la fourchette, avec ${Math.round(-rp.gapS)} s de marge sur la projection.` };
-}
 
 export default async function Projections() {
   await requireOwner();

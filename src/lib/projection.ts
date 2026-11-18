@@ -85,3 +85,15 @@ export function formTrend(runs: RunLike[], now: Date, windows = 6): TrendPoint[]
   }
   return out;
 }
+
+const sec = (s: number) => `${s > 0 ? "+" : "−"}${Math.abs(Math.round(s))} s`;
+
+// Phrase de verdict, calculée : où se situe l'objectif par rapport à la forme actuelle.
+export function verdict(rp: RaceProjection, km: number): { tone: "good" | "warn" | "bad"; text: string } | null {
+  if (rp.gapS === null) return null;
+  const perKm = rp.gapS / km, target = rp.time_s - rp.gapS;
+  if (target < rp.low) return { tone: "bad", text: `Objectif très ambitieux : il demande ${sec(-rp.gapS)} de mieux que ta projection, même dans le meilleur cas.` };
+  if (rp.gapS > 0) return { tone: "warn", text: `Objectif ambitieux mais dans la fourchette : il demande ${Math.round(rp.gapS)} s de mieux que la projection, soit ${Math.abs(Math.round(perKm))} s par km.` };
+  if (target > rp.high) return { tone: "good", text: `Objectif confortable : tu as ${Math.round(-rp.gapS)} s de marge sur la projection, tu peux viser plus haut.` };
+  return { tone: "good", text: `Objectif tenable : il est dans la fourchette, avec ${Math.round(-rp.gapS)} s de marge sur la projection.` };
+}

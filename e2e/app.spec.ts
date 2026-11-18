@@ -145,6 +145,46 @@ test.describe("import de sorties", () => {
   });
 });
 
+test.describe("courses : stratégie et bilan", () => {
+  test("la liste met la prochaine course en avant avec sa projection et son verdict", async ({ page }) => {
+    await page.goto("/courses");
+    const next = page.locator('[data-widget="next"]');
+    await expect(next).toContainText("Semi de Garches");
+    await expect(next).toContainText("projeté");
+    await expect(next).toContainText("Ouvrir la stratégie de course");
+    await expect(page.getByRole("link", { name: /10 km du Parc/ })).toBeVisible(); // course passée avec son résultat
+  });
+
+  test("la fiche d'une course à venir donne un plan kilomètre par kilomètre qui arrive à l'objectif", async ({ page }) => {
+    await page.goto("/courses/11111111-1111-4111-8111-111111111111");
+    const plan = page.locator('[data-widget="strategy"]');
+    await expect(plan.getByRole("heading", { name: /Stratégie de course/ })).toBeVisible();
+    await expect(plan.locator("table.plan tbody tr")).toHaveCount(22); // 21,1 km : 22 lignes dont le dernier km partiel
+    await expect(plan.locator("table.plan tbody tr").last().locator("td").nth(3)).toHaveText("1:41:58"); // objectif 4:50 /km
+    await expect(plan.locator("table.plan tbody tr").first()).toContainText("Départ");
+    await expect(page.locator('[data-widget="fuel"]')).toContainText("gel");
+    await expect(page.getByRole("button", { name: "Imprimer le plan" })).toBeVisible();
+  });
+
+  test("sans objectif, le plan suit la projection", async ({ page }) => {
+    await page.goto("/courses/11111111-1111-4111-8111-111111111111");
+    await page.getByLabel("Allure objectif (m:ss /km)").fill("");
+    await page.getByRole("button", { name: "Enregistrer les modifications" }).click();
+    await expect(page.getByText("Modifications enregistrées.")).toBeVisible();
+    await page.reload();
+    await expect(page.locator('[data-widget="strategy"]')).toContainText("d'après ta projection");
+  });
+
+  test("la fiche d'une course passée affiche le bilan retrouvé parmi les sorties", async ({ page }) => {
+    await page.goto("/courses/22222222-2222-4222-8222-222222222222");
+    const review = page.locator('[data-widget="review"]');
+    await expect(review).toContainText("Bilan");
+    await expect(review).toContainText(/objectif (battu|manqué) de/);
+    await expect(review).toContainText("le modèle prédisait");
+    await expect(page.locator('[data-widget="strategy"]')).toHaveCount(0);
+  });
+});
+
 test("projections : « utiliser comme objectif » l'enregistre sur la course", async ({ page }) => {
   await page.goto("/projections");
   await page.getByRole("button", { name: /comme objectif de « Semi de Garches »/ }).click();
