@@ -4,6 +4,7 @@ import "../../maquettes/assets/tokens.css";
 import "../../maquettes/assets/base.css";
 import "./app.css";
 import { Nav } from "@/components/Nav";
+import { PageSlot } from "@/components/PageSlot";
 import { isOwner } from "@/lib/owner";
 
 export const metadata = { title: { default: "Rundashboard", template: "%s · Rundashboard" }, robots: { index: false, follow: false } };
@@ -22,7 +23,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <a className="skip" href="#contenu">Aller au contenu</a>
         {owner ? (
           <>
-            <div className="shell"><Nav position="rail" /><main id="contenu" tabIndex={-1}>{children}</main></div>
+            <div className="shell"><Nav position="rail" /><main id="contenu" tabIndex={-1}><PageSlot>{children}</PageSlot></main></div>
             <Nav position="tabbar" />
           </>
         ) : (

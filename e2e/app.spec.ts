@@ -173,6 +173,8 @@ test("graphiques : un toucher affiche l'infobulle", async ({ browser }) => {
 });
 
 test("chargement : un squelette de la même forme s'affiche pendant la lecture, puis cède la place", async ({ page }) => {
+  // Réponses de /projections retardées dès le départ (préchargement compris) : le clic sur l'onglet doit basculer sans attendre.
+  await page.route(/\/projections\?_rsc/, async (route) => { await new Promise((r) => setTimeout(r, 1500)); await route.continue(); });
   await page.goto("/");
   await fetch(`${FAKE}/__latency?ms=1500`, { method: "POST" });
   // Une écriture vide le cache : la page suivante relit la base (lentement), le squelette doit apparaître aussitôt.
@@ -180,10 +182,10 @@ test("chargement : un squelette de la même forme s'affiche pendant la lecture, 
   await page.getByLabel("Allure objectif (m:ss /km)").fill("4:41");
   await page.getByRole("button", { name: "Enregistrer les modifications" }).click();
   await expect(page.getByText("Modifications enregistrées.")).toBeVisible();
-  await page.goto("/historique", { waitUntil: "commit" }); // chargement complet de la page : le squelette part en premier, la lecture suit
+  // Clic sur un onglet : bascule immédiate vers le squelette de la destination, sans attendre le serveur (réponse retardée ici).
+  await page.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Projections" }).click();
   await expect(page.locator("[data-skeleton]")).toBeVisible();
-  await expect(page.getByRole("status").filter({ hasText: "Chargement" })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Historique", { ignoreCase: true });
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Projections", { ignoreCase: true });
   await expect(page.locator("[data-skeleton]")).toHaveCount(0);
   await fetch(`${FAKE}/__latency?ms=0`, { method: "POST" });
 });

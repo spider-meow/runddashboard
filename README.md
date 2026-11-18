@@ -58,7 +58,7 @@ Sous le tracé, des tuiles [OpenStreetMap](https://www.openstreetmap.org/copyrig
 ## Vitesse
 
 - Les listes ne chargent ni tracé, ni splits, ni profil (seule la dernière sortie est lue en entier) : ~8 fois moins de données par sortie.
-- La course d'une fiche n'est lue qu'une fois par requête, les polices sont hébergées par l'app (aucun appel à Google Fonts), le lien de navigation cliqué affiche un trait de progression pendant que la page arrive.
+- La course d'une fiche n'est lue qu'une fois par requête, les polices sont hébergées par l'app (aucun appel à Google Fonts), un clic sur un onglet bascule aussitôt (après 100 ms sans réponse) vers le squelette de la page demandée.
 - **Région des fonctions Vercel** : c'est probablement le réglage qui compte le plus. Chaque page fait des allers-retours vers Supabase ; si les fonctions Vercel sont à Washington (réglage par défaut) et ta base en Europe, chacun coûte 80 à 100 ms de plus. Dans Vercel > Settings > Functions, choisis la région la plus proche de ta base Supabase (affichée dans Supabase > Project Settings).
 
 - **Cache des lectures** : les lectures en base sont en cache (`unstable_cache`, étiquette `data`) et invalidées par toute écriture ; le routeur garde les pages 30 s (2 min si préchargées) et la navigation précharge ses pages en entier. Pendant qu'une page se lit, un squelette de la même forme s'affiche (`loading.tsx`).
