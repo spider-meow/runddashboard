@@ -22,6 +22,10 @@ Ce qui reste à faire, par ordre de priorité. Cochez au fur et à mesure.
 - [x] **Course : « utiliser cette projection comme objectif »** depuis le calculateur.
 - [ ] **Historique de plus de 1 000 activités** : la synchro initiale plafonne là.
 
+- [ ] **Stratégie : météo du jour J** (chaleur, vent) pour corriger l'allure et l'hydratation.
+- [ ] **Stratégie : ravitos réels** de la course (positions saisies) à la place des repères généraux.
+- [ ] **Bilan : recaler la fourchette** du modèle avec l'erreur observée sur les courses passées.
+
 ## Qualité et vitesse
 
 - [ ] **Mesurer en production** (Vercel) les temps de réponse après le changement de région ; en local, seul l'aller-retour vers Supabase compte.
@@ -39,4 +43,4 @@ Ce qui reste à faire, par ordre de priorité. Cochez au fur et à mesure.
 
 ## Déjà fait (pour mémoire)
 
-Cache des lectures (`unstable_cache`, étiquette `data`, invalidée par chaque écriture), cache du routeur (`staleTimes`) et préchargement complet de la navigation, direction « affiche » (héros typographique, sections ouvertes), page de détail d'une sortie avec suppression et repérage des doublons, infobulles tactiles, objectif depuis le calculateur. Strava OAuth + synchro dédupliquée, import GPX/FIT, splits / records / profil, projections Riegel + relief, fiches de course, fond de carte OSM, passe de vitesse, retrait de « Personnaliser », actions et formulaires refaits, accessibilité. Calibrage du relief sur les sorties, tests de bout en bout Playwright (`npm run e2e`), squelettes de chargement fidèles. Détail : [docs/PLAN.md](docs/PLAN.md).
+Cache des lectures (`unstable_cache`, étiquette `data`, invalidée par chaque écriture), cache du routeur (`staleTimes`) et préchargement complet de la navigation, direction « affiche » (héros typographique, sections ouvertes), page de détail d'une sortie avec suppression et repérage des doublons, infobulles tactiles, objectif depuis le calculateur. Strava OAuth + synchro dédupliquée, import GPX/FIT, splits / records / profil, projections Riegel + relief, fiches de course, fond de carte OSM, passe de vitesse, retrait de « Personnaliser », actions et formulaires refaits, accessibilité. Courses : stratégie kilomètre par kilomètre, ravitaillement, bilan automatique, Projections sans réglage, calibrage du relief sur les sorties, tests de bout en bout Playwright (`npm run e2e`), squelettes de chargement fidèles. Détail : [docs/PLAN.md](docs/PLAN.md).

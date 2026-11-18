@@ -121,6 +121,10 @@ export function CoursesSk() {
   return (
     <Loading>
       <HeaderSk title={300} />
+      <div className="next-race">
+        <Sk w={200} h={12} /><Sk w="min(100%, 520px)" h="clamp(40px, 7vw, 80px)" /><Sk w={280} h={16} />
+        <Sk w={340} h={44} style={{ marginTop: 8 }} /><Sk w="70%" h={20} />
+      </div>
       <Cards items={[
         card("upcoming", "l", <><H2 w={80} /><ListRow /><ListRow /></>),
         card("new", "s", <><H2 w={140} /><Fields n={3} /></>),
@@ -132,13 +136,17 @@ export function CoursesSk() {
 export function FicheSk() {
   return (
     <Loading>
-      <HeaderSk title={420} />
+      <HeaderSk back title={420} />
+      <section className="proj compact">
+        <Sk w={260} h={12} /><Sk w="min(100%, 480px)" h="clamp(64px, 11vw, 130px)" /><Sk w={360} h={20} /><Sk w="70%" h={20} />
+      </section>
       <Cards items={[
-        card("hero", "xl", <div className="trio" style={{ marginBottom: 0 }}>{[0, 1, 2, 3, 4].map((i) => <div key={i}><Sk w={80} h={11} /><Sk w={110} h={40} style={{ marginTop: 6 }} /></div>)}</div>),
+        card("strategy", "xl", <><H2 w={180} /><Sk w="min(100%, 520px)" h={26} /><Lines n={3} /><Chart h={170} /><Lines n={8} gap={20} /></>),
+        card("fuel", "m", <><H2 w={120} /><Rows n={3} /></>),
+        card("climbs", "m", <><H2 w={150} /><Rows n={2} /></>),
         card("map", "l", <><H2 w={60} /><Sk h="auto" style={{ aspectRatio: "400 / 300" }} r={4} /></>),
         card("notes", "s", <><H2 w={70} /><Lines n={3} /></>),
         card("elev", "xl", <><H2 w={190} /><Chart h={200} /></>),
-        card("passages", "xl", <><H2 w={200} /><Lines n={5} gap={20} /></>),
       ]} />
     </Loading>
   );
